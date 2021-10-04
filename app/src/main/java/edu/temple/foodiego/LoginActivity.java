@@ -1,35 +1,40 @@
 package edu.temple.foodiego;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 
-public class LoginActivity extends AppCompatActivity {
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
 
-    private EditText editTextUserName,
-            editTextPassword,
-            editTextFirstName,
-            editTextLastName;
-    private Button
-            buttonOK,
-            buttonRegisterOrCancel;
+public class LoginActivity extends AppCompatActivity implements OnMapReadyCallback{
+    Intent[] intents = new Intent[10];
+    GoogleMap  googleMap;
+    MapView mapView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        editTextUserName = findViewById(R.id.etLogInUserName);
-        editTextPassword = findViewById(R.id.etLogInPassword);
-        editTextFirstName = findViewById(R.id.etLogInFName);
-        editTextLastName = findViewById(R.id.etLogInLName);
-        buttonOK = findViewById(R.id.btnOK);
-        buttonRegisterOrCancel = findViewById(R.id.btnRegOrCan);
+        setContentView(R.layout.activity_main);
+        intents[0] = new Intent(LoginActivity.this, LoginActivity.class);
+        startActivity(intents[0]);
 
-        buttonOK.setOnClickListener(v -> {
-            finish();
-        });
+        //Map
+        mapView = findViewById(R.id.mapView);
+        mapView.onCreate(savedInstanceState);
+        mapView.getMapAsync( this);
+    }
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        this.googleMap = googleMap;
+        //googleMap1.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0,0), 18.0f));
+        mapView.onResume();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mapView.onResume();
     }
 }
