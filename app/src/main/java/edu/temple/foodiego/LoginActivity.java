@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -91,11 +92,6 @@ public class LoginActivity extends AppCompatActivity {
 
         Log.d(TAG, "login: logging in with username: " + username + "; password: " + password);
 
-        //TODO:
-        // 1. Contact Firebase to login here
-        // 2. store firstname, lastname, and username in shared preferences
-        // 3. Launch mp activity
-
         //Get a reference to the user field of the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference userRef = database.getReference("user");
@@ -159,7 +155,14 @@ public class LoginActivity extends AppCompatActivity {
 
                                         Log.d(TAG, "onComplete: successfully logged in with username: " + db_username + "; password: " + password);
 
-                                        //TODO: Launch Map Activity
+                                        //Launch Map Activity
+                                        Intent intent = new Intent(LoginActivity.this, MapActivity.class);
+                                        Bundle intentBundle = new Bundle();
+                                        intentBundle.putString(getString(R.string.username_bundle_key), username);
+                                        intentBundle.putString(getString(R.string.firstname_bundle_key), db_firstname);
+                                        intentBundle.putString(getString(R.string.lastname_bundle_key), db_lastname);
+                                        intent.putExtras(intentBundle);
+                                        startActivity(intent);
 
                                     } else {
                                         //The user exists but the password provided was incorrect, so notify the user
@@ -219,6 +222,8 @@ public class LoginActivity extends AppCompatActivity {
                         if (password.equals(confirmPassword)) {
                             //Create account
                             createAccount(username, password, firstname, lastname);
+                        } else if (username.contains(";") || password.contains(";") || firstname.contains(";") || lastname.contains(";")) {
+                            Toast.makeText(LoginActivity.this, "Invalid Characters Used, Please Try Again", Toast.LENGTH_LONG).show();
                         } else {
                             Toast.makeText(LoginActivity.this, "Password & Confirm Password Must Match, Please Try Again", Toast.LENGTH_LONG).show();
                         }
@@ -316,7 +321,14 @@ public class LoginActivity extends AppCompatActivity {
                             //Close the loading dialog
                             loadingDialog.dismiss();
 
-                            //TODO: Launch Map Activity
+                            //Launch Map Activity
+                            Intent intent = new Intent(LoginActivity.this, MapActivity.class);
+                            Bundle intentBundle = new Bundle();
+                            intentBundle.putString(getString(R.string.username_bundle_key), username);
+                            intentBundle.putString(getString(R.string.firstname_bundle_key), firstname);
+                            intentBundle.putString(getString(R.string.lastname_bundle_key), lastname);
+                            intent.putExtras(intentBundle);
+                            startActivity(intent);
 
                         }
 

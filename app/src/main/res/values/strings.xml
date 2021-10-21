@@ -14,4 +14,8 @@
     <string name="confirmPasswordHint">Confirm Password</string>
     <string name="stored_firstname_key">stored_firstname_key</string>
     <string name="stored_lastname_key">stored_lastname_key</string>
+    <string name="username_bundle_key">username_bundle_key</string>
+    <string name="firstname_bundle_key">firstname_bundle_key</string>
+    <string name="lastname_bundle_key">lastname_bundle_key</string>
+    <string name="logout_menu_item_text">logout</string>
 </resources>
