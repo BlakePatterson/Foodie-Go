@@ -12,8 +12,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -89,6 +94,12 @@ public class LoginActivity extends AppCompatActivity {
         // 2.5. Otherwise, read firstname and lastname from Firebase and store all 3 fields in shared preferences
         // 3. Launch mp activity
 
+        //Get a reference to the user field of the database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference userRef = database.getReference("user");
+
+
+
     }
 
     private void openCreateAccountDialog() {
@@ -105,7 +116,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         EditText usernameEditText = d.findViewById(R.id.usernameCreateAccountEditText);
                         EditText passwordEditText = d.findViewById(R.id.passwordCreateAccountEditText);
-                        EditText confirmPasswordEditText = d.findViewById(R.id.passwordCreateAccountEditText);
+                        EditText confirmPasswordEditText = d.findViewById(R.id.confirmPasswordCreateAccountEditText);
                         EditText firstnameEditText = d.findViewById(R.id.firstNameCreateAccountEditText);
                         EditText lastnameEditText = d.findViewById(R.id.lastNameCreateAccountEditText);
 
@@ -162,11 +173,11 @@ public class LoginActivity extends AppCompatActivity {
         userRef.child(key).setValue(userDataMap);
 
         //Save the user data in shared preferences
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(getString(R.string.stored_username_key), username);
-        editor.putString(username + getString(R.string.stored_firstname_key), firstname);
-        editor.putString(username + getString(R.string.stored_lastname_key), lastname);
-        editor.apply();
+//        SharedPreferences.Editor editor = preferences.edit();
+//        editor.putString(getString(R.string.stored_username_key), username);
+//        editor.putString(username + getString(R.string.stored_firstname_key), firstname);
+//        editor.putString(username + getString(R.string.stored_lastname_key), lastname);
+//        editor.apply();
 
         //Close the loading dialog
         loadingDialog.dismiss();
