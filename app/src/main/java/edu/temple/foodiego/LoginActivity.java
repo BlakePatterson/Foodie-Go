@@ -1,12 +1,9 @@
 package edu.temple.foodiego;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,11 +12,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
@@ -137,6 +135,7 @@ public class LoginActivity extends AppCompatActivity {
 
         Log.d(TAG, "createAccount: creating a new account with username: " + username + "; password: " + password + "; fistname: " + firstname + "; lastname: " + lastname);
 
+        //Launch a loading dialog before contacting database
         ProgressDialog loadingDialog;
         loadingDialog = new ProgressDialog(LoginActivity.this);
         loadingDialog.setMessage("Contacting Servers...");
@@ -144,15 +143,35 @@ public class LoginActivity extends AppCompatActivity {
         loadingDialog.setIndeterminate(false);
         loadingDialog.show();
 
+        //Get a reference to the user field of the database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference userRef = database.getReference("user");
 
-        //TODO:
-        // 1. Contact Firebase to create account here
-        // 2. Save username, firstname, and lastname in shared preferences
-        // 3. Launch map activity
+        //Add a new entry to the user list and get the auto generated key for it
+        DatabaseReference newUserRef = userRef.push();
+        String key = newUserRef.getKey();
 
+        //Put the user data in a hash map for easy insertion
+        HashMap<String, String> userDataMap = new HashMap<>();
+        userDataMap.put("username", username);
+        userDataMap.put("password", password);
+        userDataMap.put("firstname", firstname);
+        userDataMap.put("lastname", lastname);
 
+        //Save the user data on the database
+        userRef.child(key).setValue(userDataMap);
 
+        //Save the user data in shared preferences
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(getString(R.string.stored_username_key), username);
+        editor.putString(username + getString(R.string.stored_firstname_key), firstname);
+        editor.putString(username + getString(R.string.stored_lastname_key), lastname);
+        editor.apply();
+
+        //Close the loading dialog
         loadingDialog.dismiss();
+
+        //TODO: Launch Map Activity
 
     }
 
