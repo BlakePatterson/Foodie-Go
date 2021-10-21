@@ -13,16 +13,19 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.database.ChildEventListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
+import java.util.Iterator;
 
 import static android.content.ContentValues.TAG;
 
@@ -90,14 +93,79 @@ public class LoginActivity extends AppCompatActivity {
 
         //TODO:
         // 1. Contact Firebase to login here
-        // 2. If firstname & lastname are already stored, just store username in shared preferences
-        // 2.5. Otherwise, read firstname and lastname from Firebase and store all 3 fields in shared preferences
+        // 2. store firstname, lastname, and username in shared preferences
         // 3. Launch mp activity
 
         //Get a reference to the user field of the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference userRef = database.getReference("user");
 
+        userRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Log.d(TAG, "login: Error getting data", task.getException());
+                    Toast.makeText(LoginActivity.this, "Unable to contact servers, try again later", Toast.LENGTH_SHORT).show();
+                }
+                else {
+//                    Log.d(TAG, "login: " + String.valueOf(task.getResult().getValue()));
+
+                    boolean foundUser = false;
+
+                    try {
+                        JSONObject userData = new JSONObject(String.valueOf(task.getResult().getValue()));
+                        Iterator<String> keys = userData.keys();
+                        while(keys.hasNext()) {
+                            String key = keys.next();
+                            if (userData.get(key) instanceof JSONObject) {
+                                Log.d(TAG, "login: username: " + ((JSONObject) userData.get(key)).get("username"));
+
+                                //Read the username and password from the database
+                                String db_username = (String) ((JSONObject) userData.get(key)).get("username");
+                                String db_password = (String) ((JSONObject) userData.get(key)).get("password");
+
+                                //If the  username matches
+                                if (username.equals(db_username)) {
+
+                                    foundUser = true;
+
+                                    if (password.equals(db_password)) {
+                                        //The correct credentials have been provided so proceed to login
+
+                                        //Read the firstname and lastname from the database
+                                        String db_firstname = (String) ((JSONObject) userData.get(key)).get("firstname");
+                                        String db_lastname = (String) ((JSONObject) userData.get(key)).get("lastname");
+
+//                                        SharedPreferences.Editor editor = preferences.edit();
+//                                        editor.putString(getString(R.string.stored_username_key), username);
+//                                        editor.putString(username + getString(R.string.stored_firstname_key), db_firstname);
+//                                        editor.putString(username + getString(R.string.stored_lastname_key), db_lastname);
+//                                        editor.apply();
+
+                                        Log.d(TAG, "onComplete: successfully logged in with username: " + db_username + "; password: " + password);
+
+                                        //TODO: Launch Map Activity
+
+                                    } else {
+                                        //The user exists but the password provided was incorrect, so notify the user
+                                        Toast.makeText(LoginActivity.this, "Incorrect Password, try again", Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            }
+                        }
+
+                        //The username was not found, so notify the user
+                        if (!foundUser) {
+                            Toast.makeText(LoginActivity.this, "Username does not exist, please create an account", Toast.LENGTH_LONG).show();
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        });
 
 
     }
