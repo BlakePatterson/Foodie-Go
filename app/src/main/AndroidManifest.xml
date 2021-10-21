@@ -9,6 +9,7 @@
         android:roundIcon="@drawable/ic_logo_foreground"
         android:supportsRtl="true"
         android:theme="@style/Theme.FoodieGo">
+        <activity android:name=".MapActivity"></activity>
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
