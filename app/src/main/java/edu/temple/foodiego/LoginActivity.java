@@ -100,12 +100,24 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference userRef = database.getReference("user");
 
+        //Launch a loading dialog before contacting database
+        ProgressDialog loadingDialog;
+        loadingDialog = new ProgressDialog(LoginActivity.this);
+        loadingDialog.setMessage("Contacting Servers...");
+        loadingDialog.setTitle("Creating Account");
+        loadingDialog.setIndeterminate(false);
+        loadingDialog.show();
+
         userRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
                 if (!task.isSuccessful()) {
                     Log.d(TAG, "login: Error getting data", task.getException());
-                    Toast.makeText(LoginActivity.this, "Unable to contact servers, try again later", Toast.LENGTH_SHORT).show();
+
+                    //Close the loading dialog
+                    loadingDialog.dismiss();
+
+                    Toast.makeText(LoginActivity.this, "Unable to Contact Servers, Please Try Again Later", Toast.LENGTH_SHORT).show();
                 }
                 else {
 //                    Log.d(TAG, "login: " + String.valueOf(task.getResult().getValue()));
@@ -129,6 +141,9 @@ public class LoginActivity extends AppCompatActivity {
 
                                     foundUser = true;
 
+                                    //Close the loading dialog
+                                    loadingDialog.dismiss();
+
                                     if (password.equals(db_password)) {
                                         //The correct credentials have been provided so proceed to login
 
@@ -148,7 +163,8 @@ public class LoginActivity extends AppCompatActivity {
 
                                     } else {
                                         //The user exists but the password provided was incorrect, so notify the user
-                                        Toast.makeText(LoginActivity.this, "Incorrect Password, try again", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(LoginActivity.this, "Incorrect Password, Try Again", Toast.LENGTH_LONG).show();
+                                        break;
                                     }
                                 }
                             }
@@ -156,10 +172,16 @@ public class LoginActivity extends AppCompatActivity {
 
                         //The username was not found, so notify the user
                         if (!foundUser) {
-                            Toast.makeText(LoginActivity.this, "Username does not exist, please create an account", Toast.LENGTH_LONG).show();
+                            //Close the loading dialog
+                            loadingDialog.dismiss();
+
+                            Toast.makeText(LoginActivity.this, "Username Does Not Exist, Please Create An Account", Toast.LENGTH_LONG).show();
                         }
 
                     } catch (JSONException e) {
+                        //Close the loading dialog
+                        loadingDialog.dismiss();
+
                         e.printStackTrace();
                     }
 
@@ -230,27 +252,84 @@ public class LoginActivity extends AppCompatActivity {
         DatabaseReference newUserRef = userRef.push();
         String key = newUserRef.getKey();
 
-        //Put the user data in a hash map for easy insertion
-        HashMap<String, String> userDataMap = new HashMap<>();
-        userDataMap.put("username", username);
-        userDataMap.put("password", password);
-        userDataMap.put("firstname", firstname);
-        userDataMap.put("lastname", lastname);
+        //read from the database to see if the username is already taken
+        userRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Log.d(TAG, "createAccount: Error getting data", task.getException());
 
-        //Save the user data on the database
-        userRef.child(key).setValue(userDataMap);
+                    //Close the loading dialog
+                    loadingDialog.dismiss();
 
-        //Save the user data in shared preferences
-//        SharedPreferences.Editor editor = preferences.edit();
-//        editor.putString(getString(R.string.stored_username_key), username);
-//        editor.putString(username + getString(R.string.stored_firstname_key), firstname);
-//        editor.putString(username + getString(R.string.stored_lastname_key), lastname);
-//        editor.apply();
+                    Toast.makeText(LoginActivity.this, "Unable to contact servers, try again later", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    boolean foundUser = false;
 
-        //Close the loading dialog
-        loadingDialog.dismiss();
+                    try {
+                        JSONObject userData = new JSONObject(String.valueOf(task.getResult().getValue()));
+                        Iterator<String> keys = userData.keys();
+                        while(keys.hasNext()) {
+                            String key = keys.next();
+                            if (userData.get(key) instanceof JSONObject) {
+                                Log.d(TAG, "createAccount: db_username: " + ((JSONObject) userData.get(key)).get("username"));
 
-        //TODO: Launch Map Activity
+                                //Read the username and password from the database
+                                String db_username = (String) ((JSONObject) userData.get(key)).get("username");
+
+                                //If the  username matches
+                                if (username.equals(db_username)) {
+                                    foundUser = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (foundUser) {
+                            //The username already exists, so notify the user to use a different username
+
+                            //Close the loading dialog
+                            loadingDialog.dismiss();
+
+                            Toast.makeText(LoginActivity.this, "Username Already Exists, Please Try Another Username", Toast.LENGTH_LONG).show();
+                        } else {
+                            //The username does not exist yet, so proceed to create the account
+
+                            //Put the user data in a hash map for easy insertion
+                            HashMap<String, String> userDataMap = new HashMap<>();
+                            userDataMap.put("username", username);
+                            userDataMap.put("password", password);
+                            userDataMap.put("firstname", firstname);
+                            userDataMap.put("lastname", lastname);
+
+                            //Save the user data on the database
+                            userRef.child(key).setValue(userDataMap);
+
+                            //Save the user data in shared preferences
+//                            SharedPreferences.Editor editor = preferences.edit();
+//                            editor.putString(getString(R.string.stored_username_key), username);
+//                            editor.putString(username + getString(R.string.stored_firstname_key), firstname);
+//                            editor.putString(username + getString(R.string.stored_lastname_key), lastname);
+//                            editor.apply();
+
+                            //Close the loading dialog
+                            loadingDialog.dismiss();
+
+                            //TODO: Launch Map Activity
+
+                        }
+
+                    } catch (JSONException e) {
+                        //Close the loading dialog
+                        loadingDialog.dismiss();
+
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        });
 
     }
 
