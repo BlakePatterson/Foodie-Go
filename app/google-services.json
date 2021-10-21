@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "581941353087",
+    "firebase_url": "https://foodie-go-c8ece-default-rtdb.firebaseio.com",
+    "project_id": "foodie-go-c8ece",
+    "storage_bucket": "foodie-go-c8ece.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:581941353087:android:7f1bb3419359b0c051bd4a",
+        "android_client_info": {
+          "package_name": "edu.temple.foodiego"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "581941353087-9uqrbbjcra5nibii842s85tqa324qt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVktyc6CZOIJek57j3sS3FgbBkk_O3YVg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "581941353087-9uqrbbjcra5nibii842s85tqa324qt2u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
