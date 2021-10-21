@@ -32,9 +32,6 @@ import static android.content.ContentValues.TAG;
 
 public class LoginActivity extends AppCompatActivity {
 
-    public static String defaultName = "";
-    public static String defaultUsername = "";
-
     private EditText usernameEditText;
     private EditText passwordEditText;
 
@@ -55,21 +52,87 @@ public class LoginActivity extends AppCompatActivity {
 
         preferences = getSharedPreferences(getString(R.string.credentials_preferences), MODE_PRIVATE);
 
-//        String storedUsername = preferences.getString(getString(R.string.stored_username_key), defaultUsername);
-//        // If the username is stored, meaning the user is still logged in
-//        if (!storedUsername.equals(defaultUsername)) {
-//            String storedFirstname = preferences.getString(storedUsername + getString(R.string.stored_firstname_key), defaultName);
-//            String storedLastname = preferences.getString(storedUsername + getString(R.string.stored_lastname_key), defaultName);
-//
-//            Intent intent = new Intent(LoginActivity.this, MapActivity.class);
-//            Bundle intentBundle = new Bundle();
-//            intentBundle.putString(getString(R.string.firstNameBundleKey), storedFirstName);
-//            intentBundle.putString(getString(R.string.lastNameBundleKey), storedLastName);
-//            intentBundle.putString(getString(R.string.username_bundle_key), storedUsername);
-//            intentBundle.putString(getString(R.string.session_key_bundle_key), storedSessionKey);
-//            intent.putExtras(intentBundle);
-//            startActivity(intent);
-//        }
+        String storedUsername = preferences.getString(getString(R.string.stored_username_key), "");
+        if (!storedUsername.equals("")) {
+            //The user is still logged in, so read the database for their full name & launch the map activity
+
+            //Get a reference to the user field of the database
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference userRef = database.getReference("user");
+
+            //Launch a loading dialog before contacting database
+            ProgressDialog loadingDialog;
+            loadingDialog = new ProgressDialog(LoginActivity.this);
+            loadingDialog.setMessage("Contacting Servers...");
+            loadingDialog.setTitle("Logging In");
+            loadingDialog.setIndeterminate(false);
+            loadingDialog.show();
+
+            userRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if (!task.isSuccessful()) {
+                        Log.d(TAG, "login: Error getting data", task.getException());
+
+                        //Close the loading dialog
+                        loadingDialog.dismiss();
+
+                        Toast.makeText(LoginActivity.this, "Unable to Contact Servers, Please Try Again Later", Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        boolean foundUser = false;
+                        try {
+                            JSONObject userData = new JSONObject(String.valueOf(task.getResult().getValue()));
+                            Iterator<String> keys = userData.keys();
+                            while(keys.hasNext()) {
+                                String key = keys.next();
+                                if (userData.get(key) instanceof JSONObject) {
+                                    Log.d(TAG, "login: username: " + ((JSONObject) userData.get(key)).get("username"));
+
+                                    //Read the username and password from the database
+                                    String db_username = (String) ((JSONObject) userData.get(key)).get("username");
+                                    String db_password = (String) ((JSONObject) userData.get(key)).get("password");
+
+                                    //If the  username matches
+                                    if (storedUsername.equals(db_username)) {
+
+                                        foundUser = true;
+
+                                        //Close the loading dialog
+                                        loadingDialog.dismiss();
+
+                                        //Read the firstname and lastname from the database
+                                        String db_firstname = (String) ((JSONObject) userData.get(key)).get("firstname");
+                                        String db_lastname = (String) ((JSONObject) userData.get(key)).get("lastname");
+
+                                        //Launch Map Activity
+                                        Intent intent = new Intent(LoginActivity.this, MapActivity.class);
+                                        Bundle intentBundle = new Bundle();
+                                        intentBundle.putString(getString(R.string.username_bundle_key), storedUsername);
+                                        intentBundle.putString(getString(R.string.firstname_bundle_key), db_firstname);
+                                        intentBundle.putString(getString(R.string.lastname_bundle_key), db_lastname);
+                                        intent.putExtras(intentBundle);
+                                        startActivity(intent);
+                                    }
+                                }
+                            }
+                            //The username was not found, so notify the user
+                            if (!foundUser) {
+                                //Close the loading dialog
+                                loadingDialog.dismiss();
+                                Toast.makeText(LoginActivity.this, "Error Finding User Data, Please Try Again", Toast.LENGTH_LONG).show();
+                            }
+
+                        } catch (JSONException e) {
+                            //Close the loading dialog
+                            loadingDialog.dismiss();
+                            e.printStackTrace();
+                            Toast.makeText(LoginActivity.this, "Error Finding User Data, Please Try Again", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+            });
+        }
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,7 +163,7 @@ public class LoginActivity extends AppCompatActivity {
         ProgressDialog loadingDialog;
         loadingDialog = new ProgressDialog(LoginActivity.this);
         loadingDialog.setMessage("Contacting Servers...");
-        loadingDialog.setTitle("Creating Account");
+        loadingDialog.setTitle("Logging In");
         loadingDialog.setIndeterminate(false);
         loadingDialog.show();
 
@@ -147,11 +210,11 @@ public class LoginActivity extends AppCompatActivity {
                                         String db_firstname = (String) ((JSONObject) userData.get(key)).get("firstname");
                                         String db_lastname = (String) ((JSONObject) userData.get(key)).get("lastname");
 
-//                                        SharedPreferences.Editor editor = preferences.edit();
-//                                        editor.putString(getString(R.string.stored_username_key), username);
-//                                        editor.putString(username + getString(R.string.stored_firstname_key), db_firstname);
-//                                        editor.putString(username + getString(R.string.stored_lastname_key), db_lastname);
-//                                        editor.apply();
+                                        SharedPreferences.Editor editor = preferences.edit();
+                                        editor.putString(getString(R.string.stored_username_key), username);
+                                        editor.putString(username + getString(R.string.stored_firstname_key), db_firstname);
+                                        editor.putString(username + getString(R.string.stored_lastname_key), db_lastname);
+                                        editor.apply();
 
                                         Log.d(TAG, "onComplete: successfully logged in with username: " + db_username + "; password: " + password);
 
@@ -186,6 +249,8 @@ public class LoginActivity extends AppCompatActivity {
                         loadingDialog.dismiss();
 
                         e.printStackTrace();
+
+                        Toast.makeText(LoginActivity.this, "Error Finding User Data, Please Try Again", Toast.LENGTH_LONG).show();
                     }
 
                 }
@@ -312,11 +377,11 @@ public class LoginActivity extends AppCompatActivity {
                             userRef.child(key).setValue(userDataMap);
 
                             //Save the user data in shared preferences
-//                            SharedPreferences.Editor editor = preferences.edit();
-//                            editor.putString(getString(R.string.stored_username_key), username);
-//                            editor.putString(username + getString(R.string.stored_firstname_key), firstname);
-//                            editor.putString(username + getString(R.string.stored_lastname_key), lastname);
-//                            editor.apply();
+                            SharedPreferences.Editor editor = preferences.edit();
+                            editor.putString(getString(R.string.stored_username_key), username);
+                            editor.putString(username + getString(R.string.stored_firstname_key), firstname);
+                            editor.putString(username + getString(R.string.stored_lastname_key), lastname);
+                            editor.apply();
 
                             //Close the loading dialog
                             loadingDialog.dismiss();
@@ -337,6 +402,8 @@ public class LoginActivity extends AppCompatActivity {
                         loadingDialog.dismiss();
 
                         e.printStackTrace();
+
+                        Toast.makeText(LoginActivity.this, "Error Finding User Data, Please Try Again", Toast.LENGTH_LONG).show();
                     }
 
                 }

@@ -58,9 +58,9 @@ public class MapActivity extends AppCompatActivity {
         user = null;
 
         //remove the username from shared preferences
-//        SharedPreferences.Editor editor = preferences.edit();
-//        editor.putString(getString(R.string.stored_username_key), "");
-//        editor.apply();
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(getString(R.string.stored_username_key), "");
+        editor.apply();
 
         //return to the login activity
         finish();
