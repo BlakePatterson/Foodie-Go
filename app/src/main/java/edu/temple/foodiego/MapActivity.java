@@ -205,5 +205,6 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     @Override
     public void updateLocation(Location location) {
         Log.d(TAG, "updateLocation: location update received in MapActivity: " + location.toString());
+        mapFragment.updateLocationWithMarker(location);
     }
 }

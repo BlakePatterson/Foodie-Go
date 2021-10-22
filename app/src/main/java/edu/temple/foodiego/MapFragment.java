@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.content.Context;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -97,6 +98,19 @@ public class MapFragment extends Fragment {
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
+        }
+    }
+
+    public void updateLocationWithMarker(Location location) {
+        if (location != null && map != null) {
+            LatLng locationCoords = new LatLng(location.getLatitude(), location.getLongitude());
+
+            if (userMarker != null)
+                userMarker.setPosition(locationCoords);
+            else
+                userMarker = map.addMarker(new MarkerOptions().position(locationCoords).title(user.getFirstname() + " " + user.getLastname()));
+
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(locationCoords, 17.0f));
         }
     }
 
