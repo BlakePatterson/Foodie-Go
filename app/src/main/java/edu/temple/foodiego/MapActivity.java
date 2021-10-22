@@ -13,7 +13,7 @@ import android.view.MenuItem;
 
 import static android.content.ContentValues.TAG;
 
-public class MapActivity extends AppCompatActivity {
+public class MapActivity extends AppCompatActivity implements MapFragment.MapFragmentInterface {
 
     static int permissionRequestCode = 12345;
 
@@ -104,4 +104,9 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
+    //The following are methods for communicating information from the MapFragment
+    @Override
+    public void openLocationDetailView(FoodieLocation location) {
+
+    }
 }

@@ -44,9 +44,10 @@ public class MapFragment extends Fragment {
          */
         @Override
         public void onMapReady(GoogleMap googleMap) {
+            map = googleMap;
             LatLng sydney = new LatLng(-34, 151);
-            googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+            map.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+            map.moveCamera(CameraUpdateFactory.newLatLng(sydney));
         }
     };
 
@@ -77,7 +78,8 @@ public class MapFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        parentActivity = context;
+        if (context instanceof MapFragmentInterface) parentActivity = context;
+        else throw new RuntimeException("Activity must implement MapFragmentInterface in order to use MapFragment");
     }
 
     @Nullable
@@ -96,5 +98,9 @@ public class MapFragment extends Fragment {
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
+    }
+
+    interface MapFragmentInterface {
+        void openLocationDetailView(FoodieLocation location);
     }
 }
