@@ -216,15 +216,13 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     }
 
     //TODO: fill in code, test code.
-    //The method below trigger a start activity to an activity which shows the lication detail.
-    //Test: when user click on a marker which belongs to a foodieLocation, a new activity starts and shows the detail of that foodieLocation.
-    //Result: haven't test yet.
-    @Override
-    public void markerClicked(Marker marker, String s) {
-        /*
-        Intent intent = new Intent(MapActivity.this, FoodieLocationDetailActivity.class);
-        intent.putExtra(s);
-        startActivity(intent);
-         */
-    }
+
+//    @Override
+//    public void markerClicked(Marker marker, String s) {
+//        /*
+//        Intent intent = new Intent(MapActivity.this, FoodieLocationDetailActivity.class);
+//        intent.putExtra(s);
+//        startActivity(intent);
+//         */
+//    }
 }
