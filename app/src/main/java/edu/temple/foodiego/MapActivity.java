@@ -214,15 +214,4 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         Log.d(TAG, "updateLocation: location update received in MapActivity: " + location.toString());
         mapFragment.updateLocationWithMarker(location);
     }
-
-    //TODO: fill in code, test code.
-
-//    @Override
-//    public void markerClicked(Marker marker, String s) {
-//        /*
-//        Intent intent = new Intent(MapActivity.this, FoodieLocationDetailActivity.class);
-//        intent.putExtra(s);
-//        startActivity(intent);
-//         */
-//    }
 }
