@@ -28,6 +28,9 @@ import static android.content.ContentValues.TAG;
 
 import com.google.android.gms.maps.GoogleMap;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 public class MapActivity extends AppCompatActivity implements MapFragment.MapFragmentInterface, ForegroundLocationService.LocationServiceInterface {
 
     static int permissionRequestCode = 12345;
@@ -141,6 +144,22 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         else {
             mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFrameLayout);
         }
+
+//        //TODO: Remove demo String and replace with datasource.
+//        String s = "{action:'UPDATE', 'data':[" +
+//                "{'username':'user1', 'firstname':'firstname1', 'lastname':'lastname1' , 'latitude':39.9545, 'longitude':-75.2026},"
+//                +"{'username':'user2', 'firstname':'firstname2', 'lastname':'lastname2' , 'latitude':39.9544, 'longitude':-75.2030},"
+//                +"{'username':'user3', 'firstname':'firstname3', 'lastname':'lastname3' , 'latitude':39.9555, 'longitude':-75.2045},"
+//                +"{'username':'user4', 'firstname':'firstname4', 'lastname':'lastname4' , 'latitude':39.9566, 'longitude':-75.2016}"
+//                +"]}";
+//        JSONArray jsonArray = null;
+//        try {
+//            jsonArray = new JSONArray(s);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//        mapFragment.updateFoodieLocation(jsonArray);
+
     }
 
 
@@ -149,7 +168,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     public void openLocationDetailView(FoodieLocation location) {
 
     }
-    
+
 
     //The following are method(s) / object(s) for setting up the ForegroundLocationService
     private final ServiceConnection locationServiceConnection = new ServiceConnection() {

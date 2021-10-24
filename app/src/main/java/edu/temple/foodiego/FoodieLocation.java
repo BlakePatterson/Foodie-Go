@@ -2,6 +2,8 @@ package edu.temple.foodiego;
 
 import android.location.Location;
 
+import com.google.android.gms.maps.model.Marker;
+
 public class FoodieLocation {
 
     //TODO: update class diagram with proper attributes regarding rating
@@ -10,6 +12,8 @@ public class FoodieLocation {
     private double latitude;
     private double longitude;
     private double rating;
+
+    private Marker marker;
 
     public FoodieLocation(String name, double latitude, double longitude, double rating) {
         this.name = name;
@@ -52,5 +56,13 @@ public class FoodieLocation {
 
     public void setRating(double rating) {
         this.rating = rating;
+    }
+
+    public Marker getMarker() {
+        return marker;
+    }
+
+    public void setMarker(Marker marker) {
+        this.marker = marker;
     }
 }
