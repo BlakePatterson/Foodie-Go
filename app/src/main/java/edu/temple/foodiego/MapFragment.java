@@ -47,23 +47,7 @@ public class MapFragment extends Fragment {
     private final String RatingString = "longitude";
     private ArrayList<FoodieLocation> foodieLocations;
 
-    //Marker onclick behavior, tell map activity to handle it.
-    //TODO: Replace the s string inorder to show data of a location.
-    //The method below trigger a start activity to an activity which shows the location detail.
-    //Progress: havent done.
-    //Test: when user click on a marker which belongs to a foodieLocation, a new activity starts and shows the detail of that foodieLocation.
-    //Result: haven't test yet.
-    private GoogleMap.OnMarkerClickListener markerClickListener= new GoogleMap.OnMarkerClickListener() {
-        @Override
-        public boolean onMarkerClick(@NonNull Marker marker) {
-            String s = "";
-            Intent intent = new Intent(getActivity(), LocationDetailActivity.class);
-            intent.putExtra("data",s);
-            startActivity(intent);
-            //((MapActivity)getActivity()).markerClicked(marker, "locationname");
-            return false;
-        }
-    };
+
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -79,7 +63,7 @@ public class MapFragment extends Fragment {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
-            map.setOnMarkerClickListener(markerClickListener);
+            map.setOnMarkerClickListener(onClickLocation());
         }
     };
 
@@ -149,7 +133,6 @@ public class MapFragment extends Fragment {
 
     interface MapFragmentInterface {
         void openLocationDetailView(FoodieLocation location);
-        //void markerClicked(Marker marker, String s);
     }
 
     //@param JsonArray
@@ -160,8 +143,9 @@ public class MapFragment extends Fragment {
     //Test: when new data come in, new marker shows up.
     //      when data that is not update, foodielocation removed and marker disappear.
     //Result: pass. oct 24 2021 12:10 am.
-    public void updateFoodieLocation(JSONArray jsonArray)
-    {
+
+    // addNearbyLocationsToMap
+    public void updateFoodieLocations(JSONArray jsonArray)  {
         if(foodieLocations == null)
         {
             foodieLocations = new ArrayList<>();
@@ -226,5 +210,30 @@ public class MapFragment extends Fragment {
             dataNotUpdated = null;
         }
     }
+
+    //Marker onclick behavior, tell map activity to handle it.
+    //TODO: Replace the s string inorder to show data of a location.
+    //The method below trigger a start activity to an activity which shows the location detail.
+    //Progress: havent done.
+    //Test: when user click on a marker which belongs to a foodieLocation, a new activity starts and shows the detail of that foodieLocation.
+    //Result: haven't test yet.
+    public GoogleMap.OnMarkerClickListener onClickLocation() {
+        return new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(@NonNull Marker marker) {
+                String s = "";
+                Intent intent = new Intent(getActivity(), LocationDetailActivity.class);
+                intent.putExtra("data",s);
+                startActivity(intent);
+                return false;
+            }
+        };
+    }
+
+    public void startRouteToLocation()
+    {
+
+    }
+
 
 }
