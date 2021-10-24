@@ -27,9 +27,11 @@ import java.util.Map;
 import static android.content.ContentValues.TAG;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.Marker;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MapActivity extends AppCompatActivity implements MapFragment.MapFragmentInterface, ForegroundLocationService.LocationServiceInterface {
 
@@ -70,6 +72,8 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         }
 
     }
+
+
 
     @Override
     protected void onDestroy() {
@@ -144,31 +148,13 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         else {
             mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFrameLayout);
         }
-
-//        //TODO: Remove demo String and replace with datasource.
-//        String s = "{action:'UPDATE', 'data':[" +
-//                "{'username':'user1', 'firstname':'firstname1', 'lastname':'lastname1' , 'latitude':39.9545, 'longitude':-75.2026},"
-//                +"{'username':'user2', 'firstname':'firstname2', 'lastname':'lastname2' , 'latitude':39.9544, 'longitude':-75.2030},"
-//                +"{'username':'user3', 'firstname':'firstname3', 'lastname':'lastname3' , 'latitude':39.9555, 'longitude':-75.2045},"
-//                +"{'username':'user4', 'firstname':'firstname4', 'lastname':'lastname4' , 'latitude':39.9566, 'longitude':-75.2016}"
-//                +"]}";
-//        JSONArray jsonArray = null;
-//        try {
-//            jsonArray = new JSONArray(s);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        mapFragment.updateFoodieLocation(jsonArray);
-
     }
-
 
     //The following method(s) are for communicating information from the MapFragment
     @Override
     public void openLocationDetailView(FoodieLocation location) {
 
     }
-
 
     //The following are method(s) / object(s) for setting up the ForegroundLocationService
     private final ServiceConnection locationServiceConnection = new ServiceConnection() {
@@ -227,5 +213,18 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     public void updateLocation(Location location) {
         Log.d(TAG, "updateLocation: location update received in MapActivity: " + location.toString());
         mapFragment.updateLocationWithMarker(location);
+    }
+
+    //TODO: fill in code, test code.
+    //The method below trigger a start activity to an activity which shows the lication detail.
+    //Test: when user click on a marker which belongs to a foodieLocation, a new activity starts and shows the detail of that foodieLocation.
+    //Result: haven't test yet.
+    @Override
+    public void markerClicked(Marker marker, String s) {
+        /*
+        Intent intent = new Intent(MapActivity.this, FoodieLocationDetailActivity.class);
+        intent.putExtra(s);
+        startActivity(intent);
+         */
     }
 }

@@ -45,9 +45,14 @@ public class MapFragment extends Fragment {
     private final String LngString = "longitude";
     private final String RatingString = "longitude";
     private ArrayList<FoodieLocation> foodieLocations;
+
+    //Marker onclick behavior, tell map activity to handle it.
+    //TODO: the String in invoked method needs to be modified.
+    //
     private GoogleMap.OnMarkerClickListener markerClickListener= new GoogleMap.OnMarkerClickListener() {
         @Override
         public boolean onMarkerClick(@NonNull Marker marker) {
+            ((MapActivity)getActivity()).markerClicked(marker, "locationname");
             return false;
         }
     };
@@ -66,9 +71,32 @@ public class MapFragment extends Fragment {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
-            LatLng sydney = new LatLng(-34, 151);
-            map.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-            map.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+            map.setOnMarkerClickListener(markerClickListener);
+
+//            LatLng sydney = new LatLng(-34, 151);
+//            map.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+//            map.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+//            //TODO: This part is for demoing.
+//            String s = "{action:'UPDATE', 'data':[" +
+//                    "{'username':'user1', 'firstname':'firstname1', 'lastname':'lastname1' , 'latitude':39.9545, 'longitude':-75.2026},"
+//                    +"{'username':'user2', 'firstname':'firstname2', 'lastname':'lastname2' , 'latitude':39.9544, 'longitude':-75.2030},"
+//                    +"{'username':'user3', 'firstname':'firstname3', 'lastname':'lastname3' , 'latitude':39.9555, 'longitude':-75.2045},"
+//                    +"{'username':'user4', 'firstname':'firstname4', 'lastname':'lastname4' , 'latitude':39.9566, 'longitude':-75.2016}"
+//                    +"]}";
+//
+//            JSONArray jsonArray = null;
+//            try {
+//                JSONObject jo = new JSONObject(s);
+//                String data = jo.getString("data");
+//                jsonArray = new JSONArray(data);
+//                //jsonArray = new JSONArray(s);
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//            updateFoodieLocation(jsonArray);
+//            //demo
+
         }
     };
 
@@ -93,6 +121,8 @@ public class MapFragment extends Fragment {
             String lastname = (String) getArguments().getSerializable(LASTNAME_PARAM_KEY);
 
             user = new FoodieUser(username, firstname, lastname);
+            //Initialize the LocationsArraylist
+            foodieLocations = new ArrayList<>();
         }
     }
 
@@ -120,8 +150,7 @@ public class MapFragment extends Fragment {
             mapFragment.getMapAsync(callback);
         }
 
-        //Initialize the LocationsArraylist
-        foodieLocations = new ArrayList<>();
+
     }
 
     public void updateLocationWithMarker(Location location) {
@@ -139,17 +168,32 @@ public class MapFragment extends Fragment {
 
     interface MapFragmentInterface {
         void openLocationDetailView(FoodieLocation location);
-
+        void markerClicked(Marker marker, String s);
     }
 
+    //@param JsonArray
+    //This method first copy what data we have into a new Array list-data not update,
+    //Then it loop through the data see if the data exists, if exist remove the data from data not update,
+    //if not add a new foodielication to foodielocations.
+    //and finally remove the marker that is not updated.
+    //Test: when new data come in, new marker shows up.
+    //      when data that is not update, foodielocation removed and marker disappear.
+    //Result: pass. oct 24 2021 12:10 am.
     public void updateFoodieLocation(JSONArray jsonArray)
     {
+        if(foodieLocations == null)
+        {
+            foodieLocations = new ArrayList<>();
+        }
         //get the full list of user's markers.
         ArrayList dataNotUpdated = new ArrayList();
-
-        for (Object s:foodieLocations.toArray()) {
-            dataNotUpdated.add(s);
+        if(foodieLocations.size()>0)
+        {
+            for (Object s:foodieLocations.toArray()) {
+                dataNotUpdated.add(s);
+            }
         }
+
         //loop through the data that received
         for (int i =0; i< jsonArray.length(); i++)
         {
