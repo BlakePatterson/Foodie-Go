@@ -19,11 +19,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+
 public class MapFragment extends Fragment {
 
     public static final String USERNAME_PARAM_KEY = "mapParam1";
     public static final String FIRSTNAME_PARAM_KEY = "mapParam2";
     public static final String LASTNAME_PARAM_KEY = "mapParam3";
+
+    private ArrayList<FoodieLocation> foodieLocations;
 
     private GoogleMap map;
     private Marker userMarker;
@@ -116,5 +120,8 @@ public class MapFragment extends Fragment {
 
     interface MapFragmentInterface {
         void openLocationDetailView(FoodieLocation location);
+
     }
+
+
 }

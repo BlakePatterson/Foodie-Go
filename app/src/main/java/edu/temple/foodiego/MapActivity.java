@@ -26,6 +26,8 @@ import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
+import com.google.android.gms.maps.GoogleMap;
+
 public class MapActivity extends AppCompatActivity implements MapFragment.MapFragmentInterface, ForegroundLocationService.LocationServiceInterface {
 
     static int permissionRequestCode = 12345;
@@ -147,7 +149,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     public void openLocationDetailView(FoodieLocation location) {
 
     }
-
+    
 
     //The following are method(s) / object(s) for setting up the ForegroundLocationService
     private final ServiceConnection locationServiceConnection = new ServiceConnection() {
