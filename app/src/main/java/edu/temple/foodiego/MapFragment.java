@@ -123,6 +123,7 @@ public class MapFragment extends Fragment {
                 foodieLocations = new ArrayList<>();
             }
             locationRef.addValueEventListener(valueEventListener);
+
         }
     };
 
@@ -153,7 +154,11 @@ public class MapFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (context instanceof MapFragmentInterface) parentActivity = context;
+        //if (context instanceof MapFragmentInterface) parentActivity = context;
+        if(context == null)
+        {Log.e("fragment context", "is null");}
+
+        if (context instanceof MapActivity) parentActivity = context;
         else throw new RuntimeException("Activity must implement MapFragmentInterface in order to use MapFragment");
     }
 
@@ -162,6 +167,7 @@ public class MapFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        //addNearByLocationsToMap();
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
 
@@ -187,6 +193,7 @@ public class MapFragment extends Fragment {
                 userMarker = map.addMarker(new MarkerOptions().position(locationCoords).title(user.getFirstname() + " " + user.getLastname()));
 
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(locationCoords, 17.0f));
+
             addNearByLocationsToMap();
         }
     }
@@ -204,18 +211,19 @@ public class MapFragment extends Fragment {
     public void addNearByLocationsToMap() {
         //load user location
         //TODO: replace the fake user data
-        Location userLocation = new Location("user");
-        userLocation.setLongitude(userMarker.getPosition().longitude);
-        userLocation.setLatitude(userMarker.getPosition().latitude);
-
-        for (FoodieLocation f : foodieLocations) {
-            if (f.getLocation().distanceTo(userLocation) <= DISTANCE) {
-                //Log.e("distance", String.valueOf(f.getLocation().distanceTo(userLocation)));
-                f.getMarker().setVisible(true);
-            } else {
-                f.getMarker().setVisible(false);
-            }
-        }
+        FirebaseHelper.getNearByLocations(getContext(), DISTANCE,userMarker.getPosition());
+//        Location userLocation = new Location("user");
+//        userLocation.setLongitude(userMarker.getPosition().longitude);
+//        userLocation.setLatitude(userMarker.getPosition().latitude);
+//
+//        for (FoodieLocation f : foodieLocations) {
+//            if (f.getLocation().distanceTo(userLocation) <= DISTANCE) {
+//                //Log.e("distance", String.valueOf(f.getLocation().distanceTo(userLocation)));
+//                f.getMarker().setVisible(true);
+//            } else {
+//                f.getMarker().setVisible(false);
+//            }
+//        }
     }
 
 
