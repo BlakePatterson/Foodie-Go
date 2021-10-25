@@ -1,8 +1,11 @@
 package edu.temple.foodiego;
+import com.android.volley.*;
 
 import android.content.Context;
 
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.ArrayList;
 
 public class FirebaseHelper {
 
@@ -25,4 +28,8 @@ public class FirebaseHelper {
         return instance;
     }
 
+    public static void getNearByLocations()
+    {
+        StringRequest sq = new StringRequest();
+    }
 }
