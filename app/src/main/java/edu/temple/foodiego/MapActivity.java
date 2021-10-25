@@ -5,10 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -85,6 +87,9 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         if (id == R.id.logoutMenuItem) {
             //logout button was clicked
             logout();
+            return true;
+        }else if(id == R.id.addFriendMenuItem){
+            //add friend button was clicked
             return true;
         }
         return false;
@@ -199,7 +204,22 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         }
         return serviceRunning;
     }
-
+    private void openAddFriendDialog(){
+        new AlertDialog.Builder(MapActivity.this).setView(R.layout.dialog_add_friend)
+                .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //send request to database
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
+                .show();
+    }
 
     //The following method(s) are for communicating information from the ForegroundLocationService
     @Override
