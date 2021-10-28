@@ -48,11 +48,6 @@ public class MapFragment extends Fragment {
     private FoodieUser user;
 
     //foodieLocations and marker onclick behavior.
-    private final String NameString = "name";
-    private final String LatString = "latitude";
-    private final String LngString = "longitude";
-    private final String RatingString = "rating";
-    private final double DISTANCE = 2000;
     private ArrayList<FoodieLocation> foodieLocations;
     private int updateCountDown = 0;
 
@@ -76,13 +71,13 @@ public class MapFragment extends Fragment {
                     String key = keys.next();
                     JSONObject jo = (JSONObject) jodata.get(key);
                     //convert the json obj into actual data.
-                    String locationName = jo.getString(NameString);
+                    String locationName = jo.getString("name");
                     locationName = locationName.replace("_"," ");
                     locationName = locationName.replace("^","'");
                     locationName = locationName.replace("*",",");
-                    double locationLat = Double.parseDouble(jo.getString(LatString));
-                    double locationLng = Double.parseDouble(jo.getString(LngString));
-                    double locationRating = Double.parseDouble(jo.getString(RatingString));
+                    double locationLat = Double.parseDouble(jo.getString("latitude"));
+                    double locationLng = Double.parseDouble(jo.getString("longitude"));
+                    double locationRating = Double.parseDouble(jo.getString("rating"));
 
                     FoodieLocation foodieLocation = new FoodieLocation(locationName, locationLat,locationLng,locationRating);
                     foodieLocation.setMarker(map.addMarker(new MarkerOptions().position(new LatLng(locationLat,locationLng)).title(locationName)));
@@ -155,6 +150,7 @@ public class MapFragment extends Fragment {
         }
     }
 
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -193,10 +189,16 @@ public class MapFragment extends Fragment {
             else
                 userMarker = map.addMarker(new MarkerOptions().position(locationCoords).title(user.getFirstname() + " " + user.getLastname()));
 
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(locationCoords, 17.0f));
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(locationCoords, 15.0f));
 
             addNearByLocationsToMap();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        locationRef.removeEventListener(valueEventListener);
     }
 
     interface MapFragmentInterface {
@@ -210,27 +212,12 @@ public class MapFragment extends Fragment {
     // make it visible
     // else make it invisible
     public void addNearByLocationsToMap() {
-        if(updateCountDown==0)
-        {
-            FirebaseHelper.getNearByLocations(getContext(), DISTANCE,userMarker.getPosition());
+        if (updateCountDown == 0) {
+            FirebaseHelper.getNearByLocations(getContext(), 2000.0, userMarker.getPosition());
             updateCountDown = 20;
-        }
-        else
-        {
+        } else {
             updateCountDown--;
         }
-
-//        Location userLocation = new Location("user");
-//        userLocation.setLongitude(userMarker.getPosition().longitude);
-//        userLocation.setLatitude(userMarker.getPosition().latitude);
-//        for (FoodieLocation f : foodieLocations) {
-//            if (f.getLocation().distanceTo(userLocation) <= DISTANCE) {
-//                //Log.e("distance", String.valueOf(f.getLocation().distanceTo(userLocation)));
-//                f.getMarker().setVisible(true);
-//            } else {
-//                f.getMarker().setVisible(false);
-//            }
-//        }
     }
 
 

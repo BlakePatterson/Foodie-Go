@@ -62,13 +62,14 @@ public class FirebaseHelper {
                         locationRef.get().addOnCompleteListener(task -> {
                             try {
                                 //Convert response into json array
-                                Log.e("response",response);
+                                //Log.e("response",response);
                                 JSONArray responseJsonArray = new JSONArray(((new JSONObject(response)).getString("results")));
                                 //Convert database into json obj
                                 JSONObject existJsonObjects = new JSONObject(String.valueOf(task.getResult().getValue()));
+                                Log.e("Length",responseJsonArray.length()+"");
 
-                                Iterator<String> keys = existJsonObjects.keys();
-                                Boolean dataNotExistInDB = true;
+
+                                Boolean dataExistInDB = false;
                                 for (int i=0; i< responseJsonArray.length(); i++) {
                                     //get the object's name at i in response,then replace special character.
                                     String responobjName=((JSONObject) responseJsonArray.get(i)).getString("name");
@@ -77,19 +78,23 @@ public class FirebaseHelper {
                                                .replace(",","*");
 
                                     //Check if the obj is in database
-                                    dataNotExistInDB = true;
+                                    dataExistInDB = false;
 
+                                    Iterator<String> keys = existJsonObjects.keys();
                                     //search database if there is name already exist
                                     while (keys.hasNext())
                                     {
                                         String existobjName =((JSONObject)existJsonObjects.get(keys.next())).getString("name");
-                                        if(existobjName.equals(responobjName))
+                                        if(existobjName.trim().equals(responobjName.trim()))
                                         {
-                                            dataNotExistInDB = false; break;
+                                            dataExistInDB = true;
+                                            Log.e("exist data",existobjName+" not added");break;
                                         }
                                     }
                                    //if not add it
-                                    if (dataNotExistInDB) {
+
+                                    if (!dataExistInDB) {
+                                        Log.e("adding data",responobjName);
                                         JSONObject location_obj = new JSONObject(new JSONObject(((JSONObject) responseJsonArray.get(i)).getString("geometry")).getString("location"));
                                         //Add a new entry to the location list
                                         DatabaseReference newRef = locationRef.push();
