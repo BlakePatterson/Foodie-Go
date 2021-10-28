@@ -17,6 +17,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -61,10 +62,10 @@ public class MapFragment extends Fragment {
             }
             foodieLocations.clear();
             String data = String.valueOf(snapshot.getValue());
-            Log.e("data on change", data);
+
             try {
                 JSONObject jodata = new JSONObject(data);
-
+                Log.e("Locations Number", jodata.length()+"");
                 Iterator<String> keys = jodata.keys();
                 while (keys.hasNext())
                 {
@@ -80,7 +81,12 @@ public class MapFragment extends Fragment {
                     double locationRating = Double.parseDouble(jo.getString("rating"));
 
                     FoodieLocation foodieLocation = new FoodieLocation(locationName, locationLat,locationLng,locationRating);
-                    foodieLocation.setMarker(map.addMarker(new MarkerOptions().position(new LatLng(locationLat,locationLng)).title(locationName)));
+                    MarkerOptions markerOptions= new MarkerOptions();
+                    markerOptions.position(new LatLng(locationLat,locationLng));
+                    markerOptions.title(locationName);
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker
+                        (BitmapDescriptorFactory.HUE_ROSE));
+                    foodieLocation.setMarker(map.addMarker(markerOptions));
                     foodieLocations.add(foodieLocation);
                 }
             } catch (JSONException e) {

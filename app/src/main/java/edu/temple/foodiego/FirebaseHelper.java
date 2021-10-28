@@ -52,7 +52,7 @@ public class FirebaseHelper {
                 Request.Method.GET,
                 //"https://maps.googleapis.com/maps/api/place/nearbysearch/json",
                 "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
-                        +latLng.latitude+"%2C"+latLng.longitude+"&radius="+radius+"&type=restaurant&keyword=cruise&key=AIzaSyC8JH8DtkIKCiZFw_kf2xKTR9qtlpym-CE",
+                        +latLng.latitude+"%2C"+latLng.longitude+"&radius="+radius+"&type=restaurant&key=AIzaSyC8JH8DtkIKCiZFw_kf2xKTR9qtlpym-CE",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
