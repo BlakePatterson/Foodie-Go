@@ -52,11 +52,12 @@ public class MapFragment extends Fragment {
     private final String LatString = "latitude";
     private final String LngString = "longitude";
     private final String RatingString = "rating";
-    private final double DISTANCE = 320;
+    private final double DISTANCE = 2000;
     private ArrayList<FoodieLocation> foodieLocations;
+    private int updateCountDown = 0;
 
-    FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
-    DatabaseReference locationRef = fbdb.getReference("location");
+    private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+    private DatabaseReference locationRef = fbdb.getReference("location");
     private ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -68,14 +69,17 @@ public class MapFragment extends Fragment {
             Log.e("data on change", data);
             try {
                 JSONObject jodata = new JSONObject(data);
+
                 Iterator<String> keys = jodata.keys();
                 while (keys.hasNext())
                 {
                     String key = keys.next();
                     JSONObject jo = (JSONObject) jodata.get(key);
-
                     //convert the json obj into actual data.
                     String locationName = jo.getString(NameString);
+                    locationName = locationName.replace("_"," ");
+                    locationName = locationName.replace("^","'");
+                    locationName = locationName.replace("*",",");
                     double locationLat = Double.parseDouble(jo.getString(LatString));
                     double locationLng = Double.parseDouble(jo.getString(LngString));
                     double locationRating = Double.parseDouble(jo.getString(RatingString));
@@ -167,7 +171,6 @@ public class MapFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        //addNearByLocationsToMap();
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
 
@@ -179,8 +182,6 @@ public class MapFragment extends Fragment {
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
-
-
     }
 
     public void updateLocationWithMarker(Location location) {
@@ -209,13 +210,19 @@ public class MapFragment extends Fragment {
     // make it visible
     // else make it invisible
     public void addNearByLocationsToMap() {
-        //load user location
-        //TODO: replace the fake user data
-        FirebaseHelper.getNearByLocations(getContext(), DISTANCE,userMarker.getPosition());
+        if(updateCountDown==0)
+        {
+            FirebaseHelper.getNearByLocations(getContext(), DISTANCE,userMarker.getPosition());
+            updateCountDown = 20;
+        }
+        else
+        {
+            updateCountDown--;
+        }
+
 //        Location userLocation = new Location("user");
 //        userLocation.setLongitude(userMarker.getPosition().longitude);
 //        userLocation.setLatitude(userMarker.getPosition().latitude);
-//
 //        for (FoodieLocation f : foodieLocations) {
 //            if (f.getLocation().distanceTo(userLocation) <= DISTANCE) {
 //                //Log.e("distance", String.valueOf(f.getLocation().distanceTo(userLocation)));
