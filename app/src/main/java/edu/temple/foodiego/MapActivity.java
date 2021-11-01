@@ -26,6 +26,13 @@ import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.Marker;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class MapActivity extends AppCompatActivity implements MapFragment.MapFragmentInterface, ForegroundLocationService.LocationServiceInterface {
 
     static int permissionRequestCode = 12345;
@@ -65,6 +72,8 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         }
 
     }
+
+
 
     @Override
     protected void onDestroy() {
@@ -141,13 +150,11 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         }
     }
 
-
     //The following method(s) are for communicating information from the MapFragment
     @Override
     public void openLocationDetailView(FoodieLocation location) {
 
     }
-
 
     //The following are method(s) / object(s) for setting up the ForegroundLocationService
     private final ServiceConnection locationServiceConnection = new ServiceConnection() {
@@ -206,5 +213,6 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     public void updateLocation(Location location) {
         Log.d(TAG, "updateLocation: location update received in MapActivity: " + location.toString());
         mapFragment.updateLocationWithMarker(location);
+
     }
 }
