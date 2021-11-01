@@ -231,7 +231,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
                             Toast.makeText(MapActivity.this, "Please enter the username of your friend", Toast.LENGTH_LONG).show();
                             return;
                         }
-                        //get reference to the user's friends list
+                        //find the key that matches the requested username
                         FirebaseDatabase db = FirebaseDatabase.getInstance();
                         DatabaseReference userRef = db.getReference("user");
                         final String[] friendKey = new String[1];
@@ -239,8 +239,6 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
                             @Override
                             public void onComplete(@NonNull Task<DataSnapshot> task) {
                                 if(task.isSuccessful()){
-                                    //iterate over users to find requested username?
-                                    //super inefficient, but not sure how to avoid without significant restructuring
                                     try{
                                         JSONObject userData = new JSONObject(String.valueOf(task.getResult().getValue()));
                                         Iterator<String> keys = userData.keys();
@@ -259,13 +257,25 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
                                     }
                                 }else{
                                     Log.d(TAG, "openAddFriendDialog: error getting user data");
-                                    Toast.makeText(MapActivity.this, "Error contacting server. Please try again.", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(MapActivity.this, "Error contacting server. Please try again.", Toast.LENGTH_LONG).show();
                                 }
                             }
                         });
+                        //get reference to the user's friends list
                         DatabaseReference friendsRef = userRef
                                 .child(user.getKey())
                                 .child("friends");
+                        friendsRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                if(task.isSuccessful()){
+                                    friendsRef.push().setValue(friendKey[0]);
+                                }else{
+                                    Log.d(TAG, "openAddFriendDialog: error adding friend");
+                                    Toast.makeText(MapActivity.this, "Error contacting server. Please try again.", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
