@@ -57,6 +57,18 @@ public class MapFragment extends Fragment {
     private ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
+            Location userLocation = new Location("");
+            if(userMarker == null)
+            {
+                userLocation.setLatitude(39.96);
+                userLocation.setLongitude(-75.22);
+            }
+            else
+            {
+                userLocation.setLatitude(userMarker.getPosition().latitude);
+                userLocation.setLongitude(userMarker.getPosition().longitude);
+            }
+
             for (FoodieLocation f: foodieLocations) {
                 f.getMarker().remove();
             }
@@ -81,13 +93,17 @@ public class MapFragment extends Fragment {
                     double locationRating = Double.parseDouble(jo.getString("rating"));
 
                     FoodieLocation foodieLocation = new FoodieLocation(locationName, locationLat,locationLng,locationRating);
-                    MarkerOptions markerOptions= new MarkerOptions();
-                    markerOptions.position(new LatLng(locationLat,locationLng));
-                    markerOptions.title(locationName);
-                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker
-                        (BitmapDescriptorFactory.HUE_ROSE));
-                    foodieLocation.setMarker(map.addMarker(markerOptions));
-                    foodieLocations.add(foodieLocation);
+                    if(userLocation.distanceTo(foodieLocation.getLocation())<2000)
+                    {
+                        MarkerOptions markerOptions= new MarkerOptions();
+                        markerOptions.position(new LatLng(locationLat,locationLng));
+                        markerOptions.title(locationName);
+                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker
+                                (BitmapDescriptorFactory.HUE_ROSE));
+                        foodieLocation.setMarker(map.addMarker(markerOptions));
+                        foodieLocations.add(foodieLocation);
+                    }
+
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
