@@ -25,8 +25,14 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Iterator;
 import java.util.List;
@@ -227,10 +233,39 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
                         }
                         //get reference to the user's friends list
                         FirebaseDatabase db = FirebaseDatabase.getInstance();
-                        DatabaseReference friendsRef = db.getReference("user")
+                        DatabaseReference userRef = db.getReference("user");
+                        final String[] friendKey = new String[1];
+                        userRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                if(task.isSuccessful()){
+                                    //iterate over users to find requested username?
+                                    //super inefficient, but not sure how to avoid without significant restructuring
+                                    try{
+                                        JSONObject userData = new JSONObject(String.valueOf(task.getResult().getValue()));
+                                        Iterator<String> keys = userData.keys();
+                                        while(keys.hasNext()){
+                                            String key = keys.next();
+                                            if(userData.get(key) instanceof JSONObject){
+                                                String dbUsername = (String) ((JSONObject) userData.get(key)).get("username");
+                                                if(dbUsername.equals(inputUsername)){
+                                                    friendKey[0] = key;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }catch(JSONException e){
+                                        e.printStackTrace();
+                                    }
+                                }else{
+                                    Log.d(TAG, "openAddFriendDialog: error getting user data");
+                                    Toast.makeText(MapActivity.this, "Error contacting server. Please try again.", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                        DatabaseReference friendsRef = userRef
                                 .child(user.getKey())
                                 .child("friends");
-
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
