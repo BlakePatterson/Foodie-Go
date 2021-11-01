@@ -103,6 +103,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
             return true;
         }else if(id == R.id.addFriendMenuItem){
             //add friend button was clicked
+            openAddFriendDialog();
             return true;
         }
         return false;
@@ -235,6 +236,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
                         FirebaseDatabase db = FirebaseDatabase.getInstance();
                         DatabaseReference userRef = db.getReference("user");
                         final String[] friendKey = new String[1];
+                        friendKey[0] = null;
                         userRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DataSnapshot> task) {
@@ -261,21 +263,28 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
                                 }
                             }
                         });
-                        //get reference to the user's friends list
-                        DatabaseReference friendsRef = userRef
-                                .child(user.getKey())
-                                .child("friends");
-                        friendsRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                                if(task.isSuccessful()){
-                                    friendsRef.push().setValue(friendKey[0]);
-                                }else{
-                                    Log.d(TAG, "openAddFriendDialog: error adding friend");
-                                    Toast.makeText(MapActivity.this, "Error contacting server. Please try again.", Toast.LENGTH_LONG).show();
+                        //check whether anything was found
+                        if(friendKey[0] == null){
+                            Log.d(TAG, "openAddFriendDialog: requested username not found");
+                            Toast.makeText(MapActivity.this, "Requested user not found.", Toast.LENGTH_LONG).show();
+                        }else{
+                            //get reference to the user's friends list
+                            DatabaseReference friendsRef = userRef
+                                    .child(user.getKey())
+                                    .child("friends");
+                            friendsRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        friendsRef.push().setValue(friendKey[0]);
+                                        Toast.makeText(MapActivity.this, "Friend successfully added!", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Log.d(TAG, "openAddFriendDialog: error adding friend");
+                                        Toast.makeText(MapActivity.this, "Error contacting server. Please try again.", Toast.LENGTH_LONG).show();
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
