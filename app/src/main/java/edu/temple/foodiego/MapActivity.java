@@ -5,10 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -19,6 +22,17 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Iterator;
 import java.util.List;
@@ -57,8 +71,9 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
             String username = startIntent.getString(getString(R.string.username_bundle_key));
             String firstname = startIntent.getString(getString(R.string.firstname_bundle_key));
             String lastname = startIntent.getString(getString(R.string.lastname_bundle_key));
-            Log.d(TAG, "onCreate: MapActivity launched with username: " + username + "; firstname: " + firstname + "; lastname: " + lastname);
-            user = new FoodieUser(username, firstname, lastname);
+            String key = startIntent.getString(getString(R.string.key_bundle_key));
+            Log.d(TAG, "onCreate: MapActivity launched with username: " + username + "; firstname: " + firstname + "; lastname: " + lastname + "key: " + key);
+            user = new FoodieUser(username, firstname, lastname, key);
         }
 
         createNotificationChannel("Foodie Go Location Updates");
@@ -95,6 +110,10 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
             //logout button was clicked
             logout();
             return true;
+        }else if(id == R.id.addFriendMenuItem){
+            //add friend button was clicked
+            openAddFriendDialog();
+            return true;
         }
         return false;
     }
@@ -118,6 +137,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         //remove the username from shared preferences
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(getString(R.string.stored_username_key), "");
+        editor.putString(getString(R.string.stored_key_key), "");
         editor.apply();
 
         //return to the login activity
@@ -139,7 +159,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
 
     private void loadFragments() {
         if (!(getSupportFragmentManager().findFragmentById(R.id.mapFrameLayout) instanceof MapFragment)) {
-            mapFragment = MapFragment.newInstance(user.getUsername(), user.getFirstname(), user.getLastname());
+            mapFragment = MapFragment.newInstance(user.getUsername(), user.getFirstname(), user.getLastname(), user.getKey());
             getSupportFragmentManager()
                     .beginTransaction()
                     .add(R.id.mapFrameLayout, mapFragment)
@@ -206,7 +226,82 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         }
         return serviceRunning;
     }
-
+    private void openAddFriendDialog(){
+        new AlertDialog.Builder(MapActivity.this).setView(R.layout.dialog_add_friend)
+                .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Dialog d = (Dialog) dialogInterface;
+                        EditText inputUsernameField = d.findViewById(R.id.addFriendUsernameField);
+                        String inputUsername = inputUsernameField.getText().toString();
+                        if(inputUsername.equals("")){
+                            Log.d(TAG, "openAddFriendDialog: no username entered");
+                            Toast.makeText(MapActivity.this, "Please enter the username of your friend", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        //find the key that matches the requested username
+                        FirebaseDatabase db = FirebaseDatabase.getInstance();
+                        DatabaseReference userRef = db.getReference("user");
+                        final String[] friendKey = new String[1];
+                        friendKey[0] = null;
+                        userRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                if(task.isSuccessful()){
+                                    try{
+                                        JSONObject userData = new JSONObject(String.valueOf(task.getResult().getValue()));
+                                        Iterator<String> keys = userData.keys();
+                                        while(keys.hasNext()){
+                                            String key = keys.next();
+                                            if(userData.get(key) instanceof JSONObject){
+                                                String dbUsername = (String) ((JSONObject) userData.get(key)).get("username");
+                                                if(dbUsername.equals(inputUsername)){
+                                                    friendKey[0] = key;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }catch(JSONException e){
+                                        e.printStackTrace();
+                                    }
+                                }else{
+                                    Log.d(TAG, "openAddFriendDialog: error getting user data");
+                                    Toast.makeText(MapActivity.this, "Error contacting server. Please try again.", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                        //check whether anything was found
+                        if(friendKey[0] == null){
+                            Log.d(TAG, "openAddFriendDialog: requested username not found");
+                            Toast.makeText(MapActivity.this, "Requested user not found.", Toast.LENGTH_LONG).show();
+                        }else{
+                            //get reference to the user's friends list
+                            DatabaseReference friendsRef = userRef
+                                    .child(user.getKey())
+                                    .child("friends");
+                            friendsRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        friendsRef.push().setValue(friendKey[0]);
+                                        Toast.makeText(MapActivity.this, "Friend successfully added!", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Log.d(TAG, "openAddFriendDialog: error adding friend");
+                                        Toast.makeText(MapActivity.this, "Error contacting server. Please try again.", Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
+                .show();
+    }
 
     //The following method(s) are for communicating information from the ForegroundLocationService
     @Override

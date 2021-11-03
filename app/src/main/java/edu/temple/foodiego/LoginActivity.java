@@ -111,6 +111,7 @@ public class LoginActivity extends AppCompatActivity {
                                         intentBundle.putString(getString(R.string.username_bundle_key), storedUsername);
                                         intentBundle.putString(getString(R.string.firstname_bundle_key), db_firstname);
                                         intentBundle.putString(getString(R.string.lastname_bundle_key), db_lastname);
+                                        intentBundle.putString(getString(R.string.key_bundle_key), key);
                                         intent.putExtras(intentBundle);
                                         startActivity(intent);
                                     }
@@ -214,6 +215,7 @@ public class LoginActivity extends AppCompatActivity {
                                         editor.putString(getString(R.string.stored_username_key), username);
                                         editor.putString(username + getString(R.string.stored_firstname_key), db_firstname);
                                         editor.putString(username + getString(R.string.stored_lastname_key), db_lastname);
+                                        editor.putString(getString(R.string.stored_key_key), key);
                                         editor.apply();
 
                                         Log.d(TAG, "onComplete: successfully logged in with username: " + db_username + "; password: " + password);
@@ -224,6 +226,7 @@ public class LoginActivity extends AppCompatActivity {
                                         intentBundle.putString(getString(R.string.username_bundle_key), username);
                                         intentBundle.putString(getString(R.string.firstname_bundle_key), db_firstname);
                                         intentBundle.putString(getString(R.string.lastname_bundle_key), db_lastname);
+                                        intentBundle.putString(getString(R.string.key_bundle_key), key);
                                         intent.putExtras(intentBundle);
                                         startActivity(intent);
 

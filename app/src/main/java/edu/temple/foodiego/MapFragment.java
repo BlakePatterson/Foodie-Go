@@ -40,6 +40,7 @@ public class MapFragment extends Fragment {
     public static final String USERNAME_PARAM_KEY = "mapParam1";
     public static final String FIRSTNAME_PARAM_KEY = "mapParam2";
     public static final String LASTNAME_PARAM_KEY = "mapParam3";
+    public static final String KEY_PARAM_KEY = "mapParam4";
 
     private GoogleMap map;
     private Marker userMarker;
@@ -148,11 +149,12 @@ public class MapFragment extends Fragment {
         }
     };
 
-    public static MapFragment newInstance(String username, String firstname, String lastname) {
+    public static MapFragment newInstance(String username, String firstname, String lastname, String key) {
         Bundle args = new Bundle();
         args.putSerializable(USERNAME_PARAM_KEY, username);
         args.putSerializable(FIRSTNAME_PARAM_KEY, firstname);
         args.putSerializable(LASTNAME_PARAM_KEY, lastname);
+        args.putString(KEY_PARAM_KEY, key);
         MapFragment fragment = new MapFragment();
         fragment.setArguments(args);
         return fragment;
@@ -162,13 +164,13 @@ public class MapFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() == null){
-            user = new FoodieUser("", "", "");
+            user = new FoodieUser("", "", "", "");
         } else {
             String username = (String) getArguments().getSerializable(USERNAME_PARAM_KEY);
             String firstname = (String) getArguments().getSerializable(FIRSTNAME_PARAM_KEY);
             String lastname = (String) getArguments().getSerializable(LASTNAME_PARAM_KEY);
-
-            user = new FoodieUser(username, firstname, lastname);
+            String key = getArguments().getString(KEY_PARAM_KEY);
+            user = new FoodieUser(username, firstname, lastname, key);
         }
     }
 
