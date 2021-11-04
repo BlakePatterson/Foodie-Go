@@ -9,10 +9,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.AsyncQueryHandler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -244,6 +246,13 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     public void updateLocation(Location location) {
         Log.d(TAG, "updateLocation: location update received in MapActivity: " + location.toString());
         mapFragment.updateLocationWithMarker(location);
-
+        //send user location to detailActivity
+        Intent intent1 = new Intent(this, LocationDetailActivity.class);
+        intent1.putExtra("userLocation",location);
+        IntentSender intentSender = null;
+        try {
+            intentSender.sendIntent(this, 0, intent1,(IntentSender, intent, resultCode, resultData, resultExtras) -> {}, null);
+        }
+        catch (Exception ignored){}
     }
 }

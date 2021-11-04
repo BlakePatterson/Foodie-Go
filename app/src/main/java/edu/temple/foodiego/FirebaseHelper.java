@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.location.Location;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -53,13 +54,13 @@ public class FirebaseHelper {
         return instance;
     }
 
-    public static void getNearByLocations(Context context, Double radius, LatLng latLng)
+    public static void getNearByLocations(Context context, Double radius, Location location)
     {
         StringRequest sq = new StringRequest(
                 Request.Method.GET,
                 //"https://maps.googleapis.com/maps/api/place/nearbysearch/json",
                 "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
-                        +latLng.latitude+"%2C"+latLng.longitude+"&radius="+radius+"&type=restaurant&key=AIzaSyC8JH8DtkIKCiZFw_kf2xKTR9qtlpym-CE",
+                        +location.getLatitude()+"%2C"+location.getLongitude()+"&radius="+radius+"&type=restaurant&key=AIzaSyC8JH8DtkIKCiZFw_kf2xKTR9qtlpym-CE",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
