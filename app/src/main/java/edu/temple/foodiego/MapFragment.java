@@ -136,7 +136,9 @@ public class MapFragment extends Fragment {
             map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(@NonNull Marker marker) {
-                    onClickLocation(marker.getTitle());
+                    if (!marker.getTitle().equals(user.getFirstname() + " " + user.getLastname())) {
+                        onClickLocation(marker.getTitle());
+                    }
                     return false;
                 }
             });
@@ -246,15 +248,12 @@ public class MapFragment extends Fragment {
 
 
     //Marker onclick behavior, tell map activity to handle it.
-    //TODO: Replace the s string inorder to show data of a location.
-    //The method below trigger a start activity to an activity which shows the location detail.
-    //Progress: havent done.
-    //Test: when user click on a marker which belongs to a foodieLocation, a new activity starts and shows the detail of that foodieLocation.
-    //Result: haven't test yet.
     public void onClickLocation(String title) {
-        Intent intent = new Intent(getActivity(), LocationDetailActivity.class);
-        intent.putExtra("data",title);
-        startActivity(intent);
+//        Intent intent = new Intent(getActivity(), LocationDetailActivity.class);
+//        intent.putExtra("data",title);
+//        startActivity(intent);
+
+        ((MapFragmentInterface) this.parentActivity).openLocationDetailView(new FoodieLocation(title, 12.5, 13.3, 4.5));
     }
 
     public void startRouteToLocation()
