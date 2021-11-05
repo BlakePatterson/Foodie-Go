@@ -137,7 +137,14 @@ public class MapFragment extends Fragment {
                 @Override
                 public boolean onMarkerClick(@NonNull Marker marker) {
                     if (!marker.getTitle().equals(user.getFirstname() + " " + user.getLastname())) {
-                        onClickLocation(marker.getTitle());
+                        FoodieLocation clickedLocation = new FoodieLocation("Not Found", 0, 0, 0);
+                        for (int i = 0; i < foodieLocations.size(); i++) {
+                            if (foodieLocations.get(i).getName().equals(marker.getTitle())) {
+                                clickedLocation = foodieLocations.get(i);
+                                break;
+                            }
+                        }
+                        onClickLocation(clickedLocation);
                     }
                     return false;
                 }
@@ -248,12 +255,12 @@ public class MapFragment extends Fragment {
 
 
     //Marker onclick behavior, tell map activity to handle it.
-    public void onClickLocation(String title) {
+    public void onClickLocation(FoodieLocation location) {
 //        Intent intent = new Intent(getActivity(), LocationDetailActivity.class);
 //        intent.putExtra("data",title);
 //        startActivity(intent);
 
-        ((MapFragmentInterface) this.parentActivity).openLocationDetailView(new FoodieLocation(title, 12.5, 13.3, 4.5));
+        ((MapFragmentInterface) this.parentActivity).openLocationDetailView(location);
     }
 
     public void startRouteToLocation()
