@@ -36,7 +36,20 @@ public class LocationDetailActivity extends AppCompatActivity {
             user = new FoodieUser(username, firstname, lastname, key);
 
             Log.d(TAG, "onCreate: location detail activity started with: location: " + location.getName() + "; user: " + user.getUsername());
+        } else {
+            location = new FoodieLocation("Error", 0, 0, 0);
+            user = new FoodieUser("", "", "", "");
         }
+
+        TextView locationNameTextView = findViewById(R.id.locationNameTextView);
+        TextView latTextView = findViewById(R.id.latTextView);
+        TextView longTextView = findViewById(R.id.longTextView);
+        TextView ratingTextView = findViewById(R.id.ratingTextView);
+
+        locationNameTextView.setText(location.getName());
+        latTextView.setText(String.valueOf(location.getLocation().getLatitude()));
+        longTextView.setText(String.valueOf(location.getLocation().getLongitude()));
+        ratingTextView.setText(String.valueOf(location.getRating()));
 
 
     }
