@@ -29,4 +29,5 @@
     <string name="locationDetailLatKey">location_lat</string>
     <string name="locationDetailLongKey">location_long</string>
     <string name="locationDetailRatingKey">location_rating</string>
+    <string name="rating_star_content_desc">Rating</string>
 </resources>

@@ -42,13 +42,9 @@ public class LocationDetailActivity extends AppCompatActivity {
         }
 
         TextView locationNameTextView = findViewById(R.id.locationNameTextView);
-        TextView latTextView = findViewById(R.id.latTextView);
-        TextView longTextView = findViewById(R.id.longTextView);
         TextView ratingTextView = findViewById(R.id.ratingTextView);
 
         locationNameTextView.setText(location.getName());
-        latTextView.setText(String.valueOf(location.getLocation().getLatitude()));
-        longTextView.setText(String.valueOf(location.getLocation().getLongitude()));
         ratingTextView.setText(String.valueOf(location.getRating()));
 
 
