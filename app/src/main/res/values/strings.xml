@@ -31,4 +31,6 @@
     <string name="locationDetailRatingKey">location_rating</string>
     <string name="rating_star_content_desc">Rating</string>
     <string name="begin_route_button_content_desc">Begin Route Button</string>
+    <string name="reviews_list_label">Reviews</string>
+    <string name="activity_list_label">Activity</string>
 </resources>
