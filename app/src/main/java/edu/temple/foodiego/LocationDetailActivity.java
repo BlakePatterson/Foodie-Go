@@ -2,9 +2,12 @@ package edu.temple.foodiego;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
@@ -43,10 +46,30 @@ public class LocationDetailActivity extends AppCompatActivity {
 
         TextView locationNameTextView = findViewById(R.id.locationNameTextView);
         TextView ratingTextView = findViewById(R.id.ratingTextView);
+        FloatingActionButton beginRouteButton = findViewById(R.id.beginRouteFloatingActionButton);
 
         locationNameTextView.setText(location.getName());
         ratingTextView.setText(String.valueOf(location.getRating()));
 
+        beginRouteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "startRouteToLocation: start route to location button was pressed");
+                startRouteToLocation();
+            }
+        });
 
+    }
+
+    public void openPublishReviewDialog() {
+
+    }
+
+    public void postReviewToFirebase() {
+
+    }
+
+    public FoodieLocation startRouteToLocation() {
+        return null;
     }
 }
