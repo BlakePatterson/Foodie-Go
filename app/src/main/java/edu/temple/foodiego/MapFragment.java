@@ -100,7 +100,7 @@ public class MapFragment extends Fragment {
                         markerOptions.position(new LatLng(locationLat,locationLng));
                         markerOptions.title(locationName);
                         markerOptions.icon(BitmapDescriptorFactory.defaultMarker
-                                (BitmapDescriptorFactory.HUE_ROSE));
+                                (BitmapDescriptorFactory.HUE_AZURE));
                         foodieLocation.setMarker(map.addMarker(markerOptions));
                         foodieLocations.add(foodieLocation);
                     }

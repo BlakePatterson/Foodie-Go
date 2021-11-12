@@ -33,4 +33,8 @@
     <string name="begin_route_button_content_desc">Begin Route Button</string>
     <string name="reviews_list_label">Reviews</string>
     <string name="activity_list_label">Activity</string>
+    <string name="claim_token_menu_item">Claim Token</string>
+    <string name="leave_review_menu_item">Leave Review</string>
+    <string name="leave_review_content_desc">Leave Review</string>
+    <string name="claim_token_content_desc">Claim Token</string>
 </resources>
