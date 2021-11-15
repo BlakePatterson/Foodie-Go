@@ -24,5 +24,7 @@
     <string name="add_friend_dialog_text">Enter your friend\'s username:</string>
     <string name="submit">Submit</string>
     <string name="cancel">Cancel</string>
+    <string name="reviewHint">Write your review here</string>
+    <string name="leaveReviewButton">Leave Review</string>
     <string name="foodie_go_location_updates_notif_channel_id">Foodie Go Location Updates</string>
 </resources>
