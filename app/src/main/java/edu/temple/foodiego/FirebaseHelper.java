@@ -64,65 +64,62 @@ public class FirebaseHelper {
                 //"https://maps.googleapis.com/maps/api/place/nearbysearch/json",
                 "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
                         +location.getLatitude()+"%2C"+location.getLongitude()+"&radius="+radius+"&type=restaurant&key=AIzaSyC8JH8DtkIKCiZFw_kf2xKTR9qtlpym-CE",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        FirebaseDatabase database = FirebaseDatabase.getInstance();
-                        DatabaseReference locationRef = database.getReference("location");
+                response -> {
+                    FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    DatabaseReference locationRef = database.getReference("location");
 
-                        locationRef.get().addOnCompleteListener(task -> {
-                            try {
-                                //Convert response into json array
-                                //Log.e("response",response);
-                                JSONArray responseJsonArray = new JSONArray(((new JSONObject(response)).getString("results")));
-                                //Convert database into json obj
-                                JSONObject existJsonObjects = new JSONObject(String.valueOf(task.getResult().getValue()));
-                                Log.e("Length",responseJsonArray.length()+"");
+                    locationRef.get().addOnCompleteListener(task -> {
+                        try {
+                            //Convert response into json array
+                            //Log.e("response",response);
+                            JSONArray responseJsonArray = new JSONArray(((new JSONObject(response)).getString("results")));
+                            //Convert database into json obj
+                            JSONObject existJsonObjects = new JSONObject(String.valueOf(task.getResult().getValue()));
+                            //Log.e("Length",responseJsonArray.length()+"");
 
 
-                                Boolean dataExistInDB = false;
-                                for (int i=0; i< responseJsonArray.length(); i++) {
-                                    //get the object's name at i in response,then replace special character.
-                                    String responobjName=((JSONObject) responseJsonArray.get(i)).getString("name");
-                                    responobjName= responobjName.replace(" ", "_")
-                                               .replace('\'' ,'^')
-                                               .replace(",","*");
+                            Boolean dataExistInDB = false;
+                            for (int i=0; i< responseJsonArray.length(); i++) {
+                                //get the object's name at i in response,then replace special character.
+                                String responobjName=((JSONObject) responseJsonArray.get(i)).getString("name");
+                                responobjName= responobjName.replace(" ", "_")
+                                           .replace('\'' ,'^')
+                                           .replace(",","*");
 
-                                    //Check if the obj is in database
-                                    dataExistInDB = false;
+                                //Check if the obj is in database
+                                dataExistInDB = false;
 
-                                    Iterator<String> keys = existJsonObjects.keys();
-                                    //search database if there is name already exist
-                                    while (keys.hasNext())
+                                Iterator<String> keys = existJsonObjects.keys();
+                                //search database if there is name already exist
+                                while (keys.hasNext())
+                                {
+                                    String existobjName =((JSONObject)existJsonObjects.get(keys.next())).getString("name");
+                                    if(existobjName.trim().equals(responobjName.trim()))
                                     {
-                                        String existobjName =((JSONObject)existJsonObjects.get(keys.next())).getString("name");
-                                        if(existobjName.trim().equals(responobjName.trim()))
-                                        {
-                                            dataExistInDB = true;
-                                            Log.e("exist data",existobjName+" not added");break;
-                                        }
-                                    }
-                                   //if not add it
-
-                                    if (!dataExistInDB) {
-                                        Log.e("adding data",responobjName);
-                                        JSONObject location_obj = new JSONObject(new JSONObject(((JSONObject) responseJsonArray.get(i)).getString("geometry")).getString("location"));
-                                        //Add a new entry to the location list
-                                        DatabaseReference newRef = locationRef.push();
-                                        HashMap<String, String> locationDataMap = new HashMap<>();
-                                        locationDataMap.put("name", responobjName);
-                                        locationDataMap.put("latitude", location_obj.getString("lat"));
-                                        locationDataMap.put("longitude", location_obj.getString("lng"));
-                                        locationDataMap.put("rating", ((JSONObject) responseJsonArray.get(i)).getString("rating"));
-                                        //Save the user data on the database
-                                        newRef.setValue(locationDataMap);
+                                        dataExistInDB = true;
+                                        //Log.e("exist data",existobjName+" not added");break;
                                     }
                                 }
-                                } catch (JSONException e) {
-                                e.printStackTrace();
+                               //if not add it
+
+                                if (!dataExistInDB) {
+                                    //Log.e("adding data",responobjName);
+                                    JSONObject location_obj = new JSONObject(new JSONObject(((JSONObject) responseJsonArray.get(i)).getString("geometry")).getString("location"));
+                                    //Add a new entry to the location list
+                                    DatabaseReference newRef = locationRef.push();
+                                    HashMap<String, String> locationDataMap = new HashMap<>();
+                                    locationDataMap.put("name", responobjName);
+                                    locationDataMap.put("latitude", location_obj.getString("lat"));
+                                    locationDataMap.put("longitude", location_obj.getString("lng"));
+                                    locationDataMap.put("rating", ((JSONObject) responseJsonArray.get(i)).getString("rating"));
+                                    //Save the user data on the database
+                                    newRef.setValue(locationDataMap);
+                                }
                             }
-                        });
-                    }
+                            } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    });
                 },
                 error -> error.printStackTrace()
         ){
@@ -235,78 +232,96 @@ public class FirebaseHelper {
     public static void addToken(FoodieUser user,FoodieLocation foodieLocation)
     {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference userTableRef = database.getReference("user");
-        userTableRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+        DatabaseReference userTokenRef = database.getReference("user").child(user.getKey()).child("tokens");
+        userTokenRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if (task.isSuccessful()) {
+                if(task.isSuccessful()){
+                    String data = String.valueOf(task.getResult().getValue()) ;
+                    Log.e("tokens", data);
+                    try{
+                        JSONObject tokens = new JSONObject(data);
 
-                    DatabaseReference userRef = userTableRef.child(user.getKey()); //navigate to user
-                    DatabaseReference tokenRef = userRef.child("tokens");
+                        String foundTokenKey=null;
+                        String foundRestaurantName=null;
+                        int foundTokenPoint = -1;
 
-                    tokenRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DataSnapshot> task) {
-                            if(task.isSuccessful()){
-                                String data = String.valueOf(task.getResult().getValue()) ;
-                                Log.e("tokens", data);
-                                try{
-                                    JSONObject tokens = new JSONObject(data);
+                        Iterator<String> keys = tokens.keys();
+                        while(keys.hasNext()) {
+                            String key = keys.next();
+                            JSONObject token = new JSONObject(tokens.getString(key));
+                            String currentDBRestaurantName = token.getString("restaurantname"); //special char converted
 
-                                    String foundTokenKey=null;
-                                    String foundRestaurantName=null;
-                                    int foundTokenPoint = -1;
-
-                                    Iterator<String> keys = tokens.keys();
-                                    while(keys.hasNext()) {
-                                        String key = keys.next();
-                                        JSONObject token = new JSONObject(tokens.getString(key));
-                                        String currentDBRestaurantName = token.getString("restaurantname"); //special char converted
-
-                                        if(currentDBRestaurantName.equals(
-                                                foodieLocation.getName().replace(" ", "_")
-                                                        .replace('\'' ,'^')
-                                                            .replace(",","*")))
-                                        {
-                                            foundRestaurantName = currentDBRestaurantName;
-                                            foundTokenPoint =Integer.parseInt(token.getString("points"));
-                                            foundTokenPoint +=1;
-                                            foundTokenKey = key;
-                                            break;
-                                        }
-                                    }
-
-                                    if (foundTokenKey == null)
-                                    {
-                                        DatabaseReference newRef = tokenRef.push();
-                                        HashMap<String, String> DataMap = new HashMap<>();
-                                        DataMap.put("restaurantname", foodieLocation.getName().replace(" ", "_")
-                                                .replace('\'' ,'^')
-                                                .replace(",","*"));
-                                        DataMap.put("points", String.valueOf(1));
-                                        newRef.setValue(DataMap);
-                                        Log.e("tokens", "new token added.");
-                                    }
-                                    else
-                                    {
-                                        DatabaseReference ref = tokenRef.child(foundTokenKey);
-                                        HashMap<String, String> DataMap = new HashMap<>();
-                                        DataMap.put("restaurantname", foundRestaurantName);
-                                        DataMap.put("points", String.valueOf(foundTokenPoint));
-                                        ref.setValue(DataMap);
-                                        Log.e("tokens", "token Point added.");
-                                    }
-                                }catch (Exception e){
-                                    e.printStackTrace();
-                                }
-
+                            if(currentDBRestaurantName.equals(
+                                    foodieLocation.getName().replace(" ", "_")
+                                            .replace('\'' ,'^')
+                                            .replace(",","*")))
+                            {
+                                foundRestaurantName = currentDBRestaurantName;
+                                foundTokenPoint =Integer.parseInt(token.getString("points"));
+                                foundTokenPoint +=1;
+                                foundTokenKey = key;
+                                break;
                             }
                         }
-                    });
+
+                        if (foundTokenKey == null)
+                        {
+                            DatabaseReference newRef = userTokenRef.push();
+                            HashMap<String, String> DataMap = new HashMap<>();
+                            DataMap.put("restaurantname", foodieLocation.getName().replace(" ", "_")
+                                    .replace('\'' ,'^')
+                                    .replace(",","*"));
+                            DataMap.put("points", String.valueOf(1));
+                            newRef.setValue(DataMap);
+                            Log.e("tokens", "new token added.");
+                        }
+                        else
+                        {
+                            DatabaseReference ref = userTokenRef.child(foundTokenKey);
+                            HashMap<String, String> DataMap = new HashMap<>();
+                            DataMap.put("restaurantname", foundRestaurantName);
+                            DataMap.put("points", String.valueOf(foundTokenPoint));
+                            ref.setValue(DataMap);
+                            Log.e("tokens", "token Point added.");
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
 
                 }
             }
         });
 
+    }
+    //return total tokens user earns
+    public static int getTokens(FoodieUser user, int tokenread)
+    {
+        tokenread = 0;
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference tokenTableRef = database.getReference("user").child(user.getKey()).child("tokens");
+        Task<DataSnapshot> t = tokenTableRef.get();
+        while(!t.isComplete())
+        {
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        String data = String.valueOf(t.getResult().getValue());
+        try{
+            JSONObject tokens = new JSONObject(data);
+            Iterator<String> keys = tokens.keys();
+            while(keys.hasNext()) {
+                String key = keys.next();
+                JSONObject token = new JSONObject(tokens.getString(key));
+                tokenread += Integer.parseInt(token.getString("points"));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return tokenread;
     }
 }
