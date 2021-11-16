@@ -257,6 +257,22 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
                                                 String dbUsername = (String) ((JSONObject) userData.get(key)).get("username");
                                                 if(dbUsername.equals(inputUsername)){
                                                     friendKey[0] = key;
+                                                    //get reference to the user's friends list
+                                                    DatabaseReference friendsRef = userRef
+                                                            .child(user.getKey())
+                                                            .child("friends");
+                                                    friendsRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                                            if (task.isSuccessful()) {
+                                                                friendsRef.push().setValue(friendKey[0]);
+                                                                Toast.makeText(MapActivity.this, "Friend successfully added!", Toast.LENGTH_SHORT).show();
+                                                            } else {
+                                                                Log.d(TAG, "openAddFriendDialog: error adding friend");
+                                                                Toast.makeText(MapActivity.this, "Error contacting server. Please try again.", Toast.LENGTH_LONG).show();
+                                                            }
+                                                        }
+                                                    });
                                                     break;
                                                 }
                                             }
@@ -270,28 +286,6 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
                                 }
                             }
                         });
-                        //check whether anything was found
-                        if(friendKey[0] == null){
-                            Log.d(TAG, "openAddFriendDialog: requested username not found");
-                            Toast.makeText(MapActivity.this, "Requested user not found.", Toast.LENGTH_LONG).show();
-                        }else{
-                            //get reference to the user's friends list
-                            DatabaseReference friendsRef = userRef
-                                    .child(user.getKey())
-                                    .child("friends");
-                            friendsRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        friendsRef.push().setValue(friendKey[0]);
-                                        Toast.makeText(MapActivity.this, "Friend successfully added!", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Log.d(TAG, "openAddFriendDialog: error adding friend");
-                                        Toast.makeText(MapActivity.this, "Error contacting server. Please try again.", Toast.LENGTH_LONG).show();
-                                    }
-                                }
-                            });
-                        }
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
