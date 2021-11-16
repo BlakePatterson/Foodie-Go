@@ -100,7 +100,7 @@ public class MapFragment extends Fragment {
                         markerOptions.position(new LatLng(locationLat,locationLng));
                         markerOptions.title(locationName);
                         markerOptions.icon(BitmapDescriptorFactory.defaultMarker
-                                (BitmapDescriptorFactory.HUE_ROSE));
+                                (BitmapDescriptorFactory.HUE_AZURE));
                         foodieLocation.setMarker(map.addMarker(markerOptions));
                         foodieLocations.add(foodieLocation);
                     }
@@ -136,7 +136,16 @@ public class MapFragment extends Fragment {
             map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(@NonNull Marker marker) {
-                    onClickLocation(marker.getTitle());
+                    if (!marker.getTitle().equals(user.getFirstname() + " " + user.getLastname())) {
+                        FoodieLocation clickedLocation = new FoodieLocation("Not Found", 0, 0, 0);
+                        for (int i = 0; i < foodieLocations.size(); i++) {
+                            if (foodieLocations.get(i).getName().equals(marker.getTitle())) {
+                                clickedLocation = foodieLocations.get(i);
+                                break;
+                            }
+                        }
+                        onClickLocation(clickedLocation);
+                    }
                     return false;
                 }
             });
@@ -246,15 +255,12 @@ public class MapFragment extends Fragment {
 
 
     //Marker onclick behavior, tell map activity to handle it.
-    //TODO: Replace the s string inorder to show data of a location.
-    //The method below trigger a start activity to an activity which shows the location detail.
-    //Progress: havent done.
-    //Test: when user click on a marker which belongs to a foodieLocation, a new activity starts and shows the detail of that foodieLocation.
-    //Result: haven't test yet.
-    public void onClickLocation(String title) {
-        Intent intent = new Intent(getActivity(), LocationDetailActivity.class);
-        intent.putExtra("data",title);
-        startActivity(intent);
+    public void onClickLocation(FoodieLocation location) {
+//        Intent intent = new Intent(getActivity(), LocationDetailActivity.class);
+//        intent.putExtra("data",title);
+//        startActivity(intent);
+
+        ((MapFragmentInterface) this.parentActivity).openLocationDetailView(location);
     }
 
     public void startRouteToLocation()

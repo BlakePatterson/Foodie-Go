@@ -11,53 +11,102 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RatingBar;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.ArrayList;
+
+import static android.content.ContentValues.TAG;
 
 public class LocationDetailActivity extends AppCompatActivity {
     final String location_database = "location";
     TextView foodieName;
     Button reviewButton;
+    private FoodieLocation location;
+
+    private FoodieUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location_detail);
 
-        Intent receivedIntent= getIntent();
-        String s = receivedIntent.getStringExtra("data");
+        Bundle startIntent = getIntent().getExtras();
+        if(startIntent != null) {
+            String name = startIntent.getString(getString(R.string.locationDetailNameKey));
+            double lat = startIntent.getDouble(getString(R.string.locationDetailLatKey));
+            double lon = startIntent.getDouble(getString(R.string.locationDetailLongKey));
+            double rating = startIntent.getDouble(getString(R.string.locationDetailRatingKey));
+            location = new FoodieLocation(name, lat, lon, rating);
 
-        foodieName = findViewById(R.id.TVLocationName);
-        foodieName.setText(s);
-        reviewButton = findViewById(R.id.launchReviewButton);
-        reviewButton.setOnClickListener(new View.OnClickListener() {
+            String username = startIntent.getString(getString(R.string.username_bundle_key));
+            String firstname = startIntent.getString(getString(R.string.firstname_bundle_key));
+            String lastname = startIntent.getString(getString(R.string.lastname_bundle_key));
+            String key = startIntent.getString(getString(R.string.key_bundle_key));
+            user = new FoodieUser(username, firstname, lastname, key);
+
+            Log.d(TAG, "onCreate: location detail activity started with: location: " + location.getName() + "; user: " + user.getUsername());
+        } else {
+            location = new FoodieLocation("Error", 0, 0, 0);
+            user = new FoodieUser("", "", "", "");
+        }
+
+        TextView locationNameTextView = findViewById(R.id.locationNameTextView);
+        TextView ratingTextView = findViewById(R.id.ratingTextView);
+        FloatingActionButton beginRouteButton = findViewById(R.id.beginRouteFloatingActionButton);
+        FloatingActionButton leaveReviewButton = findViewById(R.id.leaveReviewFloatingActionButton);
+        FloatingActionButton claimTokenButton = findViewById(R.id.claimTokenFloatingActionButton);
+
+        locationNameTextView.setText(location.getName());
+        ratingTextView.setText(String.valueOf(location.getRating()));
+
+        beginRouteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //begin route button has been clicked
+                Log.d(TAG, "onClick: start route to location has been clicked");
+                startRouteToLocation();
+            }
+        });
+
+        leaveReviewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //leave review button has been clicked
+                Log.d(TAG, "onClick: leave review button has been clicked");
                 openLeaveReviewDialog();
             }
         });
+
+        claimTokenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Claim token button has been clicked
+                Log.d(TAG, "onClick: claim token button has been clicked");
+                //TODO: perform a check to see if user is within range,
+                // if they are perform logic to give them token
+                // otherwise display a toast saying they cannot redeem token
+            }
+        });
+
     }
+
     public void openLeaveReviewDialog(){
         new AlertDialog.Builder(this).setView(R.layout.dialog_leave_review)
-                .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
+            .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Dialog d = (Dialog) dialog;
@@ -80,5 +129,14 @@ public class LocationDetailActivity extends AppCompatActivity {
                     }
                 })
                 .show();
+    }
+
+    public void postReviewToFirebase() {
+
+    }
+
+    public FoodieLocation startRouteToLocation() {
+        //TODO: write functionality to send FoodieLocation to the MapFragment, initiating a route
+        return null;
     }
 }

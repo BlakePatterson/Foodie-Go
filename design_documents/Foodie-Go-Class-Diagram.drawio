@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2021-09-29T16:39:02.705Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36" etag="YS8_ddthGV1iCbsGv7ST" version="15.3.7" type="github">
+<mxfile host="app.diagrams.net" modified="2021-11-11T18:28:45.342Z" agent="5.0 (Windows)" etag="MSLKaHWCUCvEKnBRZ8t2" version="15.5.6" type="github">
   <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
-    <mxGraphModel dx="4080" dy="1358" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="3076" dy="868" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
@@ -84,10 +84,10 @@
         <mxCell id="hol_t1OxcnvebxV4nvTB-84" value="+ createNotificationChannel(channelName: String): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-4" vertex="1">
           <mxGeometry y="372" width="360" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="2jMtDE50fIFtIHN1RveM-1" value="+ openLocationDetailView(location: FoodieLocation): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="hol_t1OxcnvebxV4nvTB-4">
+        <mxCell id="2jMtDE50fIFtIHN1RveM-1" value="+ openLocationDetailView(location: FoodieLocation): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-4" vertex="1">
           <mxGeometry y="398" width="360" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="2jMtDE50fIFtIHN1RveM-2" value="+ openSocialFeedView(): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="hol_t1OxcnvebxV4nvTB-4">
+        <mxCell id="2jMtDE50fIFtIHN1RveM-2" value="+ openSocialFeedView(): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-4" vertex="1">
           <mxGeometry y="424" width="360" height="26" as="geometry" />
         </mxCell>
         <mxCell id="hol_t1OxcnvebxV4nvTB-12" value="MapFragment" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
@@ -120,7 +120,7 @@
         <mxCell id="hol_t1OxcnvebxV4nvTB-159" value="- onClickLocation(location: Location): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-12" vertex="1">
           <mxGeometry y="216" width="320" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="2jMtDE50fIFtIHN1RveM-0" value="+ startRouteToLocation(location: FoodieLocation): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="hol_t1OxcnvebxV4nvTB-12">
+        <mxCell id="2jMtDE50fIFtIHN1RveM-0" value="+ startRouteToLocation(location: FoodieLocation): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-12" vertex="1">
           <mxGeometry y="242" width="320" height="26" as="geometry" />
         </mxCell>
         <mxCell id="hol_t1OxcnvebxV4nvTB-16" value="MapInfoFragment" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
@@ -334,43 +334,43 @@
           <mxGeometry y="242" width="260" height="26" as="geometry" />
         </mxCell>
         <mxCell id="hol_t1OxcnvebxV4nvTB-90" value="FirebaseHelper" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="880" y="870" width="500" height="320" as="geometry" />
+          <mxGeometry x="880" y="870" width="520" height="320" as="geometry" />
         </mxCell>
         <mxCell id="hol_t1OxcnvebxV4nvTB-92" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-90" vertex="1">
-          <mxGeometry y="26" width="500" height="8" as="geometry" />
+          <mxGeometry y="26" width="520" height="8" as="geometry" />
         </mxCell>
         <mxCell id="hol_t1OxcnvebxV4nvTB-109" value="+ login(username: String, password: String): FoodieUser" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-90" vertex="1">
-          <mxGeometry y="34" width="500" height="26" as="geometry" />
+          <mxGeometry y="34" width="520" height="26" as="geometry" />
         </mxCell>
         <mxCell id="hol_t1OxcnvebxV4nvTB-114" value="+ logout(user: FoodieUser): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-90" vertex="1">
-          <mxGeometry y="60" width="500" height="26" as="geometry" />
+          <mxGeometry y="60" width="520" height="26" as="geometry" />
         </mxCell>
         <mxCell id="hol_t1OxcnvebxV4nvTB-111" value="+ addFriend(user: FoodieUser): FoodieUser" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-90" vertex="1">
-          <mxGeometry y="86" width="500" height="26" as="geometry" />
+          <mxGeometry y="86" width="520" height="26" as="geometry" />
         </mxCell>
         <mxCell id="hol_t1OxcnvebxV4nvTB-110" value="+ getFriends(user: FoodieUser): ArrayList&lt;FoodieUser&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-90" vertex="1">
-          <mxGeometry y="112" width="500" height="26" as="geometry" />
+          <mxGeometry y="112" width="520" height="26" as="geometry" />
         </mxCell>
         <mxCell id="hol_t1OxcnvebxV4nvTB-93" value="+ getNearbyLocations(location: Location): ArrayList&lt;FoodieLocation&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-90" vertex="1">
-          <mxGeometry y="138" width="500" height="26" as="geometry" />
+          <mxGeometry y="138" width="520" height="26" as="geometry" />
         </mxCell>
         <mxCell id="hol_t1OxcnvebxV4nvTB-112" value="+ getFavoriteLocations(user: FoodieUser): ArrayList&lt;FoodieLocation&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-90" vertex="1">
-          <mxGeometry y="164" width="500" height="26" as="geometry" />
+          <mxGeometry y="164" width="520" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="hol_t1OxcnvebxV4nvTB-113" value="+ postReview(user: FoodieUser, location: FoodieLocation, review: String): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-90" vertex="1">
-          <mxGeometry y="190" width="500" height="26" as="geometry" />
+        <mxCell id="hol_t1OxcnvebxV4nvTB-113" value="+ postReview(user: FoodieUser, location: FoodieLocation, rating: double, review: String): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-90" vertex="1">
+          <mxGeometry y="190" width="520" height="26" as="geometry" />
         </mxCell>
         <mxCell id="hol_t1OxcnvebxV4nvTB-115" value="+ getReviews(location: FoodieLocation): ArrayList&lt;FoodieReview&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-90" vertex="1">
-          <mxGeometry y="216" width="500" height="26" as="geometry" />
+          <mxGeometry y="216" width="520" height="26" as="geometry" />
         </mxCell>
         <mxCell id="hol_t1OxcnvebxV4nvTB-134" value="+ postActivity(activity: FoodieActivityLog): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-90" vertex="1">
-          <mxGeometry y="242" width="500" height="26" as="geometry" />
+          <mxGeometry y="242" width="520" height="26" as="geometry" />
         </mxCell>
         <mxCell id="hol_t1OxcnvebxV4nvTB-135" value="+ getFriendsActivity(friends: ArrayList&lt;FoodieUser&gt;): ArrayList&lt;FoodieActivityLog&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-90" vertex="1">
-          <mxGeometry y="268" width="500" height="26" as="geometry" />
+          <mxGeometry y="268" width="520" height="26" as="geometry" />
         </mxCell>
         <mxCell id="hol_t1OxcnvebxV4nvTB-136" value="+ getLocationActivity(location: FoodieLocation): ArrayList&lt;FoodieActivityLog&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hol_t1OxcnvebxV4nvTB-90" vertex="1">
-          <mxGeometry y="294" width="500" height="26" as="geometry" />
+          <mxGeometry y="294" width="520" height="26" as="geometry" />
         </mxCell>
         <mxCell id="hol_t1OxcnvebxV4nvTB-116" value="FoodieReview" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
           <mxGeometry x="-680" y="1140" width="560" height="372" as="geometry" />
@@ -685,6 +685,16 @@
               <mxPoint x="-840" y="905" />
               <mxPoint x="-840" y="2000" />
               <mxPoint x="1240" y="2000" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ludxPW5Q879ZjXb3WwkM-0" value="" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=1;jumpStyle=arc;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="-120" y="1420" as="sourcePoint" />
+            <mxPoint x="880" y="1150" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="840" y="1420" />
+              <mxPoint x="840" y="1150" />
             </Array>
           </mxGeometry>
         </mxCell>

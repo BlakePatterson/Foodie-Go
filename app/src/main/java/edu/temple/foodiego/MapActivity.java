@@ -72,7 +72,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
             String firstname = startIntent.getString(getString(R.string.firstname_bundle_key));
             String lastname = startIntent.getString(getString(R.string.lastname_bundle_key));
             String key = startIntent.getString(getString(R.string.key_bundle_key));
-            Log.d(TAG, "onCreate: MapActivity launched with username: " + username + "; firstname: " + firstname + "; lastname: " + lastname + "key: " + key);
+            Log.d(TAG, "onCreate: MapActivity launched with username: " + username + "; firstname: " + firstname + "; lastname: " + lastname + "; key: " + key);
             user = new FoodieUser(username, firstname, lastname, key);
         }
 
@@ -112,7 +112,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
             return true;
         }else if(id == R.id.addFriendMenuItem){
             //add friend button was clicked
-            openAddFriendDialog();
+            FirebaseHelper.openAddFriendDialog(MapActivity.this, user);
             return true;
         }
         return false;
@@ -173,7 +173,18 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     //The following method(s) are for communicating information from the MapFragment
     @Override
     public void openLocationDetailView(FoodieLocation location) {
+        Intent intent = new Intent(MapActivity.this, LocationDetailActivity.class);
+        intent.putExtra(getString(R.string.locationDetailNameKey), location.getName());
+        intent.putExtra(getString(R.string.locationDetailLatKey), location.getLocation().getLatitude());
+        intent.putExtra(getString(R.string.locationDetailLongKey), location.getLocation().getLongitude());
+        intent.putExtra(getString(R.string.locationDetailRatingKey), location.getRating());
 
+        intent.putExtra(getString(R.string.username_bundle_key), user.getUsername());
+        intent.putExtra(getString(R.string.firstname_bundle_key), user.getFirstname());
+        intent.putExtra(getString(R.string.lastname_bundle_key), user.getLastname());
+        intent.putExtra(getString(R.string.key_bundle_key), user.getKey());
+
+        startActivity(intent);
     }
 
     //The following are method(s) / object(s) for setting up the ForegroundLocationService
@@ -226,82 +237,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         }
         return serviceRunning;
     }
-    private void openAddFriendDialog(){
-        new AlertDialog.Builder(MapActivity.this).setView(R.layout.dialog_add_friend)
-                .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Dialog d = (Dialog) dialogInterface;
-                        EditText inputUsernameField = d.findViewById(R.id.addFriendUsernameField);
-                        String inputUsername = inputUsernameField.getText().toString();
-                        if(inputUsername.equals("")){
-                            Log.d(TAG, "openAddFriendDialog: no username entered");
-                            Toast.makeText(MapActivity.this, "Please enter the username of your friend", Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                        //find the key that matches the requested username
-                        FirebaseDatabase db = FirebaseDatabase.getInstance();
-                        DatabaseReference userRef = db.getReference("user");
-                        final String[] friendKey = new String[1];
-                        friendKey[0] = null;
-                        userRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                                if(task.isSuccessful()){
-                                    try{
-                                        JSONObject userData = new JSONObject(String.valueOf(task.getResult().getValue()));
-                                        Iterator<String> keys = userData.keys();
-                                        while(keys.hasNext()){
-                                            String key = keys.next();
-                                            if(userData.get(key) instanceof JSONObject){
-                                                String dbUsername = (String) ((JSONObject) userData.get(key)).get("username");
-                                                if(dbUsername.equals(inputUsername)){
-                                                    friendKey[0] = key;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }catch(JSONException e){
-                                        e.printStackTrace();
-                                    }
-                                }else{
-                                    Log.d(TAG, "openAddFriendDialog: error getting user data");
-                                    Toast.makeText(MapActivity.this, "Error contacting server. Please try again.", Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        });
-                        //check whether anything was found
-                        if(friendKey[0] == null){
-                            Log.d(TAG, "openAddFriendDialog: requested username not found");
-                            Toast.makeText(MapActivity.this, "Requested user not found.", Toast.LENGTH_LONG).show();
-                        }else{
-                            //get reference to the user's friends list
-                            DatabaseReference friendsRef = userRef
-                                    .child(user.getKey())
-                                    .child("friends");
-                            friendsRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        friendsRef.push().setValue(friendKey[0]);
-                                        Toast.makeText(MapActivity.this, "Friend successfully added!", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Log.d(TAG, "openAddFriendDialog: error adding friend");
-                                        Toast.makeText(MapActivity.this, "Error contacting server. Please try again.", Toast.LENGTH_LONG).show();
-                                    }
-                                }
-                            });
-                        }
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                })
-                .show();
-    }
+
 
     //The following method(s) are for communicating information from the ForegroundLocationService
     @Override
