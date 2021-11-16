@@ -1,10 +1,25 @@
 package edu.temple.foodiego;
 
+import static android.content.ContentValues.TAG;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RatingBar;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,7 +32,9 @@ import java.util.ArrayList;
 import static android.content.ContentValues.TAG;
 
 public class LocationDetailActivity extends AppCompatActivity {
-
+    final String location_database = "location";
+    TextView foodieName;
+    Button reviewButton;
     private FoodieLocation location;
 
     private FoodieUser user;
@@ -70,7 +87,7 @@ public class LocationDetailActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //leave review button has been clicked
                 Log.d(TAG, "onClick: leave review button has been clicked");
-                openPublishReviewDialog();
+                openLeaveReviewDialog();
             }
         });
 
@@ -87,10 +104,31 @@ public class LocationDetailActivity extends AppCompatActivity {
 
     }
 
-    public void openPublishReviewDialog() {
-
-        //TODO: display a dialog to leave a review
-
+    public void openLeaveReviewDialog(){
+        new AlertDialog.Builder(this).setView(R.layout.dialog_leave_review)
+            .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Dialog d = (Dialog) dialog;
+                        RatingBar bar = d.findViewById(R.id.ratingBar);
+                        EditText reviewBox = d.findViewById(R.id.reviewBox);
+                        double rating = bar.getRating();
+                        String review = reviewBox.getText().toString();
+                        if(review.equals("") || rating == 0){
+                            Toast.makeText(LocationDetailActivity.this, "Please fill in both the rating and the review.", Toast.LENGTH_LONG).show();
+                        }else{
+                            //call postReview()
+                            d.dismiss();
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 
     public void postReviewToFirebase() {
@@ -99,7 +137,6 @@ public class LocationDetailActivity extends AppCompatActivity {
 
     public FoodieLocation startRouteToLocation() {
         //TODO: write functionality to send FoodieLocation to the MapFragment, initiating a route
-
         return null;
     }
 }
