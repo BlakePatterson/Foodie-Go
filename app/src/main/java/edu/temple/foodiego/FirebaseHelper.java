@@ -238,87 +238,84 @@ public class FirebaseHelper {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference userTokenTableRef = database.getReference("user").child(user.getKey()).child("tokens");
         Task<DataSnapshot> t = userTokenTableRef.get();
-        while(!t.isComplete())
-        {
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        if (t.isSuccessful())
-        {
-            String data = String.valueOf(t.getResult().getValue());
-            if(data.equals("null"))
-            {
-                Log.e("","data is null");
-                DatabaseReference userRef = database.getReference("user").child(user.getKey());
-                DatabaseReference newTokenRef = userTokenTableRef.push();
-                HashMap<String, String> DataMap = new HashMap<>();
-                DataMap.put("restaurantname", foodieLocation.getName().replace(" ", "_")
-                        .replace('\'' ,'^')
-                        .replace(",","*"));
-                DataMap.put("points", String.valueOf(1));
-                newTokenRef.setValue(DataMap);
-                Log.e("tokens", "new token added.");
-
-            }
-            else
-            {
-                Log.e("tokens", data);
-                try{
-                    JSONObject tokens = new JSONObject(data);
-
-                    String foundTokenKey=null;
-                    String foundRestaurantName=null;
-                    int foundTokenPoint = -1;
-
-                    Iterator<String> keys = tokens.keys();
-                    while(keys.hasNext()) {
-                        String key = keys.next();
-                        JSONObject token = new JSONObject(tokens.getString(key));
-                        String currentDBRestaurantName = token.getString("restaurantname"); //special char converted
-
-                        if(currentDBRestaurantName.equals(
-                                foodieLocation.getName().replace(" ", "_")
-                                        .replace('\'' ,'^')
-                                        .replace(",","*")))
-                        {
-                            foundRestaurantName = currentDBRestaurantName;
-                            foundTokenPoint =Integer.parseInt(token.getString("points"));
-                            foundTokenPoint +=1;
-                            foundTokenKey = key;
-                            break;
-                        }
-                    }
-
-                    if (foundTokenKey == null)
+        t.addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (t.isSuccessful())
+                {
+                    String data = String.valueOf(t.getResult().getValue());
+                    if(data.equals("null"))
                     {
-                        DatabaseReference newRef = userTokenTableRef.push();
+                        Log.e("","data is null");
+                        DatabaseReference userRef = database.getReference("user").child(user.getKey());
+                        DatabaseReference newTokenRef = userTokenTableRef.push();
                         HashMap<String, String> DataMap = new HashMap<>();
                         DataMap.put("restaurantname", foodieLocation.getName().replace(" ", "_")
                                 .replace('\'' ,'^')
                                 .replace(",","*"));
                         DataMap.put("points", String.valueOf(1));
-                        newRef.setValue(DataMap);
+                        newTokenRef.setValue(DataMap);
                         Log.e("tokens", "new token added.");
+
                     }
                     else
                     {
-                        DatabaseReference ref = userTokenTableRef.child(foundTokenKey);
-                        HashMap<String, String> DataMap = new HashMap<>();
-                        DataMap.put("restaurantname", foundRestaurantName);
-                        DataMap.put("points", String.valueOf(foundTokenPoint));
-                        ref.setValue(DataMap);
-                        Log.e("tokens", "token Point added.");
+                        Log.e("tokens", data);
+                        try{
+                            JSONObject tokens = new JSONObject(data);
+
+                            String foundTokenKey=null;
+                            String foundRestaurantName=null;
+                            int foundTokenPoint = -1;
+
+                            Iterator<String> keys = tokens.keys();
+                            while(keys.hasNext()) {
+                                String key = keys.next();
+                                JSONObject token = new JSONObject(tokens.getString(key));
+                                String currentDBRestaurantName = token.getString("restaurantname"); //special char converted
+
+                                if(currentDBRestaurantName.equals(
+                                        foodieLocation.getName().replace(" ", "_")
+                                                .replace('\'' ,'^')
+                                                .replace(",","*")))
+                                {
+                                    foundRestaurantName = currentDBRestaurantName;
+                                    foundTokenPoint =Integer.parseInt(token.getString("points"));
+                                    foundTokenPoint +=1;
+                                    foundTokenKey = key;
+                                    break;
+                                }
+                            }
+
+                            if (foundTokenKey == null)
+                            {
+                                DatabaseReference newRef = userTokenTableRef.push();
+                                HashMap<String, String> DataMap = new HashMap<>();
+                                DataMap.put("restaurantname", foodieLocation.getName().replace(" ", "_")
+                                        .replace('\'' ,'^')
+                                        .replace(",","*"));
+                                DataMap.put("points", String.valueOf(1));
+                                newRef.setValue(DataMap);
+                                Log.e("tokens", "new token added.");
+                            }
+                            else
+                            {
+                                DatabaseReference ref = userTokenTableRef.child(foundTokenKey);
+                                HashMap<String, String> DataMap = new HashMap<>();
+                                DataMap.put("restaurantname", foundRestaurantName);
+                                DataMap.put("points", String.valueOf(foundTokenPoint));
+                                ref.setValue(DataMap);
+                                Log.e("tokens", "token Point added.");
+                            }
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
                     }
-                }catch (Exception e){
-                    e.printStackTrace();
                 }
             }
-        }
+        });
     }
-    
+
     //return total tokens user earns
     public static int getTokens(FoodieUser user)
     {
