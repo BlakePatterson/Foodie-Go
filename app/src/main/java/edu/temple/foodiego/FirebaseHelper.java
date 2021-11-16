@@ -230,6 +230,9 @@ public class FirebaseHelper {
                 })
                 .show();
 
+    //@ param foodieuser, foodielocation
+    //if token table does not exist, create one and add token into it
+    //else just add token.
     public static void addToken(FoodieUser user,FoodieLocation foodieLocation)
     {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -315,6 +318,7 @@ public class FirebaseHelper {
             }
         }
     }
+    
     //return total tokens user earns
     public static int getTokens(FoodieUser user)
     {
