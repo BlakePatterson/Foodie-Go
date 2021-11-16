@@ -250,7 +250,9 @@ public class MapFragment extends Fragment {
     //Marker onclick behavior, tell map activity to handle it.
     public void onClickLocation(FoodieLocation location) {
         ((MapFragmentInterface) this.parentActivity).openLocationDetailView(location);
-        Log.e("tokens", String.valueOf(FirebaseHelper.getTokens(user,0)));
+        FirebaseHelper.addToken(user, location);
+        //Log.e("tokens", String.valueOf(FirebaseHelper.getTokens(user,0)));
+
     }
 
     public void startRouteToLocation()
