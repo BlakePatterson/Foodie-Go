@@ -100,6 +100,14 @@ public class LocationDetailActivity extends AppCompatActivity {
                 //TODO: perform a check to see if user is within range,
                 // if they are perform logic to give them token
                 // otherwise display a toast saying they cannot redeem token
+                if(user != null)
+                {
+                    FirebaseHelper.addToken(user, location);
+                }
+                else
+                {
+                    Log.e("claim fail","user not exist");
+                }
             }
         });
 
