@@ -1,8 +1,13 @@
 package edu.temple.foodiego;
 import com.android.volley.*;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +29,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import static android.content.ContentValues.TAG;
 
 public class FirebaseHelper {
 
@@ -124,5 +131,75 @@ public class FirebaseHelper {
         };
         RequestQueue queue = Volley.newRequestQueue(context);
         queue.add(sq);
+    }
+    public static void openAddFriendDialog(Context c, FoodieUser user){
+        new AlertDialog.Builder(c).setView(R.layout.dialog_add_friend)
+                .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Dialog d = (Dialog) dialogInterface;
+                        EditText inputUsernameField = d.findViewById(R.id.addFriendUsernameField);
+                        String inputUsername = inputUsernameField.getText().toString();
+                        if(inputUsername.equals("")){
+                            Log.d(TAG, "openAddFriendDialog: no username entered");
+                            Toast.makeText(c, "Please enter the username of your friend", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        //find the key that matches the requested username
+                        FirebaseDatabase db = FirebaseDatabase.getInstance();
+                        DatabaseReference userRef = db.getReference("user");
+                        final String[] friendKey = new String[1];
+                        friendKey[0] = null;
+                        userRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                if(task.isSuccessful()){
+                                    try{
+                                        JSONObject userData = new JSONObject(String.valueOf(task.getResult().getValue()));
+                                        Iterator<String> keys = userData.keys();
+                                        while(keys.hasNext()){
+                                            String key = keys.next();
+                                            if(userData.get(key) instanceof JSONObject){
+                                                String dbUsername = (String) ((JSONObject) userData.get(key)).get("username");
+                                                if(dbUsername.equals(inputUsername)){
+                                                    friendKey[0] = key;
+                                                    //get reference to the user's friends list
+                                                    DatabaseReference friendsRef = userRef
+                                                            .child(user.getKey())
+                                                            .child("friends");
+                                                    friendsRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                                            if (task.isSuccessful()) {
+                                                                friendsRef.push().setValue(friendKey[0]);
+                                                                Toast.makeText(c, "Friend successfully added!", Toast.LENGTH_SHORT).show();
+                                                            } else {
+                                                                Log.d(TAG, "openAddFriendDialog: error adding friend");
+                                                                Toast.makeText(c, "Error contacting server. Please try again.", Toast.LENGTH_LONG).show();
+                                                            }
+                                                        }
+                                                    });
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }catch(JSONException e){
+                                        e.printStackTrace();
+                                    }
+                                }else{
+                                    Log.d(TAG, "openAddFriendDialog: error getting user data");
+                                    Toast.makeText(c, "Error contacting server. Please try again.", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
+                .show();
     }
 }
