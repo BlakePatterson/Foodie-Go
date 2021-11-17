@@ -112,7 +112,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
             return true;
         }else if(id == R.id.addFriendMenuItem){
             //add friend button was clicked
-            FirebaseHelper.openAddFriendDialog(MapActivity.this, user);
+            openAddFriendDialog();
             return true;
         }
         return false;
@@ -237,7 +237,34 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         }
         return serviceRunning;
     }
-
+    public void openAddFriendDialog(){
+        new AlertDialog.Builder(MapActivity.this).setView(R.layout.dialog_add_friend)
+                .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Dialog d = (Dialog) dialogInterface;
+                        EditText inputUsernameField = d.findViewById(R.id.addFriendUsernameField);
+                        String inputUsername = inputUsernameField.getText().toString();
+                        if(inputUsername.equals("")){
+                            Log.d(TAG, "openAddFriendDialog: no username entered");
+                            Toast.makeText(MapActivity.this, "Please enter the username of your friend", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        addFriend(new FoodieUser(inputUsername, null, null, null));
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
+                .show();
+    }
+    public void addFriend(FoodieUser user){
+        FirebaseHelper helper = FirebaseHelper.getInstance(this);
+        helper.addFriend(user);
+    }
 
     //The following method(s) are for communicating information from the ForegroundLocationService
     @Override
