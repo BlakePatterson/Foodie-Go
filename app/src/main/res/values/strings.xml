@@ -24,5 +24,19 @@
     <string name="add_friend_dialog_text">Enter your friend\'s username:</string>
     <string name="submit">Submit</string>
     <string name="cancel">Cancel</string>
+    <string name="reviewHint">Write your review here</string>
+    <string name="leaveReviewButton">Leave Review</string>
     <string name="foodie_go_location_updates_notif_channel_id">Foodie Go Location Updates</string>
+    <string name="locationDetailNameKey">location_name</string>
+    <string name="locationDetailLatKey">location_lat</string>
+    <string name="locationDetailLongKey">location_long</string>
+    <string name="locationDetailRatingKey">location_rating</string>
+    <string name="rating_star_content_desc">Rating</string>
+    <string name="begin_route_button_content_desc">Begin Route Button</string>
+    <string name="reviews_list_label">Reviews</string>
+    <string name="activity_list_label">Activity</string>
+    <string name="claim_token_menu_item">Claim Token</string>
+    <string name="leave_review_menu_item">Leave Review</string>
+    <string name="leave_review_content_desc">Leave Review</string>
+    <string name="claim_token_content_desc">Claim Token</string>
 </resources>
