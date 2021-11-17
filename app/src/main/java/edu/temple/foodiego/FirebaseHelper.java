@@ -180,6 +180,9 @@ public class FirebaseHelper {
                                 }
                             }
                         }
+                        if(friendKey[0] == null){
+                            Toast.makeText(ctxt, "Unable to find requested user", Toast.LENGTH_LONG).show();
+                        }
                     }catch(JSONException e){
                         e.printStackTrace();
                     }
