@@ -61,6 +61,8 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
 
     ForegroundLocationService locationService;
 
+    Location userLocation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -186,6 +188,9 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         intent.putExtra(getString(R.string.lastname_bundle_key), user.getLastname());
         intent.putExtra(getString(R.string.key_bundle_key), user.getKey());
 
+        if(userLocation!=null)
+        intent.putExtra("userLocation",userLocation);
+
         startActivity(intent);
     }
 
@@ -247,12 +252,10 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         Log.d(TAG, "updateLocation: location update received in MapActivity: " + location.toString());
         mapFragment.updateLocationWithMarker(location);
         //send user location to detailActivity
-        Intent intent1 = new Intent(this, LocationDetailActivity.class);
-        intent1.putExtra("userLocation",location);
-        IntentSender intentSender = null;
-        try {
-            intentSender.sendIntent(this, 0, intent1,(IntentSender, intent, resultCode, resultData, resultExtras) -> {}, null);
-        }
-        catch (Exception ignored){}
+        userLocation = location;
+        Intent intent = new Intent();
+        intent.setAction("edu.temple.foodiego.userlocation");
+        intent.putExtra("userLocation",location);
+        sendBroadcast(intent);
     }
 }
