@@ -9,10 +9,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.AsyncQueryHandler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -58,6 +60,8 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     private SharedPreferences preferences;
 
     ForegroundLocationService locationService;
+
+    Location userLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,6 +188,9 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         intent.putExtra(getString(R.string.lastname_bundle_key), user.getLastname());
         intent.putExtra(getString(R.string.key_bundle_key), user.getKey());
 
+        if(userLocation!=null)
+        intent.putExtra("userLocation",userLocation);
+
         startActivity(intent);
     }
 
@@ -271,6 +278,11 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     public void updateLocation(Location location) {
         Log.d(TAG, "updateLocation: location update received in MapActivity: " + location.toString());
         mapFragment.updateLocationWithMarker(location);
-
+        //send user location to detailActivity
+        userLocation = location;
+        Intent intent = new Intent();
+        intent.setAction("edu.temple.foodiego.userlocation");
+        intent.putExtra("userLocation",location);
+        sendBroadcast(intent);
     }
 }

@@ -55,16 +55,12 @@ public class MapFragment extends Fragment {
 
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private DatabaseReference locationRef = fbdb.getReference("location");
+    private boolean listenerAdded = false;
     private ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
             Location userLocation = new Location("");
-            if(userMarker == null)
-            {
-                userLocation.setLatitude(39.96);
-                userLocation.setLongitude(-75.22);
-            }
-            else
+            if(userMarker != null)
             {
                 userLocation.setLatitude(userMarker.getPosition().latitude);
                 userLocation.setLongitude(userMarker.getPosition().longitude);
@@ -153,7 +149,7 @@ public class MapFragment extends Fragment {
             {
                 foodieLocations = new ArrayList<>();
             }
-            locationRef.addValueEventListener(valueEventListener);
+
 
         }
     };
@@ -221,9 +217,13 @@ public class MapFragment extends Fragment {
                 userMarker.setPosition(locationCoords);
             else
                 userMarker = map.addMarker(new MarkerOptions().position(locationCoords).title(user.getFirstname() + " " + user.getLastname()));
+            if(!listenerAdded)
+            {
+                locationRef.addValueEventListener(valueEventListener);
+                listenerAdded = true;
+            }
 
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(locationCoords, 15.0f));
-
             addNearByLocationsToMap();
         }
     }
@@ -232,6 +232,7 @@ public class MapFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         locationRef.removeEventListener(valueEventListener);
+        listenerAdded = false;
     }
 
     interface MapFragmentInterface {
@@ -240,26 +241,21 @@ public class MapFragment extends Fragment {
 
     // addNearbyLocationsToMap
     // @No param
-    // get the location of user then calculate the distance to the foodielocation.
-    // If distance is less than the range
-    // make it visible
-    // else make it invisible
+    // call api to get location from google api every 20 updates of location.
     public void addNearByLocationsToMap() {
         if (updateCountDown == 0) {
-            FirebaseHelper.getNearByLocations(getContext(), 2000.0, userMarker.getPosition());
+            Location location = new Location("");
+            location.setLongitude(userMarker.getPosition().longitude);
+            location.setLatitude(userMarker.getPosition().latitude);
+            FirebaseHelper.getNearByLocations(getContext(), 2000.0,location);
             updateCountDown = 20;
         } else {
             updateCountDown--;
         }
     }
 
-
     //Marker onclick behavior, tell map activity to handle it.
     public void onClickLocation(FoodieLocation location) {
-//        Intent intent = new Intent(getActivity(), LocationDetailActivity.class);
-//        intent.putExtra("data",title);
-//        startActivity(intent);
-
         ((MapFragmentInterface) this.parentActivity).openLocationDetailView(location);
     }
 

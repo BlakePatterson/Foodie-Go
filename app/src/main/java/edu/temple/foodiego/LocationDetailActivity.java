@@ -2,37 +2,29 @@ package edu.temple.foodiego;
 
 import static android.content.ContentValues.TAG;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.IntentFilter;
+import android.location.Location;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RatingBar;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.ArrayList;
-
-import static android.content.ContentValues.TAG;
-
 public class LocationDetailActivity extends AppCompatActivity {
+    private Context context;
     final String location_database = "location";
     TextView foodieName;
     Button reviewButton;
@@ -40,12 +32,17 @@ public class LocationDetailActivity extends AppCompatActivity {
 
     private FoodieUser user;
 
+    private Location userLocation;
+
+    BroadcastReceiver userLocationReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location_detail);
 
         Bundle startIntent = getIntent().getExtras();
+        context = this;
         if(startIntent != null) {
             String name = startIntent.getString(getString(R.string.locationDetailNameKey));
             double lat = startIntent.getDouble(getString(R.string.locationDetailLatKey));
@@ -58,6 +55,8 @@ public class LocationDetailActivity extends AppCompatActivity {
             String lastname = startIntent.getString(getString(R.string.lastname_bundle_key));
             String key = startIntent.getString(getString(R.string.key_bundle_key));
             user = new FoodieUser(username, firstname, lastname, key);
+
+            userLocation = (Location) startIntent.getParcelable("userLocation");
 
             Log.d(TAG, "onCreate: location detail activity started with: location: " + location.getName() + "; user: " + user.getUsername());
         } else {
@@ -100,9 +99,51 @@ public class LocationDetailActivity extends AppCompatActivity {
                 //TODO: perform a check to see if user is within range,
                 // if they are perform logic to give them token
                 // otherwise display a toast saying they cannot redeem token
+                if(user != null)
+                {
+                    if(userLocation.distanceTo(location.getLocation())<50){
+                        FirebaseHelper.addToken(user, location, "arrival", 1, b -> {
+                            if(b) {
+                                Toast.makeText(context, "New token Granted.", Toast.LENGTH_LONG).show();
+                                Log.e("Token","New token Granted.");
+                            }
+                            else {
+                                Toast.makeText(context, "Token is already granted.", Toast.LENGTH_LONG).show();
+                                Log.e("Token","Token is already granted.");
+                            }
+                        });
+                    } else
+                    {
+                        Toast.makeText(context, "Please get closer to this location.", Toast.LENGTH_LONG).show();
+                        Log.e("Token","user is too far away to the location.");
+                    }
+                }
+                else
+                {
+                    Log.e("claim fail","User not exist.");
+                }
+                FirebaseHelper.getTokens(user, new FirebaseHelper.IGetTokenResponse() {
+                    @Override
+                    public void result(int points) {
+                        Log.e("Token","total"+points);
+                    }
+                });
             }
         });
 
+        userLocationReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                userLocation = (Location) intent.getParcelableExtra("userLocation");
+            }
+        };
+        registerReceiver(userLocationReceiver,new IntentFilter("edu.temple.foodiego.userlocation"));
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(userLocationReceiver);
+        super.onDestroy();
     }
 
     public void openLeaveReviewDialog(){
@@ -140,4 +181,5 @@ public class LocationDetailActivity extends AppCompatActivity {
         //TODO: write functionality to send FoodieLocation to the MapFragment, initiating a route
         return null;
     }
+
 }
