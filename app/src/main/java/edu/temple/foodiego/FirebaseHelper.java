@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.location.Location;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -130,6 +131,66 @@ public class FirebaseHelper {
         RequestQueue queue = Volley.newRequestQueue(context);
         queue.add(sq);
     }
+    public void addFriend(FoodieUser user){
+        SharedPreferences prefs = ctxt.getSharedPreferences(ctxt.getString(R.string.credentials_preferences), Context.MODE_PRIVATE);
+        String selfKey = prefs.getString(ctxt.getString(R.string.stored_key_key), null);
+        if(selfKey == null){
+            Toast.makeText(ctxt, "Error, please try again", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "addFriend: couldn't retrieve logged in user's key");
+            return;
+        }
+        //find the key that matches the requested username
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference userRef = db.getReference("user");
+        final String[] friendKey = new String[1];
+        friendKey[0] = null;
+        userRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if(task.isSuccessful()){
+                    try{
+                        JSONObject userData = new JSONObject(String.valueOf(task.getResult().getValue()));
+                        Iterator<String> keys = userData.keys();
+                        while(keys.hasNext()){
+                            String key = keys.next();
+                            if(userData.get(key) instanceof JSONObject){
+                                String dbUsername = (String) ((JSONObject) userData.get(key)).get("username");
+                                if(dbUsername.equals(user.getUsername())){
+                                    friendKey[0] = key;
+                                    //get reference to the user's friends list
+                                    DatabaseReference friendsRef = userRef
+                                            .child(selfKey)
+                                            .child("friends");
+                                    friendsRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                friendsRef.push().setValue(friendKey[0]);
+                                                Toast.makeText(ctxt, "Friend successfully added!", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Log.d(TAG, "addFriend: error adding friend");
+                                                Toast.makeText(ctxt, "Error contacting server. Please try again.", Toast.LENGTH_LONG).show();
+                                              
+                                            }
+                                        }
+                                    });
+                                    break;
+                                }
+                            }
+                        }
+                        if(friendKey[0] == null){
+                            Toast.makeText(ctxt, "Unable to find requested user", Toast.LENGTH_LONG).show();
+                        }
+                    }catch(JSONException e){
+                        e.printStackTrace();
+                    }
+                }else{
+                    Log.d(TAG, "addFriend: error getting user data");
+                    Toast.makeText(ctxt, "Error contacting server. Please try again.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
     public static void postReview(FoodieUser user, FoodieLocation location, double rating, String review) {
         //TODO: test that this works properly
         //get reference to reviews
@@ -156,6 +217,7 @@ public class FirebaseHelper {
             }
         });
     }
+  
     public static void openAddFriendDialog(Context c, FoodieUser user) {
         new AlertDialog.Builder(c).setView(R.layout.dialog_add_friend)
                 .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
