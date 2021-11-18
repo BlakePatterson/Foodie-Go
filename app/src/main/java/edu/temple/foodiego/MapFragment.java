@@ -89,7 +89,7 @@ public class MapFragment extends Fragment {
                     double locationLng = Double.parseDouble(jo.getString("longitude"));
                     double locationRating = Double.parseDouble(jo.getString("rating"));
 
-                    FoodieLocation foodieLocation = new FoodieLocation(locationName, locationLat,locationLng,locationRating);
+                    FoodieLocation foodieLocation = new FoodieLocation(locationName, locationLat,locationLng,locationRating,key);
                     if(userLocation.distanceTo(foodieLocation.getLocation())<2000)
                     {
                         MarkerOptions markerOptions= new MarkerOptions();

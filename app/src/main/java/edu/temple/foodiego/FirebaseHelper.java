@@ -21,6 +21,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -35,6 +36,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -414,12 +417,12 @@ public class FirebaseHelper {
     }
 
     public static void postActivity(FoodieActivityLog log)
-    {   // is the duplication check required? no
+
+    {   // is the duplication check required?
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference activityTbale = database.getReference("activity");
         DatabaseReference newActivity = activityTbale.push();
         HashMap<String, String> dataMap = new HashMap<>();
-
         String locationName = replaceCharBeforeSet(log.getLocation().getName());
         String dateString =replaceCharBeforeSet(log.getTime().toString());//
 
@@ -428,7 +431,6 @@ public class FirebaseHelper {
         dataMap.put("foodieusername", log.getUser().getUsername());
         dataMap.put("activityaction", log.getAction());
         dataMap.put("activitydate",dateString);
-
         newActivity.setValue(dataMap);
         Log.e("helper", "Activity added.");
     }
@@ -457,6 +459,8 @@ public class FirebaseHelper {
                         String timeString = replaceCharAfterGet(activityJsonObj.getString("activitydate"));
                         LocalDate date = LocalDate.parse(timeString);//
                         FoodieActivityLog foodieActivityLog = new FoodieActivityLog(foodieUser, foodieLocation1, action, date);
+
+
                         resultList.add(foodieActivityLog);
                     }
                 }
@@ -465,6 +469,7 @@ public class FirebaseHelper {
                 e.printStackTrace();
             }
         });
+        iGetActivities.result(null);
     }
     interface IGetActivities{
         void result(ArrayList<FoodieActivityLog> logs);
