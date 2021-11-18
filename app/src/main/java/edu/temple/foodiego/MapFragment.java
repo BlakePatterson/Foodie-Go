@@ -55,6 +55,7 @@ public class MapFragment extends Fragment {
 
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private DatabaseReference locationRef = fbdb.getReference("location");
+    private boolean listenerAdded = false;
     private ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -216,7 +217,12 @@ public class MapFragment extends Fragment {
                 userMarker.setPosition(locationCoords);
             else
                 userMarker = map.addMarker(new MarkerOptions().position(locationCoords).title(user.getFirstname() + " " + user.getLastname()));
-            locationRef.addValueEventListener(valueEventListener);
+            if(!listenerAdded)
+            {
+                locationRef.addValueEventListener(valueEventListener);
+                listenerAdded = true;
+            }
+
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(locationCoords, 15.0f));
             addNearByLocationsToMap();
         }
@@ -226,6 +232,7 @@ public class MapFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         locationRef.removeEventListener(valueEventListener);
+        listenerAdded = false;
     }
 
     interface MapFragmentInterface {
