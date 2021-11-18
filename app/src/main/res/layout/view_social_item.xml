@@ -6,12 +6,26 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/socialTextView"
+        android:id="@+id/detailsTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="@+id/summaryTextView"
+        app:layout_constraintHorizontal_bias="0.514"
+        app:layout_constraintStart_toStartOf="@+id/summaryTextView"
+        app:layout_constraintTop_toBottomOf="@+id/summaryTextView"
+        tools:text="00:00- person did thing at place" />
+
+    <TextView
+        android:id="@+id/summaryTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="text" />
+        tools:text="name @ location" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

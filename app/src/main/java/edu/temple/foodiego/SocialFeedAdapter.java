@@ -1,6 +1,5 @@
 package edu.temple.foodiego;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +25,9 @@ public class SocialFeedAdapter extends RecyclerView.Adapter<SocialFeedAdapter.So
 
     @Override
     public void onBindViewHolder(@NonNull SocialItemViewHolder holder, int position) {
-        holder.getTextView().setText(data.get(position).getActivityLogMessage());
+        String s = data.get(position).getUser().getUsername() + " @ " + data.get(position).getLocation().getName();
+        holder.getSummaryTextView().setText(s);
+        holder.getDetailsTextView().setText(data.get(position).getActivityLogMessage());
     }
 
     @Override
@@ -34,14 +35,18 @@ public class SocialFeedAdapter extends RecyclerView.Adapter<SocialFeedAdapter.So
         return data.size();
     }
     public static class SocialItemViewHolder extends RecyclerView.ViewHolder{
-        private final TextView text;
+        private final TextView summary;
+        private final TextView details;
         public SocialItemViewHolder(@NonNull View itemView) {
             super(itemView);
-            text = (TextView) itemView.findViewById(R.id.socialTextView);
+            summary = (TextView) itemView.findViewById(R.id.summaryTextView);
+            details = (TextView) itemView.findViewById(R.id.detailsTextView);
         }
-
-        public TextView getTextView() {
-            return text;
+        public TextView getDetailsTextView() {
+            return details;
+        }
+        public TextView getSummaryTextView(){
+            return summary;
         }
     }
 }
