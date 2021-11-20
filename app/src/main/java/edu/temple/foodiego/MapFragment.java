@@ -1,17 +1,16 @@
 package edu.temple.foodiego;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.content.Context;
-import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,8 +20,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -66,51 +63,59 @@ public class MapFragment extends Fragment {
                 userLocation.setLongitude(userMarker.getPosition().longitude);
             }
 
-            for (FoodieLocation f: foodieLocations) {
-                f.getMarker().remove();
-            }
-            foodieLocations.clear();
-            String data = String.valueOf(snapshot.getValue());
-
-            try {
-                JSONObject jodata = new JSONObject(data);
-                Log.e("Locations Number", jodata.length()+"");
-                Iterator<String> keys = jodata.keys();
-                while (keys.hasNext())
-                {
-                    String key = keys.next();
-                    JSONObject jo = (JSONObject) jodata.get(key);
-                    //convert the json obj into actual data.
-                    String locationName = jo.getString("name");
-                    locationName = locationName.replace("_"," ");
-                    locationName = locationName.replace("^","'");
-                    locationName = locationName.replace("*",",");
-                    double locationLat = Double.parseDouble(jo.getString("latitude"));
-                    double locationLng = Double.parseDouble(jo.getString("longitude"));
-                    double locationRating = Double.parseDouble(jo.getString("rating"));
-
-                    FoodieLocation foodieLocation = new FoodieLocation(locationName, locationLat,locationLng,locationRating,key);
-                    if(userLocation.distanceTo(foodieLocation.getLocation())<2000)
-                    {
-                        MarkerOptions markerOptions= new MarkerOptions();
-                        markerOptions.position(new LatLng(locationLat,locationLng));
-                        markerOptions.title(locationName);
-                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker
-                                (BitmapDescriptorFactory.HUE_AZURE));
-                        foodieLocation.setMarker(map.addMarker(markerOptions));
-                        foodieLocations.add(foodieLocation);
-                    }
-
+            if(foodieLocations.size()>0)
+            {
+                for (FoodieLocation f: foodieLocations) {
+                    f.getMarker().remove();
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
+                foodieLocations.clear();
             }
+
+            String data = String.valueOf(snapshot.getValue());
+            if(data.equals("null"))
+            {
+                Log.e("Locations", "" +data);
+            }
+            else
+            {
+                try {
+                    JSONObject jodata = new JSONObject(data);
+                    Log.e("Locations Number", jodata.length()+"" +data);
+                    Iterator<String> keys = jodata.keys();
+                    while (keys.hasNext())
+                    {
+                        String key = keys.next();
+                        JSONObject jo = (JSONObject) jodata.get(key);
+                        //convert the json obj into actual data.
+                        String locationName = jo.getString("name");
+                        locationName = FirebaseHelper.replaceCharAfterGet(locationName);
+                        double locationLat = Double.parseDouble(jo.getString("latitude"));
+                        double locationLng = Double.parseDouble(jo.getString("longitude"));
+                        double locationRating = Double.parseDouble(jo.getString("rating"));
+
+                        FoodieLocation foodieLocation = new FoodieLocation(locationName, locationLat,locationLng,locationRating,key);
+                        if(userLocation.distanceTo(foodieLocation.getLocation())<2000)
+                        {
+                            MarkerOptions markerOptions= new MarkerOptions();
+                            markerOptions.position(new LatLng(locationLat,locationLng));
+                            markerOptions.title(locationName);
+                            markerOptions.icon(BitmapDescriptorFactory.defaultMarker
+                                    (BitmapDescriptorFactory.HUE_AZURE));
+                            foodieLocation.setMarker(map.addMarker(markerOptions));
+                            foodieLocations.add(foodieLocation);
+                        }
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
         }
 
         @Override
-        public void onCancelled(@NonNull DatabaseError error) {
-
-        }
+        public void onCancelled(@NonNull DatabaseError error) { }
     };
 
 
@@ -149,8 +154,6 @@ public class MapFragment extends Fragment {
             {
                 foodieLocations = new ArrayList<>();
             }
-
-
         }
     };
 

@@ -73,55 +73,74 @@ public class FirebaseHelper {
                 response -> {
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
                     DatabaseReference locationRef = database.getReference("location");
-
                     locationRef.get().addOnCompleteListener(task -> {
+
                         try {
                             //Convert response into json array
-                            //Log.e("response",response);
                             JSONArray responseJsonArray = new JSONArray(((new JSONObject(response)).getString("results")));
                             //Convert database into json obj
-                            JSONObject existJsonObjects = new JSONObject(String.valueOf(task.getResult().getValue()));
-                            //Log.e("Length",responseJsonArray.length()+"");
-
-
-                            Boolean dataExistInDB = false;
-                            for (int i=0; i< responseJsonArray.length(); i++) {
-                                //get the object's name at i in response,then replace special character.
-                                String responobjName=((JSONObject) responseJsonArray.get(i)).getString("name");
-                                responobjName= responobjName.replace(" ", "_")
-                                           .replace('\'' ,'^')
-                                           .replace(",","*");
-
-                                //Check if the obj is in database
-                                dataExistInDB = false;
-
-                                Iterator<String> keys = existJsonObjects.keys();
-                                //search database if there is name already exist
-                                while (keys.hasNext())
-                                {
-                                    String existobjName =((JSONObject)existJsonObjects.get(keys.next())).getString("name");
-                                    if(existobjName.trim().equals(responobjName.trim()))
-                                    {
-                                        dataExistInDB = true;
-                                        //Log.e("exist data",existobjName+" not added");break;
-                                    }
-                                }
-                               //if not add it
-
-                                if (!dataExistInDB) {
-                                    //Log.e("adding data",responobjName);
+                            //data not exist in database
+                            if(String.valueOf(task.getResult().getValue()).equals("null"))
+                            {
+                                Log.e("GetLcoations", "is null"+ response);
+                                for (int i=0; i< responseJsonArray.length(); i++) {
                                     JSONObject location_obj = new JSONObject(new JSONObject(((JSONObject) responseJsonArray.get(i)).getString("geometry")).getString("location"));
-                                    //Add a new entry to the location list
+
                                     DatabaseReference newRef = locationRef.push();
                                     HashMap<String, String> locationDataMap = new HashMap<>();
+
+                                    String responobjName = replaceCharBeforeSet(((JSONObject) responseJsonArray.get(i)).getString("name"));
                                     locationDataMap.put("name", responobjName);
                                     locationDataMap.put("latitude", location_obj.getString("lat"));
                                     locationDataMap.put("longitude", location_obj.getString("lng"));
                                     locationDataMap.put("rating", ((JSONObject) responseJsonArray.get(i)).getString("rating"));
-                                    //Save the user data on the database
+
                                     newRef.setValue(locationDataMap);
                                 }
                             }
+                            else
+                            {
+                                JSONObject dbObjects = new JSONObject(String.valueOf(task.getResult().getValue()));
+                                Boolean dataExistInDB = false;
+                                for (int i=0; i< responseJsonArray.length(); i++) {
+                                    //get the object's name at i in response,then replace special character.
+                                    String responobjName=((JSONObject) responseJsonArray.get(i)).getString("name");
+                                    responobjName= replaceCharBeforeSet(responobjName);
+                                    //Check if the obj is in database
+                                    dataExistInDB = false;
+                                    //search database if there is name already exist
+                                    Iterator<String> keys = dbObjects.keys();
+                                    while (keys.hasNext())
+                                    {
+                                        String existobjName =((JSONObject)dbObjects.get(keys.next())).getString("name");
+                                        if(existobjName.trim().equals(responobjName.trim()))
+                                        {
+                                            dataExistInDB = true; break;
+                                            //Log.e("exist data",existobjName+" not added");break;
+                                        }
+                                    }
+                                    //if not add it
+                                    if (!dataExistInDB) {
+                                        //Log.e("adding data",responobjName);
+                                        JSONObject location_obj = new JSONObject(new JSONObject(((JSONObject) responseJsonArray.get(i)).getString("geometry")).getString("location"));
+                                        //Add a new entry to the location list
+                                        DatabaseReference newRef = locationRef.push();
+                                        HashMap<String, String> locationDataMap = new HashMap<>();
+                                        locationDataMap.put("name", responobjName);
+                                        locationDataMap.put("latitude", location_obj.getString("lat"));
+                                        locationDataMap.put("longitude", location_obj.getString("lng"));
+                                        locationDataMap.put("rating", ((JSONObject) responseJsonArray.get(i)).getString("rating"));
+                                        newRef.setValue(locationDataMap);
+                                    }
+                                }
+
+                            }
+
+                            //Log.e("Length",responseJsonArray.length()+"");
+
+
+
+
                             } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -317,9 +336,7 @@ public class FirebaseHelper {
                         DatabaseReference userRef = database.getReference("user").child(user.getKey());
                         DatabaseReference newTokenRef = userTokenTableRef.push();
                         HashMap<String, String> DataMap = new HashMap<>();
-                        DataMap.put("restaurantname", foodieLocation.getName().replace(" ", "_")
-                                .replace('\'' ,'^')
-                                .replace(",","*"));
+                        DataMap.put("restaurantname", replaceCharBeforeSet(foodieLocation.getName()));
                         DataMap.put("points", String.valueOf(point));
                         DataMap.put("occasion",occasion);
                         newTokenRef.setValue(DataMap);
@@ -342,10 +359,7 @@ public class FirebaseHelper {
 
                                 String currentRestaurant = token.getString("restaurantname"); //special char converted
                                 String currentOccation= token.getString("occasion");
-                                if(currentRestaurant.equals(
-                                        foodieLocation.getName().replace(" ", "_")
-                                                .replace('\'' ,'^')
-                                                .replace(",","*")))
+                                if(currentRestaurant.equals(replaceCharBeforeSet(foodieLocation.getName())))
                                 {
                                     if(currentOccation.equals(occasion))
                                     {
@@ -362,9 +376,7 @@ public class FirebaseHelper {
                             {
                                 DatabaseReference newRef = userTokenTableRef.push();
                                 HashMap<String, String> DataMap = new HashMap<>();
-                                DataMap.put("restaurantname", foodieLocation.getName().replace(" ", "_")
-                                        .replace('\'' ,'^')
-                                        .replace(",","*"));
+                                DataMap.put("restaurantname", replaceCharBeforeSet(foodieLocation.getName()));
                                 DataMap.put("occasion",occasion);
                                 DataMap.put("points", String.valueOf(1));
                                 newRef.setValue(DataMap);
@@ -417,8 +429,7 @@ public class FirebaseHelper {
     }
 
     public static void postActivity(FoodieActivityLog log)
-
-    {   // is the duplication check required?
+    {   // is the duplication check required? no
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference activityTbale = database.getReference("activity");
         DatabaseReference newActivity = activityTbale.push();
@@ -459,7 +470,6 @@ public class FirebaseHelper {
                         String timeString = replaceCharAfterGet(activityJsonObj.getString("activitydate"));
                         LocalDate date = LocalDate.parse(timeString);//
                         FoodieActivityLog foodieActivityLog = new FoodieActivityLog(foodieUser, foodieLocation1, action, date);
-
 
                         resultList.add(foodieActivityLog);
                     }
