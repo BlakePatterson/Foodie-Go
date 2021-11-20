@@ -39,4 +39,5 @@
     <string name="leave_review_menu_item">Leave Review</string>
     <string name="leave_review_content_desc">Leave Review</string>
     <string name="claim_token_content_desc">Claim Token</string>
+    <string name="person_icon_desc">person icon</string>
 </resources>

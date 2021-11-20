@@ -6,26 +6,56 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/detailsTextView"
+        android:id="@+id/actionTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="@+id/summaryTextView"
-        app:layout_constraintHorizontal_bias="0.514"
-        app:layout_constraintStart_toStartOf="@+id/summaryTextView"
-        app:layout_constraintTop_toBottomOf="@+id/summaryTextView"
-        tools:text="00:00- person did thing at place" />
+        android:layout_marginStart="8dp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toBottomOf="@+id/userIcon"
+        app:layout_constraintStart_toEndOf="@+id/userIcon"
+        tools:text="action" />
 
     <TextView
-        android:id="@+id/summaryTextView"
+        android:id="@+id/nameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:textSize="16sp"
-        android:textStyle="bold"
+        android:textStyle="bold|italic"
+        app:layout_constraintStart_toEndOf="@+id/userIcon"
+        app:layout_constraintTop_toTopOf="@+id/userIcon"
+        tools:text="name" />
+
+    <ImageView
+        android:id="@+id/userIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:contentDescription="@string/person_icon_desc"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="name @ location" />
+        app:layout_constraintVertical_bias=".5"
+        app:srcCompat="@drawable/ic_baseline_person_64" />
+
+    <TextView
+        android:id="@+id/timeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/userIcon"
+        tools:text="00:00" />
+
+    <TextView
+        android:id="@+id/locationTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/actionTextView"
+        app:layout_constraintStart_toEndOf="@+id/userIcon"
+        app:layout_constraintTop_toBottomOf="@+id/nameTextView"
+        tools:text="location" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

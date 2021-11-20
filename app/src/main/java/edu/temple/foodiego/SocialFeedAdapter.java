@@ -25,9 +25,10 @@ public class SocialFeedAdapter extends RecyclerView.Adapter<SocialFeedAdapter.So
 
     @Override
     public void onBindViewHolder(@NonNull SocialItemViewHolder holder, int position) {
-        String s = data.get(position).getUser().getUsername() + " @ " + data.get(position).getLocation().getName();
-        holder.getSummaryTextView().setText(s);
-        holder.getDetailsTextView().setText(data.get(position).getActivityLogMessage());
+        holder.getName().setText(data.get(position).getUser().getUsername());
+        holder.getAction().setText(data.get(position).getAction());
+        holder.getLocation().setText(data.get(position).getLocation().getName());
+        holder.getTime().setText(data.get(position).getTime().toString());
     }
 
     @Override
@@ -35,18 +36,28 @@ public class SocialFeedAdapter extends RecyclerView.Adapter<SocialFeedAdapter.So
         return data.size();
     }
     public static class SocialItemViewHolder extends RecyclerView.ViewHolder{
-        private final TextView summary;
-        private final TextView details;
+        private final TextView name;
+        private final TextView action;
+        private final TextView location;
+        private final TextView time;
         public SocialItemViewHolder(@NonNull View itemView) {
             super(itemView);
-            summary = (TextView) itemView.findViewById(R.id.summaryTextView);
-            details = (TextView) itemView.findViewById(R.id.detailsTextView);
+            name = (TextView) itemView.findViewById(R.id.nameTextView);
+            action = (TextView) itemView.findViewById(R.id.actionTextView);
+            location = (TextView) itemView.findViewById(R.id.locationTextView);
+            time = (TextView) itemView.findViewById(R.id.timeTextView);
         }
-        public TextView getDetailsTextView() {
-            return details;
+        public TextView getAction() {
+            return action;
         }
-        public TextView getSummaryTextView(){
-            return summary;
+        public TextView getName(){
+            return name;
+        }
+        public TextView getLocation() {
+            return location;
+        }
+        public TextView getTime() {
+            return time;
         }
     }
 }
