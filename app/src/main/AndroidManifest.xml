@@ -17,6 +17,7 @@
         android:roundIcon="@drawable/ic_logo_foreground"
         android:supportsRtl="true"
         android:theme="@style/Theme.FoodieGo">
+        <activity android:name=".SocialFeedActivity"></activity>
         <activity
             android:name=".LocationDetailActivity"
             android:exported="false" />
@@ -24,7 +25,7 @@
         <service
             android:name=".ForegroundLocationService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
