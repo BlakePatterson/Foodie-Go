@@ -41,4 +41,5 @@
     <string name="claim_token_content_desc">Claim Token</string>
     <string name="person_icon_desc">person icon</string>
     <string name="social_feed_menu_item">Social Feed</string>
+    <string name="post_activity_content_desc">Post Activity</string>
 </resources>

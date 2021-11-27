@@ -6,6 +6,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
@@ -34,6 +37,15 @@ public class SocialFeedActivity extends AppCompatActivity {
         }
 
         list = findViewById(R.id.socialFeed);
+
+        FloatingActionButton postActivityButton = findViewById(R.id.postActivityFloatingActionButton);
+
+        postActivityButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openPostActivityDialog();
+            }
+        });
     }
 
     @Override
