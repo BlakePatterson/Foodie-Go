@@ -24,9 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Date;
 
 public class LocationDetailActivity extends AppCompatActivity {
@@ -134,17 +132,8 @@ public class LocationDetailActivity extends AppCompatActivity {
 //                        Log.e("Token","total"+points);
 //                    }
 //                });
-
-//                FoodieActivityLog foodieActivityLog = new FoodieActivityLog(user, location, "arrival", LocalDate.now());
-//                FirebaseHelper.postActivity(foodieActivityLog);
-
-//                FirebaseHelper.getLocationActivities(location, logs -> {
-//                    Log.d("log:","response received" + logs.size());
-//                    for (FoodieActivityLog l: logs) {
-//                        Log.d("log:",l.getLocation()+" "+l.getAction()+" "+ l.getTime() + " "+l.getUser());
-//                    }
-//                });
-
+                FoodieActivityLog foodieActivityLog = new FoodieActivityLog(user, location, "arrival", Date.parse(LocalDateTime.now().toLocalDate().toString()));
+                FirebaseHelper.postActivity(foodieActivityLog);
             }
         });
 

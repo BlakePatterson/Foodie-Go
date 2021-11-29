@@ -31,7 +31,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -421,13 +420,13 @@ public class FirebaseHelper {
         HashMap<String, String> dataMap = new HashMap<>();
 
         String locationName = replaceCharBeforeSet(log.getLocation().getName());
-        String dateString =replaceCharBeforeSet(log.getTime().toString());//
+        String timeString =replaceCharBeforeSet(log.getTime().toString());//
 
         //dataMap.put("foodielocationkey",log.getLocation().get);
         dataMap.put("foodielocationname", locationName);
         dataMap.put("foodieusername", log.getUser().getUsername());
         dataMap.put("activityaction", log.getAction());
-        dataMap.put("activitydate",dateString);
+        dataMap.put("activitytime",timeString);
 
         newActivity.setValue(dataMap);
         Log.e("helper", "Activity added.");
@@ -440,7 +439,6 @@ public class FirebaseHelper {
         Task<DataSnapshot> t = activityTableRef.get();
         t.addOnCompleteListener(task -> {
             String data = String.valueOf(t.getResult().getValue());
-            Log.d("data", data);
             try{
                 JSONObject tokens = new JSONObject(data);
                 ArrayList<FoodieActivityLog> resultList = new ArrayList();
@@ -448,14 +446,14 @@ public class FirebaseHelper {
                 while(keys.hasNext()) {
                     String key = keys.next();
                     JSONObject activityJsonObj = new JSONObject(tokens.getString(key));
-                    if(foodieLocation.getName().equals(replaceCharAfterGet((String) activityJsonObj.get("foodielocationname"))))
+                    if(foodieLocation.getName().equals(activityJsonObj.get("foodielocationname")))
                     {//need to modify these string value.
                         FoodieUser foodieUser = new FoodieUser(activityJsonObj.getString("foodieusername"),"","","");
                         FoodieLocation foodieLocation1 = new FoodieLocation(
                                 replaceCharAfterGet(activityJsonObj.getString("foodielocationname")),0,0,0 );
                         String action = activityJsonObj.getString("activityaction");
-                        String timeString = replaceCharAfterGet(activityJsonObj.getString("activitydate"));
-                        LocalDate date = LocalDate.parse(timeString);//
+                        String timeString = replaceCharAfterGet(activityJsonObj.getString("activitytime"));
+                        Date date = Date.from(Instant.parse(timeString));//
                         FoodieActivityLog foodieActivityLog = new FoodieActivityLog(foodieUser, foodieLocation1, action, date);
                         resultList.add(foodieActivityLog);
                     }
