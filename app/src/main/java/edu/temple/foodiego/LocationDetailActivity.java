@@ -178,6 +178,7 @@ public class LocationDetailActivity extends AppCompatActivity {
                         if(review.equals("") || rating == 0){
                             Toast.makeText(LocationDetailActivity.this, "Please fill in both the rating and the review.", Toast.LENGTH_LONG).show();
                         }else{
+
                             //call postReview()
                             d.dismiss();
                         }
