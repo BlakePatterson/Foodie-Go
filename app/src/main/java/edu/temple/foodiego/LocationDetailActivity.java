@@ -136,10 +136,10 @@ public class LocationDetailActivity extends AppCompatActivity {
 //                        Log.e("Token","total"+points);
 //                    }
 //                });
-
+//
 //                FoodieActivityLog foodieActivityLog = new FoodieActivityLog(user, location, "arrival", LocalDate.now());
 //                FirebaseHelper.postActivity(foodieActivityLog);
-
+//
 //                FirebaseHelper.getLocationActivities(location, logs -> {
 //                    Log.d("log:","response received" + logs.size());
 //                    for (FoodieActivityLog l: logs) {

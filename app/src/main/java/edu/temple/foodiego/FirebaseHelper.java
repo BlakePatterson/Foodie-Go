@@ -74,7 +74,6 @@ public class FirebaseHelper {
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
                     DatabaseReference locationRef = database.getReference("location");
                     locationRef.get().addOnCompleteListener(task -> {
-
                         try {
                             //Convert response into json array
                             JSONArray responseJsonArray = new JSONArray(((new JSONObject(response)).getString("results")));
@@ -82,19 +81,16 @@ public class FirebaseHelper {
                             //data not exist in database
                             if(String.valueOf(task.getResult().getValue()).equals("null"))
                             {
-                                Log.e("GetLcoations", "is null"+ response);
+                                //Log.e("GetLcoations", "is null"+ response);
                                 for (int i=0; i< responseJsonArray.length(); i++) {
                                     JSONObject location_obj = new JSONObject(new JSONObject(((JSONObject) responseJsonArray.get(i)).getString("geometry")).getString("location"));
-
                                     DatabaseReference newRef = locationRef.push();
                                     HashMap<String, String> locationDataMap = new HashMap<>();
-
                                     String responobjName = replaceCharBeforeSet(((JSONObject) responseJsonArray.get(i)).getString("name"));
                                     locationDataMap.put("name", responobjName);
                                     locationDataMap.put("latitude", location_obj.getString("lat"));
                                     locationDataMap.put("longitude", location_obj.getString("lng"));
                                     locationDataMap.put("rating", ((JSONObject) responseJsonArray.get(i)).getString("rating"));
-
                                     newRef.setValue(locationDataMap);
                                 }
                             }
@@ -103,12 +99,9 @@ public class FirebaseHelper {
                                 JSONObject dbObjects = new JSONObject(String.valueOf(task.getResult().getValue()));
                                 Boolean dataExistInDB = false;
                                 for (int i=0; i< responseJsonArray.length(); i++) {
-                                    //get the object's name at i in response,then replace special character.
                                     String responobjName=((JSONObject) responseJsonArray.get(i)).getString("name");
                                     responobjName= replaceCharBeforeSet(responobjName);
-                                    //Check if the obj is in database
                                     dataExistInDB = false;
-                                    //search database if there is name already exist
                                     Iterator<String> keys = dbObjects.keys();
                                     while (keys.hasNext())
                                     {
@@ -116,32 +109,21 @@ public class FirebaseHelper {
                                         if(existobjName.trim().equals(responobjName.trim()))
                                         {
                                             dataExistInDB = true; break;
-                                            //Log.e("exist data",existobjName+" not added");break;
                                         }
                                     }
-                                    //if not add it
                                     if (!dataExistInDB) {
-                                        //Log.e("adding data",responobjName);
                                         JSONObject location_obj = new JSONObject(new JSONObject(((JSONObject) responseJsonArray.get(i)).getString("geometry")).getString("location"));
-                                        //Add a new entry to the location list
                                         DatabaseReference newRef = locationRef.push();
                                         HashMap<String, String> locationDataMap = new HashMap<>();
-                                        locationDataMap.put("name", responobjName);
-                                        locationDataMap.put("latitude", location_obj.getString("lat"));
-                                        locationDataMap.put("longitude", location_obj.getString("lng"));
-                                        locationDataMap.put("rating", ((JSONObject) responseJsonArray.get(i)).getString("rating"));
+                                        locationDataMap.put("location_name", responobjName);
+                                        locationDataMap.put("location_lat", location_obj.getString("lat"));
+                                        locationDataMap.put("location_long", location_obj.getString("lng"));
+                                        locationDataMap.put("location_rating", ((JSONObject) responseJsonArray.get(i)).getString("rating"));
                                         newRef.setValue(locationDataMap);
                                     }
                                 }
-
                             }
-
-                            //Log.e("Length",responseJsonArray.length()+"");
-
-
-
-
-                            } catch (JSONException e) {
+                        } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     });
@@ -399,23 +381,20 @@ public class FirebaseHelper {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference tokenTableRef = database.getReference("user").child(user.getKey()).child("tokens");
         Task<DataSnapshot> t = tokenTableRef.get();
-        t.addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                String data = String.valueOf(t.getResult().getValue());
-                try{
-                    JSONObject tokens = new JSONObject(data);
-                    Iterator<String> keys = tokens.keys();
-                    int tokenread = 0;
-                    while(keys.hasNext()) {
-                        String key = keys.next();
-                        JSONObject token = new JSONObject(tokens.getString(key));
-                        tokenread += Integer.parseInt(token.getString("points"));
-                    }
-                    iGetTokenResponse.result(tokenread);
-                }catch (Exception e){
-                    e.printStackTrace();
+        t.addOnCompleteListener(task -> {
+            String data = String.valueOf(t.getResult().getValue());
+            try{
+                JSONObject tokens = new JSONObject(data);
+                Iterator<String> keys = tokens.keys();
+                int tokenread = 0;
+                while(keys.hasNext()) {
+                    String key = keys.next();
+                    JSONObject token = new JSONObject(tokens.getString(key));
+                    tokenread += Integer.parseInt(token.getString("points"));
                 }
+                iGetTokenResponse.result(tokenread);
+            }catch (Exception e){
+                e.printStackTrace();
             }
         });
     }
@@ -429,21 +408,17 @@ public class FirebaseHelper {
     }
 
     public static void postActivity(FoodieActivityLog log)
-    {   // is the duplication check required? no
+    {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference activityTbale = database.getReference("activity");
         DatabaseReference newActivity = activityTbale.push();
         HashMap<String, String> dataMap = new HashMap<>();
-        String locationName = replaceCharBeforeSet(log.getLocation().getName());
-        String dateString =replaceCharBeforeSet(log.getTime().toString());//
-
-        //dataMap.put("foodielocationkey",log.getLocation().get);
-        dataMap.put("foodielocationname", locationName);
-        dataMap.put("foodieusername", log.getUser().getUsername());
-        dataMap.put("activityaction", log.getAction());
-        dataMap.put("activitydate",dateString);
+        dataMap.put("location_id", replaceCharBeforeSet(log.getLocation().getName()));
+        dataMap.put("user_id", log.getUser().getUsername());
+        dataMap.put("activity_type", log.getAction());
+        dataMap.put("activity_time",replaceCharBeforeSet(log.getTime().toString()));
+        dataMap.put("activity_message",replaceCharBeforeSet(log.getActivityLogMessage()));
         newActivity.setValue(dataMap);
-        Log.e("helper", "Activity added.");
     }
 
     public static void getLocationActivities(FoodieLocation foodieLocation, IGetActivities iGetActivities)
@@ -453,7 +428,6 @@ public class FirebaseHelper {
         Task<DataSnapshot> t = activityTableRef.get();
         t.addOnCompleteListener(task -> {
             String data = String.valueOf(t.getResult().getValue());
-            Log.d("data", data);
             try{
                 JSONObject tokens = new JSONObject(data);
                 ArrayList<FoodieActivityLog> resultList = new ArrayList();
@@ -461,25 +435,24 @@ public class FirebaseHelper {
                 while(keys.hasNext()) {
                     String key = keys.next();
                     JSONObject activityJsonObj = new JSONObject(tokens.getString(key));
-                    if(foodieLocation.getName().equals(replaceCharAfterGet((String) activityJsonObj.get("foodielocationname"))))
-                    {//need to modify these string value.
-                        FoodieUser foodieUser = new FoodieUser(activityJsonObj.getString("foodieusername"),"","","");
+                    if(foodieLocation.getName().equals(replaceCharAfterGet((String) activityJsonObj.get("location_id"))))
+                    {
+                        FoodieUser foodieUser = new FoodieUser(activityJsonObj.getString("user_id"),"","","");
                         FoodieLocation foodieLocation1 = new FoodieLocation(
-                                replaceCharAfterGet(activityJsonObj.getString("foodielocationname")),0,0,0 );
-                        String action = activityJsonObj.getString("activityaction");
-                        String timeString = replaceCharAfterGet(activityJsonObj.getString("activitydate"));
-                        LocalDate date = LocalDate.parse(timeString);//
+                                replaceCharAfterGet(activityJsonObj.getString("location_id")),0,0,0 );
+                        String action = activityJsonObj.getString("activity_type");
+                        String timeString = replaceCharAfterGet(activityJsonObj.getString("activity_time"));
+                        LocalDate date = LocalDate.parse(timeString);
                         FoodieActivityLog foodieActivityLog = new FoodieActivityLog(foodieUser, foodieLocation1, action, date);
-
                         resultList.add(foodieActivityLog);
                     }
                 }
+                if(resultList.size()>0)
                 iGetActivities.result(resultList);
             }catch (Exception e){
                 e.printStackTrace();
             }
         });
-        iGetActivities.result(null);
     }
     interface IGetActivities{
         void result(ArrayList<FoodieActivityLog> logs);
