@@ -30,10 +30,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -410,80 +406,5 @@ public class FirebaseHelper {
     interface IAddTokenResponse
     {
         void result(Boolean b);
-    }
-
-    public static void postActivity(FoodieActivityLog log)
-    {   // is the duplication check required? no
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference activityTbale = database.getReference("activity");
-        DatabaseReference newActivity = activityTbale.push();
-        HashMap<String, String> dataMap = new HashMap<>();
-
-        String locationName = replaceCharBeforeSet(log.getLocation().getName());
-        String timeString =replaceCharBeforeSet(log.getTime().toString());//
-
-        //dataMap.put("foodielocationkey",log.getLocation().get);
-        dataMap.put("foodielocationname", locationName);
-        dataMap.put("foodieusername", log.getUser().getUsername());
-        dataMap.put("activityaction", log.getAction());
-        dataMap.put("activitytime",timeString);
-
-        newActivity.setValue(dataMap);
-        Log.e("helper", "Activity added.");
-    }
-
-    public static void getLocationActivities(FoodieLocation foodieLocation, IGetActivities iGetActivities)
-    {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference activityTableRef = database.getReference("activity");
-        Task<DataSnapshot> t = activityTableRef.get();
-        t.addOnCompleteListener(task -> {
-            String data = String.valueOf(t.getResult().getValue());
-            try{
-                JSONObject tokens = new JSONObject(data);
-                ArrayList<FoodieActivityLog> resultList = new ArrayList();
-                Iterator<String> keys = tokens.keys();
-                while(keys.hasNext()) {
-                    String key = keys.next();
-                    JSONObject activityJsonObj = new JSONObject(tokens.getString(key));
-                    if(foodieLocation.getName().equals(activityJsonObj.get("foodielocationname")))
-                    {//need to modify these string value.
-                        FoodieUser foodieUser = new FoodieUser(activityJsonObj.getString("foodieusername"),"","","");
-                        FoodieLocation foodieLocation1 = new FoodieLocation(
-                                replaceCharAfterGet(activityJsonObj.getString("foodielocationname")),0,0,0 );
-                        String action = activityJsonObj.getString("activityaction");
-                        String timeString = replaceCharAfterGet(activityJsonObj.getString("activitytime"));
-                        Date date = Date.from(Instant.parse(timeString));//
-                        FoodieActivityLog foodieActivityLog = new FoodieActivityLog(foodieUser, foodieLocation1, action, date);
-                        resultList.add(foodieActivityLog);
-                    }
-                }
-                iGetActivities.result(resultList);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        });
-    }
-    interface IGetActivities{
-        void result(ArrayList<FoodieActivityLog> logs);
-    }
-
-    public static String replaceCharBeforeSet(String original)
-    {
-        String result = original
-                .replace(' ', '_')
-                .replace('\'' ,'^')
-                .replace(',','*')
-                .replace(':','!');
-        return result;
-    }
-    public static String replaceCharAfterGet(String original)
-    {
-        String result = original
-                .replace("_", " ")
-                .replace('^' ,'\'')
-                .replace("*",",")
-                .replace("!",":");
-        return result;
     }
 }
