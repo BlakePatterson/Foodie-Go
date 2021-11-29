@@ -23,6 +23,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Date;
+
 public class LocationDetailActivity extends AppCompatActivity {
     private Context context;
     final String location_database = "location";
@@ -122,12 +126,14 @@ public class LocationDetailActivity extends AppCompatActivity {
                 {
                     Log.e("claim fail","User not exist.");
                 }
-                FirebaseHelper.getTokens(user, new FirebaseHelper.IGetTokenResponse() {
-                    @Override
-                    public void result(int points) {
-                        Log.e("Token","total"+points);
-                    }
-                });
+//                FirebaseHelper.getTokens(user, new FirebaseHelper.IGetTokenResponse() {
+//                    @Override
+//                    public void result(int points) {
+//                        Log.e("Token","total"+points);
+//                    }
+//                });
+                FoodieActivityLog foodieActivityLog = new FoodieActivityLog(user, location, "arrival", Date.parse(LocalDateTime.now().toLocalDate().toString()));
+                FirebaseHelper.postActivity(foodieActivityLog);
             }
         });
 
