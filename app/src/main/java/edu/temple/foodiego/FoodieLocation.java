@@ -7,7 +7,7 @@ import com.google.android.gms.maps.model.Marker;
 public class FoodieLocation {
 
     //TODO: update class diagram with proper attributes regarding rating
-
+    private String key;
     private String name;
     private double latitude;
     private double longitude;
@@ -21,6 +21,15 @@ public class FoodieLocation {
         this.longitude = longitude;
         this.rating = rating;
     }
+
+    public FoodieLocation(String name, double latitude, double longitude, double rating, String key) {
+        this.name = name;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.rating = rating;
+        this.key = key;
+    }
+
 
     public String getName() {
         return name;
@@ -64,5 +73,9 @@ public class FoodieLocation {
 
     public void setMarker(Marker marker) {
         this.marker = marker;
+    }
+
+    public String getKey() {
+        return key;
     }
 }

@@ -22,6 +22,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.ArrayList;
 
 public class LocationDetailActivity extends AppCompatActivity {
     private Context context;
@@ -48,7 +54,8 @@ public class LocationDetailActivity extends AppCompatActivity {
             double lat = startIntent.getDouble(getString(R.string.locationDetailLatKey));
             double lon = startIntent.getDouble(getString(R.string.locationDetailLongKey));
             double rating = startIntent.getDouble(getString(R.string.locationDetailRatingKey));
-            location = new FoodieLocation(name, lat, lon, rating);
+            String location_key = startIntent.getString("location_key");
+            location = new FoodieLocation(name, lat, lon, rating,location_key);
 
             String username = startIntent.getString(getString(R.string.username_bundle_key));
             String firstname = startIntent.getString(getString(R.string.firstname_bundle_key));
@@ -122,12 +129,24 @@ public class LocationDetailActivity extends AppCompatActivity {
                 {
                     Log.e("claim fail","User not exist.");
                 }
-                FirebaseHelper.getTokens(user, new FirebaseHelper.IGetTokenResponse() {
-                    @Override
-                    public void result(int points) {
-                        Log.e("Token","total"+points);
-                    }
-                });
+
+//                FirebaseHelper.getTokens(user, new FirebaseHelper.IGetTokenResponse() {
+//                    @Override
+//                    public void result(int points) {
+//                        Log.e("Token","total"+points);
+//                    }
+//                });
+//
+//                FoodieActivityLog foodieActivityLog = new FoodieActivityLog(user, location, "arrival", LocalDate.now());
+//                FirebaseHelper.postActivity(foodieActivityLog);
+//
+//                FirebaseHelper.getLocationActivities(location, logs -> {
+//                    Log.d("log:","response received" + logs.size());
+//                    for (FoodieActivityLog l: logs) {
+//                        Log.d("log:",l.getLocation()+" "+l.getAction()+" "+ l.getTime() + " "+l.getUser());
+//                    }
+//                });
+
             }
         });
 
@@ -159,6 +178,7 @@ public class LocationDetailActivity extends AppCompatActivity {
                         if(review.equals("") || rating == 0){
                             Toast.makeText(LocationDetailActivity.this, "Please fill in both the rating and the review.", Toast.LENGTH_LONG).show();
                         }else{
+
                             //call postReview()
                             d.dismiss();
                         }
