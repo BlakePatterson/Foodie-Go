@@ -186,6 +186,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         intent.putExtra(getString(R.string.locationDetailLatKey), location.getLocation().getLatitude());
         intent.putExtra(getString(R.string.locationDetailLongKey), location.getLocation().getLongitude());
         intent.putExtra(getString(R.string.locationDetailRatingKey), location.getRating());
+        intent.putExtra("location_key", location.getKey());
 
         intent.putExtra(getString(R.string.username_bundle_key), user.getUsername());
         intent.putExtra(getString(R.string.firstname_bundle_key), user.getFirstname());
