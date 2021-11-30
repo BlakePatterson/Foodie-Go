@@ -63,7 +63,7 @@ public class FirebaseHelper {
         return instance;
     }
 
-    public static void getNearByLocations(Context context, Double radius, Location location)
+    public static void getNearbyLocations(Context context, Double radius, Location location)
     {
         StringRequest sq = new StringRequest(
                 Request.Method.GET,
@@ -87,10 +87,10 @@ public class FirebaseHelper {
                                     DatabaseReference newRef = locationRef.push();
                                     HashMap<String, String> locationDataMap = new HashMap<>();
                                     String responobjName = replaceCharBeforeSet(((JSONObject) responseJsonArray.get(i)).getString("name"));
-                                    locationDataMap.put("name", responobjName);
-                                    locationDataMap.put("latitude", location_obj.getString("lat"));
-                                    locationDataMap.put("longitude", location_obj.getString("lng"));
-                                    locationDataMap.put("rating", ((JSONObject) responseJsonArray.get(i)).getString("rating"));
+                                    locationDataMap.put("location_name", responobjName);
+                                    locationDataMap.put("location_lat", location_obj.getString("lat"));
+                                    locationDataMap.put("location_long", location_obj.getString("lng"));
+                                    locationDataMap.put("location_rating", ((JSONObject) responseJsonArray.get(i)).getString("rating"));
                                     newRef.setValue(locationDataMap);
                                 }
                             }
@@ -105,7 +105,7 @@ public class FirebaseHelper {
                                     Iterator<String> keys = dbObjects.keys();
                                     while (keys.hasNext())
                                     {
-                                        String existobjName =((JSONObject)dbObjects.get(keys.next())).getString("name");
+                                        String existobjName =((JSONObject)dbObjects.get(keys.next())).getString("location_name");
                                         if(existobjName.trim().equals(responobjName.trim()))
                                         {
                                             dataExistInDB = true; break;
