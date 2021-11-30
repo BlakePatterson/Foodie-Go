@@ -6,8 +6,10 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -206,12 +208,120 @@ public class FirebaseHelper {
         DatabaseReference reviewTable = database.getReference("location_review");
         DatabaseReference newReview = reviewTable.push();
         HashMap<String, String> map = new HashMap<>();
+
+        String formattedLocationName = replaceCharBeforeSet(location.getName());
+        String formattedReviewMessage = replaceCharBeforeSet(review);
+
         map.put("user_id", user.getKey());
-        map.put("location_id", location.getName());
+        map.put("location_id", formattedLocationName);
         map.put("review_val", "" + rating);
-        map.put("review_message", review);
+        map.put("review_message", formattedReviewMessage);
         newReview.setValue(map);
     }
+
+    public void getReviews(FoodieLocation location, GetReviewsResponse callingActivity) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference reviewsRef = database.getReference("location_review");
+        DatabaseReference userRef = database.getReference("user");
+
+        ArrayList<FoodieReview> resultingReviews = new ArrayList<>();
+        ArrayList<String> userIds = new ArrayList<>();
+
+        reviewsRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Log.d(TAG, "onComplete: failed to retrieve reviews for location " + location.getName());
+                }
+                else {
+
+                    try {
+
+                        JSONObject reviewData = new JSONObject(String.valueOf(task.getResult().getValue()));
+                        Iterator<String> keys = reviewData.keys();
+                        while(keys.hasNext()) {
+                            String key = keys.next();
+                            if (reviewData.get(key) instanceof JSONObject) {
+
+                                //Read the review location from the database
+                                String db_location = (String) ((JSONObject) reviewData.get(key)).get("location_id");
+                                db_location = replaceCharAfterGet(db_location);
+
+//                                Log.d(TAG, "onComplete: now comparing location names: local name: " + location.getName() + "; db name: " + db_location);
+
+                                //If the location name matches
+                                if (location.getName().equals(db_location)) {
+//                                    Log.d(TAG, "onComplete: THE LOCATION NAMES WERE EQUAL");
+
+                                    //The review corresponds to the current location, so add it to the list
+
+                                    String user_id = (String) ((JSONObject) reviewData.get(key)).get("user_id");
+                                    double rating = (double) ((JSONObject) reviewData.get(key)).get("review_val");
+                                    String review = (String) ((JSONObject) reviewData.get(key)).get("review_message");
+
+                                    resultingReviews.add(new FoodieReview(null, location, rating, review));
+                                    userIds.add(user_id);
+                                }
+                            }
+                        }
+
+                        for (int i = 0; i < userIds.size(); i++) {
+                            String user_id = userIds.get(i);
+                            int finalI = i;
+                            userRef.child(user_id).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                    if (!task.isSuccessful()) {
+                                        Log.d(TAG, "onComplete: failed to retrieve user data for reviews for location " + location.getName());
+                                    }
+                                    else {
+                                        try {
+                                            JSONObject userData = new JSONObject(String.valueOf(task.getResult().getValue()));
+
+                                            String username = userData.getString("username");
+                                            String firstname = userData.getString("firstname");
+                                            String lastname = userData.getString("lastname");
+
+                                            FoodieUser user = new FoodieUser(username, firstname, lastname, user_id);
+
+//                                            Log.d(TAG, "onComplete: NOW SETTING USER DATA");
+                                            resultingReviews.get(finalI).setUser(user);
+
+                                            if (finalI == userIds.size() - 1) {
+                                                //The final user's data has been retrieved, so return the data
+
+                                                for (int i = 0; i < resultingReviews.size(); i++) {
+                                                    Log.d(TAG, "onComplete: FOUND REVIEW FOR LOCATION: " + resultingReviews.get(i).getUser().getUsername() + "; " + resultingReviews.get(i).getRating());
+                                                }
+
+                                                callingActivity.result(resultingReviews);
+                                            }
+
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                            Log.d(TAG, "onComplete: error while parsing through user data while parsing through reviews");
+                                        }
+                                    }
+                                }
+                            });
+
+                        }
+
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Log.d(TAG, "onComplete: error while parsing through reviews");
+                    }
+
+                }
+            }
+        });
+    }
+    interface GetReviewsResponse
+    {
+        void result(ArrayList<FoodieReview> reviews);
+    }
+
 
     //@ param foodieuser, foodielocation
     //if token table does not exist, create one and add token into it

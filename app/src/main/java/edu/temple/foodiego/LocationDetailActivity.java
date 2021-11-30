@@ -22,6 +22,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.lang.reflect.Array;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -39,6 +41,8 @@ public class LocationDetailActivity extends AppCompatActivity {
     private FoodieUser user;
 
     private Location userLocation;
+
+    private ArrayList<FoodieReview> reviews;
 
     BroadcastReceiver userLocationReceiver;
 
@@ -148,6 +152,10 @@ public class LocationDetailActivity extends AppCompatActivity {
 //                });
 
             }
+        });
+
+        FirebaseHelper.getInstance(this).getReviews(location, result -> {
+            reviews = result;
         });
 
         userLocationReceiver = new BroadcastReceiver() {
