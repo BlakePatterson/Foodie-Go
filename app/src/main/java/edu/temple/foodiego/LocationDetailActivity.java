@@ -180,6 +180,9 @@ public class LocationDetailActivity extends AppCompatActivity {
                         }else{
 
                             //call postReview()
+
+                            postReviewToFirebase(review, rating);
+
                             d.dismiss();
                         }
                     }
@@ -193,8 +196,10 @@ public class LocationDetailActivity extends AppCompatActivity {
                 .show();
     }
 
-    public void postReviewToFirebase() {
+    public void postReviewToFirebase(String review, double rating) {
+        Log.d(TAG, "postReviewToFirebase: posting review to firebase with rating: " + String.valueOf(rating) + "; review message: " + review);
 
+        FirebaseHelper.getInstance(this).postReview(user, location, rating, review);
     }
 
     public FoodieLocation startRouteToLocation() {

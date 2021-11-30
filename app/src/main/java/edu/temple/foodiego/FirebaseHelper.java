@@ -63,8 +63,7 @@ public class FirebaseHelper {
         return instance;
     }
 
-    public static void getNearbyLocations(Context context, Double radius, Location location)
-    {
+    public static void getNearbyLocations(Context context, Double radius, Location location) {
         StringRequest sq = new StringRequest(
                 Request.Method.GET,
                 //"https://maps.googleapis.com/maps/api/place/nearbysearch/json",
@@ -140,6 +139,7 @@ public class FirebaseHelper {
         RequestQueue queue = Volley.newRequestQueue(context);
         queue.add(sq);
     }
+
     public void addFriend(FoodieUser user){
         SharedPreferences prefs = ctxt.getSharedPreferences(ctxt.getString(R.string.credentials_preferences), Context.MODE_PRIVATE);
         String selfKey = prefs.getString(ctxt.getString(R.string.stored_key_key), null);
@@ -200,38 +200,23 @@ public class FirebaseHelper {
             }
         });
     }
-    public static void postReview(FoodieUser user, FoodieLocation location, double rating, String review) {
-        //TODO: test that this works properly
-        //get reference to reviews
-        DatabaseReference reviewsRef = instance.database.getReference("location_review");
-        DatabaseReference newReviewRef = reviewsRef.push();
-        //make new key for review
-        String key = newReviewRef.getKey();
-        reviewsRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if (task.isSuccessful()) {
-                    //make map with review data
-                    HashMap<String, String> map = new HashMap<>();
-                    map.put("user", user.getKey());
-                    map.put("location", location.getName());
-                    map.put("rating", "" + rating);
-                    map.put("review", review);
-                    //put the data into the database
-                    reviewsRef.child(key).setValue(map);
-                } else {
-                    Log.d(TAG, "onComplete: error contacting server");
-                    Toast.makeText(ctxt, "Error contacting database. Please try again later.", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
+
+    public void postReview(FoodieUser user, FoodieLocation location, double rating, String review) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference reviewTable = database.getReference("location_review");
+        DatabaseReference newReview = reviewTable.push();
+        HashMap<String, String> map = new HashMap<>();
+        map.put("user_id", user.getKey());
+        map.put("location_id", location.getName());
+        map.put("review_val", "" + rating);
+        map.put("review_message", review);
+        newReview.setValue(map);
     }
 
     //@ param foodieuser, foodielocation
     //if token table does not exist, create one and add token into it
     //else just add token.
-    public static void addToken(FoodieUser user,FoodieLocation foodieLocation, String occasion, int point, IAddTokenResponse response)
-    {
+    public static void addToken(FoodieUser user,FoodieLocation foodieLocation, String occasion, int point, IAddTokenResponse response) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference userTokenTableRef = database.getReference("user").child(user.getKey()).child("tokens");
         Task<DataSnapshot> t = userTokenTableRef.get();
@@ -306,8 +291,7 @@ public class FirebaseHelper {
     }
 
     //return total tokens user earns
-    public static void getTokens(FoodieUser user, IGetTokenResponse iGetTokenResponse)
-    {
+    public static void getTokens(FoodieUser user, IGetTokenResponse iGetTokenResponse) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference tokenTableRef = database.getReference("user").child(user.getKey()).child("tokens");
         Task<DataSnapshot> t = tokenTableRef.get();
@@ -337,8 +321,7 @@ public class FirebaseHelper {
         void result(Boolean b);
     }
 
-    public static void postActivity(FoodieActivityLog log)
-    {
+    public static void postActivity(FoodieActivityLog log) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference activityTbale = database.getReference("activity");
         DatabaseReference newActivity = activityTbale.push();
@@ -351,8 +334,7 @@ public class FirebaseHelper {
         newActivity.setValue(dataMap);
     }
 
-    public static void getLocationActivities(FoodieLocation foodieLocation, IGetActivities iGetActivities)
-    {
+    public static void getLocationActivities(FoodieLocation foodieLocation, IGetActivities iGetActivities) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference activityTableRef = database.getReference("activity");
         Task<DataSnapshot> t = activityTableRef.get();
