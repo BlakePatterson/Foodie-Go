@@ -87,11 +87,11 @@ public class MapFragment extends Fragment {
                         String key = keys.next();
                         JSONObject jo = (JSONObject) jodata.get(key);
                         //convert the json obj into actual data.
-                        String locationName = jo.getString("name");
+                        String locationName = jo.getString("location_name");
                         locationName = FirebaseHelper.replaceCharAfterGet(locationName);
-                        double locationLat = Double.parseDouble(jo.getString("latitude"));
-                        double locationLng = Double.parseDouble(jo.getString("longitude"));
-                        double locationRating = Double.parseDouble(jo.getString("rating"));
+                        double locationLat = Double.parseDouble(jo.getString("location_lat"));
+                        double locationLng = Double.parseDouble(jo.getString("location_long"));
+                        double locationRating = Double.parseDouble(jo.getString("location_rating"));
 
                         FoodieLocation foodieLocation = new FoodieLocation(locationName, locationLat,locationLng,locationRating,key);
                         if(userLocation.distanceTo(foodieLocation.getLocation())<2000)
@@ -227,7 +227,7 @@ public class MapFragment extends Fragment {
             }
 
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(locationCoords, 15.0f));
-            addNearByLocationsToMap();
+            addNearbyLocationsToMap();
         }
     }
 
@@ -245,12 +245,12 @@ public class MapFragment extends Fragment {
     // addNearbyLocationsToMap
     // @No param
     // call api to get location from google api every 20 updates of location.
-    public void addNearByLocationsToMap() {
+    public void addNearbyLocationsToMap() {
         if (updateCountDown == 0) {
             Location location = new Location("");
             location.setLongitude(userMarker.getPosition().longitude);
             location.setLatitude(userMarker.getPosition().latitude);
-            FirebaseHelper.getNearByLocations(getContext(), 2000.0,location);
+            FirebaseHelper.getNearbyLocations(getContext(), 2000.0,location);
             updateCountDown = 20;
         } else {
             updateCountDown--;

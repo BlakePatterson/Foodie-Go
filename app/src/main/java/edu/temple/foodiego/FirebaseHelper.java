@@ -2,14 +2,10 @@ package edu.temple.foodiego;
 
 import static android.content.ContentValues.TAG;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.location.Location;
 import android.content.SharedPreferences;
 import android.util.Log;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,7 +17,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -31,12 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -63,8 +53,7 @@ public class FirebaseHelper {
         return instance;
     }
 
-    public static void getNearByLocations(Context context, Double radius, Location location)
-    {
+    public static void getNearbyLocations(Context context, Double radius, Location location) {
         StringRequest sq = new StringRequest(
                 Request.Method.GET,
                 //"https://maps.googleapis.com/maps/api/place/nearbysearch/json",
@@ -87,10 +76,10 @@ public class FirebaseHelper {
                                     DatabaseReference newRef = locationRef.push();
                                     HashMap<String, String> locationDataMap = new HashMap<>();
                                     String responobjName = replaceCharBeforeSet(((JSONObject) responseJsonArray.get(i)).getString("name"));
-                                    locationDataMap.put("name", responobjName);
-                                    locationDataMap.put("latitude", location_obj.getString("lat"));
-                                    locationDataMap.put("longitude", location_obj.getString("lng"));
-                                    locationDataMap.put("rating", ((JSONObject) responseJsonArray.get(i)).getString("rating"));
+                                    locationDataMap.put("location_name", responobjName);
+                                    locationDataMap.put("location_lat", location_obj.getString("lat"));
+                                    locationDataMap.put("location_long", location_obj.getString("lng"));
+                                    locationDataMap.put("location_rating", ((JSONObject) responseJsonArray.get(i)).getString("rating"));
                                     newRef.setValue(locationDataMap);
                                 }
                             }
@@ -105,7 +94,7 @@ public class FirebaseHelper {
                                     Iterator<String> keys = dbObjects.keys();
                                     while (keys.hasNext())
                                     {
-                                        String existobjName =((JSONObject)dbObjects.get(keys.next())).getString("name");
+                                        String existobjName =((JSONObject)dbObjects.get(keys.next())).getString("location_name");
                                         if(existobjName.trim().equals(responobjName.trim()))
                                         {
                                             dataExistInDB = true; break;
@@ -140,6 +129,7 @@ public class FirebaseHelper {
         RequestQueue queue = Volley.newRequestQueue(context);
         queue.add(sq);
     }
+
     public void addFriend(FoodieUser user){
         SharedPreferences prefs = ctxt.getSharedPreferences(ctxt.getString(R.string.credentials_preferences), Context.MODE_PRIVATE);
         String selfKey = prefs.getString(ctxt.getString(R.string.stored_key_key), null);
@@ -200,108 +190,204 @@ public class FirebaseHelper {
             }
         });
     }
-    public static void postReview(FoodieUser user, FoodieLocation location, double rating, String review) {
-        //TODO: test that this works properly
-        //get reference to reviews
-        DatabaseReference reviewsRef = instance.database.getReference("location_review");
-        DatabaseReference newReviewRef = reviewsRef.push();
-        //make new key for review
-        String key = newReviewRef.getKey();
-        reviewsRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+
+    public void getFriends(FoodieUser user, GetFriendsResponse callingActivity) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference userRef = database.getReference("user");
+
+        ArrayList<String> friendIds = new ArrayList<>();
+        ArrayList<FoodieUser> resultingFriends = new ArrayList<>();
+
+        userRef.child(user.getKey()).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if (task.isSuccessful()) {
-                    //make map with review data
-                    HashMap<String, String> map = new HashMap<>();
-                    map.put("user", user.getKey());
-                    map.put("location", location.getName());
-                    map.put("rating", "" + rating);
-                    map.put("review", review);
-                    //put the data into the database
-                    reviewsRef.child(key).setValue(map);
-                } else {
-                    Log.d(TAG, "onComplete: error contacting server");
-                    Toast.makeText(ctxt, "Error contacting database. Please try again later.", Toast.LENGTH_LONG).show();
+                if (!task.isSuccessful()) {
+                    Log.d(TAG, "onComplete: failed to get friend data for user: " + user.getUsername());
+                }
+                else {
+                    try {
+                        JSONObject friendData = new JSONObject(String.valueOf(task.getResult().getValue()));
+                        friendData = friendData.getJSONObject("friends");
+                        Iterator<String> keys = friendData.keys();
+                        while(keys.hasNext()) {
+                            String key = keys.next();
+                            friendIds.add(friendData.getString(key));
+                        }
+
+                        for (int i = 0; i < friendIds.size(); i++) {
+                            String user_id = friendIds.get(i);
+                            int finalI = i;
+                            userRef.child(user_id).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                    if (!task.isSuccessful()) {
+                                        Log.d(TAG, "onComplete: failed to get friend data for user: " + user.getUsername());
+                                    } else {
+                                        try {
+                                            JSONObject userData = new JSONObject(String.valueOf(task.getResult().getValue()));
+
+                                            String username = userData.getString("username");
+                                            String firstname = userData.getString("firstname");
+                                            String lastname = userData.getString("lastname");
+
+                                            FoodieUser user = new FoodieUser(username, firstname, lastname, user_id);
+
+                                            resultingFriends.add(user);
+
+                                            if (finalI == friendIds.size() - 1) {
+                                                //The final user's data has been retrieved, so return the data
+                                                callingActivity.result(resultingFriends);
+                                            }
+
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                            Log.d(TAG, "onComplete: error while parsing through user data while parsing through friends");
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Log.d(TAG, "onComplete: error while parsing through friend data");
+                    }
+
                 }
             }
         });
     }
-  
-    public static void openAddFriendDialog(Context c, FoodieUser user) {
-        new AlertDialog.Builder(c).setView(R.layout.dialog_add_friend)
-                .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Dialog d = (Dialog) dialogInterface;
-                        EditText inputUsernameField = d.findViewById(R.id.addFriendUsernameField);
-                        String inputUsername = inputUsernameField.getText().toString();
-                        if (inputUsername.equals("")) {
-                            Log.d(TAG, "openAddFriendDialog: no username entered");
-                            Toast.makeText(c, "Please enter the username of your friend", Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                        //find the key that matches the requested username
-                        FirebaseDatabase db = FirebaseDatabase.getInstance();
-                        DatabaseReference userRef = db.getReference("user");
-                        final String[] friendKey = new String[1];
-                        friendKey[0] = null;
-                        userRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    try {
-                                        JSONObject userData = new JSONObject(String.valueOf(task.getResult().getValue()));
-                                        Iterator<String> keys = userData.keys();
-                                        while (keys.hasNext()) {
-                                            String key = keys.next();
-                                            if (userData.get(key) instanceof JSONObject) {
-                                                String dbUsername = (String) ((JSONObject) userData.get(key)).get("username");
-                                                if (dbUsername.equals(inputUsername)) {
-                                                    friendKey[0] = key;
-                                                    //get reference to the user's friends list
-                                                    DatabaseReference friendsRef = userRef
-                                                            .child(user.getKey())
-                                                            .child("friends");
-                                                    friendsRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<DataSnapshot> task) {
-                                                            if (task.isSuccessful()) {
-                                                                friendsRef.push().setValue(friendKey[0]);
-                                                                Toast.makeText(c, "Friend successfully added!", Toast.LENGTH_SHORT).show();
-                                                            } else {
-                                                                Log.d(TAG, "openAddFriendDialog: error adding friend");
-                                                                Toast.makeText(c, "Error contacting server. Please try again.", Toast.LENGTH_LONG).show();
-                                                            }
-                                                        }
-                                                    });
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                } else {
-                                    Log.d(TAG, "openAddFriendDialog: error getting user data");
-                                    Toast.makeText(c, "Error contacting server. Please try again.", Toast.LENGTH_LONG).show();
+    interface GetFriendsResponse
+    {
+        void result(ArrayList<FoodieUser> friends);
+    }
+
+
+    public void postReview(FoodieUser user, FoodieLocation location, double rating, String review) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference reviewTable = database.getReference("location_review");
+        DatabaseReference newReview = reviewTable.push();
+        HashMap<String, String> map = new HashMap<>();
+
+        String formattedLocationName = replaceCharBeforeSet(location.getName());
+        String formattedReviewMessage = replaceCharBeforeSet(review);
+
+        map.put("user_id", user.getKey());
+        map.put("location_id", formattedLocationName);
+        map.put("review_val", "" + rating);
+        map.put("review_message", formattedReviewMessage);
+        newReview.setValue(map);
+    }
+
+    public void getReviews(FoodieLocation location, GetReviewsResponse callingActivity) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference reviewsRef = database.getReference("location_review");
+        DatabaseReference userRef = database.getReference("user");
+
+        ArrayList<FoodieReview> resultingReviews = new ArrayList<>();
+        ArrayList<String> userIds = new ArrayList<>();
+
+        reviewsRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Log.d(TAG, "onComplete: failed to retrieve reviews for location " + location.getName());
+                }
+                else {
+
+                    try {
+
+                        JSONObject reviewData = new JSONObject(String.valueOf(task.getResult().getValue()));
+                        Iterator<String> keys = reviewData.keys();
+                        while(keys.hasNext()) {
+                            String key = keys.next();
+                            if (reviewData.get(key) instanceof JSONObject) {
+
+                                //Read the review location from the database
+                                String db_location = (String) ((JSONObject) reviewData.get(key)).get("location_id");
+                                db_location = replaceCharAfterGet(db_location);
+
+//                                Log.d(TAG, "onComplete: now comparing location names: local name: " + location.getName() + "; db name: " + db_location);
+
+                                //If the location name matches
+                                if (location.getName().equals(db_location)) {
+//                                    Log.d(TAG, "onComplete: THE LOCATION NAMES WERE EQUAL");
+
+                                    //The review corresponds to the current location, so add it to the list
+
+                                    String user_id = (String) ((JSONObject) reviewData.get(key)).get("user_id");
+                                    double rating = (double) ((JSONObject) reviewData.get(key)).get("review_val");
+                                    String review = (String) ((JSONObject) reviewData.get(key)).get("review_message");
+                                    review = replaceCharAfterGet(review);
+
+                                    resultingReviews.add(new FoodieReview(null, location, rating, review));
+                                    userIds.add(user_id);
                                 }
                             }
-                        });
+                        }
+
+                        for (int i = 0; i < userIds.size(); i++) {
+                            String user_id = userIds.get(i);
+                            int finalI = i;
+                            userRef.child(user_id).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                    if (!task.isSuccessful()) {
+                                        Log.d(TAG, "onComplete: failed to retrieve user data for reviews for location " + location.getName());
+                                    }
+                                    else {
+                                        try {
+                                            JSONObject userData = new JSONObject(String.valueOf(task.getResult().getValue()));
+
+                                            String username = userData.getString("username");
+                                            String firstname = userData.getString("firstname");
+                                            String lastname = userData.getString("lastname");
+
+                                            FoodieUser user = new FoodieUser(username, firstname, lastname, user_id);
+
+//                                            Log.d(TAG, "onComplete: NOW SETTING USER DATA");
+                                            resultingReviews.get(finalI).setUser(user);
+
+                                            if (finalI == userIds.size() - 1) {
+                                                //The final user's data has been retrieved, so return the data
+
+                                                for (int i = 0; i < resultingReviews.size(); i++) {
+                                                    Log.d(TAG, "onComplete: FOUND REVIEW FOR LOCATION: " + resultingReviews.get(i).getUser().getUsername() + "; " + resultingReviews.get(i).getRating());
+                                                }
+
+                                                callingActivity.result(resultingReviews);
+                                            }
+
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                            Log.d(TAG, "onComplete: error while parsing through user data while parsing through reviews");
+                                        }
+                                    }
+                                }
+                            });
+
+                        }
+
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Log.d(TAG, "onComplete: error while parsing through reviews");
                     }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                })
-                .show();
+
+                }
+            }
+        });
     }
+    interface GetReviewsResponse
+    {
+        void result(ArrayList<FoodieReview> reviews);
+    }
+
+
     //@ param foodieuser, foodielocation
     //if token table does not exist, create one and add token into it
     //else just add token.
-    public static void addToken(FoodieUser user,FoodieLocation foodieLocation, String occasion, int point, IAddTokenResponse response)
-    {
+    public static void addToken(FoodieUser user,FoodieLocation foodieLocation, String reason, int point, IAddTokenResponse response) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference userTokenTableRef = database.getReference("user").child(user.getKey()).child("tokens");
         Task<DataSnapshot> t = userTokenTableRef.get();
@@ -318,11 +404,12 @@ public class FirebaseHelper {
                         DatabaseReference userRef = database.getReference("user").child(user.getKey());
                         DatabaseReference newTokenRef = userTokenTableRef.push();
                         HashMap<String, String> DataMap = new HashMap<>();
-                        DataMap.put("restaurantname", replaceCharBeforeSet(foodieLocation.getName()));
+                        DataMap.put("location_id", replaceCharBeforeSet(foodieLocation.getName()));
                         DataMap.put("points", String.valueOf(point));
-                        DataMap.put("occasion",occasion);
+                        DataMap.put("reason",reason);
                         newTokenRef.setValue(DataMap);
                         Log.e("tokens", "new token added.");
+                        response.result(true);
 
                     }
                     else
@@ -339,13 +426,13 @@ public class FirebaseHelper {
                                 String key = keys.next();
                                 JSONObject token = new JSONObject(tokens.getString(key));
 
-                                String currentRestaurant = token.getString("restaurantname"); //special char converted
-                                String currentOccation= token.getString("occasion");
-                                if(currentRestaurant.equals(replaceCharBeforeSet(foodieLocation.getName())))
+                                String currentLocation = token.getString("location_id"); //special char converted
+                                String currentReason= token.getString("reason");
+                                if(currentLocation.equals(replaceCharBeforeSet(foodieLocation.getName())))
                                 {
-                                    if(currentOccation.equals(occasion))
+                                    if(currentReason.equals(reason))
                                     {
-                                        //restaurant and occasion exist.
+                                        //restaurant and reason exist.
                                         response.result(false);
                                         return;
                                         //exit method
@@ -353,13 +440,13 @@ public class FirebaseHelper {
 
                                 }
                             }
-                            //restaurant and occasion not exist. Add token
+                            //restaurant and reason not exist. Add token
                             if (foundTokenKey == null)
                             {
                                 DatabaseReference newRef = userTokenTableRef.push();
                                 HashMap<String, String> DataMap = new HashMap<>();
-                                DataMap.put("restaurantname", replaceCharBeforeSet(foodieLocation.getName()));
-                                DataMap.put("occasion",occasion);
+                                DataMap.put("location_id", replaceCharBeforeSet(foodieLocation.getName()));
+                                DataMap.put("reason",reason);
                                 DataMap.put("points", String.valueOf(1));
                                 newRef.setValue(DataMap);
                                 Log.e("tokens", "new token added.");
@@ -376,8 +463,7 @@ public class FirebaseHelper {
     }
 
     //return total tokens user earns
-    public static void getTokens(FoodieUser user, IGetTokenResponse iGetTokenResponse)
-    {
+    public static void getTokens(FoodieUser user, IGetTokenResponse iGetTokenResponse) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference tokenTableRef = database.getReference("user").child(user.getKey()).child("tokens");
         Task<DataSnapshot> t = tokenTableRef.get();
@@ -407,8 +493,7 @@ public class FirebaseHelper {
         void result(Boolean b);
     }
 
-    public static void postActivity(FoodieActivityLog log)
-    {
+    public static void postActivity(FoodieActivityLog log) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference activityTbale = database.getReference("activity");
         DatabaseReference newActivity = activityTbale.push();
@@ -421,8 +506,7 @@ public class FirebaseHelper {
         newActivity.setValue(dataMap);
     }
 
-    public static void getLocationActivities(FoodieLocation foodieLocation, IGetActivities iGetActivities)
-    {
+    public void getLocationActivities(FoodieLocation foodieLocation, IGetLocationActivities iGetLocationActivities) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference activityTableRef = database.getReference("activity");
         Task<DataSnapshot> t = activityTableRef.get();
@@ -448,13 +532,53 @@ public class FirebaseHelper {
                     }
                 }
                 if(resultList.size()>0)
-                iGetActivities.result(resultList);
+                    iGetLocationActivities.result(resultList);
             }catch (Exception e){
                 e.printStackTrace();
             }
         });
     }
-    interface IGetActivities{
+    interface IGetLocationActivities {
+        void result(ArrayList<FoodieActivityLog> logs);
+    }
+
+    public void getFriendsActivity(ArrayList<FoodieUser> friends, GetFriendsActivityResponse callingActivity) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference activityTableRef = database.getReference("activity");
+        Task<DataSnapshot> t = activityTableRef.get();
+        t.addOnCompleteListener(task -> {
+            String data = String.valueOf(t.getResult().getValue());
+            try{
+                JSONObject tokens = new JSONObject(data);
+                ArrayList<FoodieActivityLog> resultList = new ArrayList();
+                Iterator<String> keys = tokens.keys();
+                while(keys.hasNext()) {
+                    String key = keys.next();
+                    JSONObject activityJsonObj = new JSONObject(tokens.getString(key));
+
+                    //check to see if friend matches
+                    String activityUserId = activityJsonObj.getString("user_id");
+                    for (int i = 0; i < friends.size(); i++) {
+                        if (activityUserId.equals(friends.get(i).getUsername())) {
+                            FoodieUser foodieUser = new FoodieUser(activityJsonObj.getString("user_id"),"","","");
+                            FoodieLocation foodieLocation = new FoodieLocation(
+                                    replaceCharAfterGet(activityJsonObj.getString("location_id")),0,0,0 );
+                            String action = activityJsonObj.getString("activity_type");
+                            String timeString = replaceCharAfterGet(activityJsonObj.getString("activity_time"));
+                            LocalDate date = LocalDate.parse(timeString);
+                            FoodieActivityLog foodieActivityLog = new FoodieActivityLog(foodieUser, foodieLocation, action, date);
+                            resultList.add(foodieActivityLog);
+                            break;
+                        }
+                    }
+                }
+                callingActivity.result(resultList);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        });
+    }
+    interface GetFriendsActivityResponse {
         void result(ArrayList<FoodieActivityLog> logs);
     }
 

@@ -20,8 +20,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.lang.reflect.Array;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,16 +34,15 @@ import java.util.Date;
 import java.util.ArrayList;
 
 public class LocationDetailActivity extends AppCompatActivity {
-    private Context context;
-    final String location_database = "location";
-    TextView foodieName;
-    Button reviewButton;
     private FoodieLocation location;
 
     private FoodieUser user;
 
-    private Location userLocation;
+    private ArrayList<FoodieReview> reviews;
 
+    private ArrayList<FoodieActivityLog> activity;
+
+    private Location userLocation;
     BroadcastReceiver userLocationReceiver;
 
     @Override
@@ -48,7 +51,7 @@ public class LocationDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_location_detail);
 
         Bundle startIntent = getIntent().getExtras();
-        context = this;
+        Context context = this;
         if(startIntent != null) {
             String name = startIntent.getString(getString(R.string.locationDetailNameKey));
             double lat = startIntent.getDouble(getString(R.string.locationDetailLatKey));
@@ -103,9 +106,6 @@ public class LocationDetailActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //Claim token button has been clicked
                 Log.d(TAG, "onClick: claim token button has been clicked");
-                //TODO: perform a check to see if user is within range,
-                // if they are perform logic to give them token
-                // otherwise display a toast saying they cannot redeem token
                 if(user != null)
                 {
                     if(userLocation.distanceTo(location.getLocation())<50){
@@ -113,6 +113,9 @@ public class LocationDetailActivity extends AppCompatActivity {
                             if(b) {
                                 Toast.makeText(context, "New token Granted.", Toast.LENGTH_LONG).show();
                                 Log.e("Token","New token Granted.");
+
+                                FoodieActivityLog foodieActivityLog = new FoodieActivityLog(user, location, "claimed a token", LocalDate.now());
+                                FirebaseHelper.postActivity(foodieActivityLog);
                             }
                             else {
                                 Toast.makeText(context, "Token is already granted.", Toast.LENGTH_LONG).show();
@@ -129,26 +132,26 @@ public class LocationDetailActivity extends AppCompatActivity {
                 {
                     Log.e("claim fail","User not exist.");
                 }
-
-//                FirebaseHelper.getTokens(user, new FirebaseHelper.IGetTokenResponse() {
-//                    @Override
-//                    public void result(int points) {
-//                        Log.e("Token","total"+points);
-//                    }
-//                });
-//
-//                FoodieActivityLog foodieActivityLog = new FoodieActivityLog(user, location, "arrival", LocalDate.now());
-//                FirebaseHelper.postActivity(foodieActivityLog);
-//
-//                FirebaseHelper.getLocationActivities(location, logs -> {
-//                    Log.d("log:","response received" + logs.size());
-//                    for (FoodieActivityLog l: logs) {
-//                        Log.d("log:",l.getLocation()+" "+l.getAction()+" "+ l.getTime() + " "+l.getUser());
-//                    }
-//                });
-
             }
         });
+
+        RecyclerView reviewsRecyclerView = findViewById(R.id.reviewsRecyclerView);
+        reviewsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        FirebaseHelper.getInstance(this).getReviews(location, result -> {
+            reviews = result;
+            ReviewAdapter reviewAdapter = new ReviewAdapter(reviews);
+            reviewsRecyclerView.setAdapter(reviewAdapter);
+        });
+
+
+        RecyclerView activityRecyclerView = findViewById(R.id.activityRecyclerView);
+        activityRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        FirebaseHelper.getInstance(this).getLocationActivities(location, result -> {
+            activity = result;
+            LocationActivityAdapter locationActivityAdapter = new LocationActivityAdapter(activity);
+            activityRecyclerView.setAdapter(locationActivityAdapter);
+        });
+
 
         userLocationReceiver = new BroadcastReceiver() {
             @Override
@@ -180,6 +183,9 @@ public class LocationDetailActivity extends AppCompatActivity {
                         }else{
 
                             //call postReview()
+
+                            postReviewToFirebase(review, rating);
+
                             d.dismiss();
                         }
                     }
@@ -193,8 +199,10 @@ public class LocationDetailActivity extends AppCompatActivity {
                 .show();
     }
 
-    public void postReviewToFirebase() {
+    public void postReviewToFirebase(String review, double rating) {
+        Log.d(TAG, "postReviewToFirebase: posting review to firebase with rating: " + String.valueOf(rating) + "; review message: " + review);
 
+        FirebaseHelper.getInstance(this).postReview(user, location, rating, review);
     }
 
     public FoodieLocation startRouteToLocation() {

@@ -19,8 +19,8 @@
     <string name="firstname_bundle_key">firstname_bundle_key</string>
     <string name="lastname_bundle_key">lastname_bundle_key</string>
     <string name="key_bundle_key">key_bundle_key</string>
-    <string name="logout_menu_item_text">logout</string>
-    <string name="add_friend_menu_item_text">add friend</string>
+    <string name="logout_menu_item_text">Logout</string>
+    <string name="add_friend_menu_item_text">Add Friend</string>
     <string name="add_friend_dialog_text">Enter your friend\'s username:</string>
     <string name="submit">Submit</string>
     <string name="cancel">Cancel</string>
@@ -40,4 +40,6 @@
     <string name="leave_review_content_desc">Leave Review</string>
     <string name="claim_token_content_desc">Claim Token</string>
     <string name="person_icon_desc">person icon</string>
+    <string name="social_feed_menu_item">Social Feed</string>
+    <string name="post_activity_content_desc">Post Activity</string>
 </resources>

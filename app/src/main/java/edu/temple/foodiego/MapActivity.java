@@ -114,9 +114,13 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
             //logout button was clicked
             logout();
             return true;
-        }else if(id == R.id.addFriendMenuItem){
+        } else if (id == R.id.addFriendMenuItem) {
             //add friend button was clicked
             openAddFriendDialog();
+            return true;
+        } else if (id == R.id.socialFeedMenuItem) {
+            //Social Feed Activity Button was clicked
+            openSocialFeedView();
             return true;
         }
         return false;
@@ -245,6 +249,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         }
         return serviceRunning;
     }
+
     public void openAddFriendDialog(){
         new AlertDialog.Builder(MapActivity.this).setView(R.layout.dialog_add_friend)
                 .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
@@ -269,9 +274,21 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
                 })
                 .show();
     }
+
     public void addFriend(FoodieUser user){
         FirebaseHelper helper = FirebaseHelper.getInstance(this);
         helper.addFriend(user);
+    }
+
+    public void openSocialFeedView() {
+        Intent intent = new Intent(MapActivity.this, SocialFeedActivity.class);
+
+        intent.putExtra(getString(R.string.username_bundle_key), user.getUsername());
+        intent.putExtra(getString(R.string.firstname_bundle_key), user.getFirstname());
+        intent.putExtra(getString(R.string.lastname_bundle_key), user.getLastname());
+        intent.putExtra(getString(R.string.key_bundle_key), user.getKey());
+
+        startActivity(intent);
     }
 
     //The following method(s) are for communicating information from the ForegroundLocationService
