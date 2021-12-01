@@ -20,6 +20,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -154,8 +156,16 @@ public class LocationDetailActivity extends AppCompatActivity {
             }
         });
 
+        RecyclerView reviewsRecyclerView = findViewById(R.id.reviewsRecyclerView);
+        reviewsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         FirebaseHelper.getInstance(this).getReviews(location, result -> {
             reviews = result;
+            for (int i = 0; i < reviews.size(); i++) {
+                Log.d(TAG, "onCreate: REVIEW " + i + " username: " + reviews.get(i).getUser().getUsername() + " rating: "  + reviews.get(i).getRating());
+            }
+            ReviewAdapter reviewAdapter = new ReviewAdapter(reviews);
+            reviewsRecyclerView.setAdapter(reviewAdapter);
+//            reviewAdapter.notifyDataSetChanged();
         });
 
         userLocationReceiver = new BroadcastReceiver() {
