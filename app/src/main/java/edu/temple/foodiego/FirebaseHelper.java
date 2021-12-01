@@ -258,6 +258,7 @@ public class FirebaseHelper {
                                     String user_id = (String) ((JSONObject) reviewData.get(key)).get("user_id");
                                     double rating = (double) ((JSONObject) reviewData.get(key)).get("review_val");
                                     String review = (String) ((JSONObject) reviewData.get(key)).get("review_message");
+                                    review = replaceCharAfterGet(review);
 
                                     resultingReviews.add(new FoodieReview(null, location, rating, review));
                                     userIds.add(user_id);
