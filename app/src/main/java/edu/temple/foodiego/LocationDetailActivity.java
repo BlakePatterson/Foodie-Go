@@ -114,7 +114,7 @@ public class LocationDetailActivity extends AppCompatActivity {
                                 Toast.makeText(context, "New token Granted.", Toast.LENGTH_LONG).show();
                                 Log.e("Token","New token Granted.");
 
-                                FoodieActivityLog foodieActivityLog = new FoodieActivityLog(user, location, "arrival", LocalDate.now());
+                                FoodieActivityLog foodieActivityLog = new FoodieActivityLog(user, location, "claimed a token", LocalDate.now());
                                 FirebaseHelper.postActivity(foodieActivityLog);
                             }
                             else {
@@ -144,15 +144,13 @@ public class LocationDetailActivity extends AppCompatActivity {
         });
 
 
-//        FirebaseHelper.getInstance(this).getLocationActivities(location, result -> {
-//            activity = result;
-//            for (int i = 0; i < reviews.size(); i++) {
-//                Log.d(TAG, "onCreate: ACTIVITY " + i + " username: " + reviews.get(i).getUser().getUsername() + " rating: "  + reviews.get(i).getRating());
-//            }
-//            ReviewAdapter reviewAdapter = new ReviewAdapter(reviews);
-//            reviewsRecyclerView.setAdapter(reviewAdapter);
-////            reviewAdapter.notifyDataSetChanged();
-//        });
+        RecyclerView activityRecyclerView = findViewById(R.id.activityRecyclerView);
+        activityRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        FirebaseHelper.getInstance(this).getLocationActivities(location, result -> {
+            activity = result;
+            LocationActivityAdapter locationActivityAdapter = new LocationActivityAdapter(activity);
+            activityRecyclerView.setAdapter(locationActivityAdapter);
+        });
 
 
         userLocationReceiver = new BroadcastReceiver() {
