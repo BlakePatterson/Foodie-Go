@@ -13,7 +13,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -25,12 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.lang.reflect.Array;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.ArrayList;
 
 public class LocationDetailActivity extends AppCompatActivity {
@@ -114,7 +108,7 @@ public class LocationDetailActivity extends AppCompatActivity {
                                 Toast.makeText(context, "New token Granted.", Toast.LENGTH_LONG).show();
                                 Log.e("Token","New token Granted.");
 
-                                FoodieActivityLog foodieActivityLog = new FoodieActivityLog(user, location, "claimed a token", LocalDate.now());
+                                FoodieActivityLog foodieActivityLog = new FoodieActivityLog(user, location, "claimed a token", LocalDateTime.now());
                                 FirebaseHelper.postActivity(foodieActivityLog);
                             }
                             else {

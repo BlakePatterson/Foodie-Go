@@ -1,16 +1,14 @@
 package edu.temple.foodiego;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class FoodieActivityLog {
     private FoodieUser user;
     private FoodieLocation location;
     private String action;
-    private LocalDate time;
+    private LocalDateTime time;
 
-    public FoodieActivityLog(FoodieUser user, FoodieLocation location, String action, LocalDate time){
+    public FoodieActivityLog(FoodieUser user, FoodieLocation location, String action, LocalDateTime time){
         this.user = user;
         this.location = location;
         this.action = action;
@@ -34,10 +32,10 @@ public class FoodieActivityLog {
     public void setAction(String action) {
         this.action = action;
     }
-    public LocalDate getTime() {
+    public LocalDateTime getTime() {
         return time;
     }
-    public void setTime(LocalDate time) {
+    public void setTime(LocalDateTime time) {
         this.time = time;
     }
     public String getActivityLogMessage(){
