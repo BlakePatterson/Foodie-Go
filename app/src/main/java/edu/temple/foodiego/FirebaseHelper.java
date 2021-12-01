@@ -382,8 +382,52 @@ public class FirebaseHelper {
     {
         void result(ArrayList<FoodieReview> reviews);
     }
-
-
+    public void getFriendsReviews(ArrayList<FoodieUser> friends, GetFriendsReviewsResponse callingActivity){
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference reviewReference = database.getReference("location_review");
+        Task<DataSnapshot> t = reviewReference.get();
+        t.addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if(task.isSuccessful()){
+                    try{
+                        JSONObject data = new JSONObject(String.valueOf(t.getResult().getValue()));
+                        ArrayList<ArrayList<FoodieReview>> result = new ArrayList<>();
+                        for(int i = 0; i < friends.size(); i++){
+                            ArrayList<FoodieReview> currentList = new ArrayList<>();
+                            FoodieUser currentUser = friends.get(i);
+                            Iterator<String> keys = data.keys();
+                            while (keys.hasNext()) {
+                                String key = keys.next();
+                                if (data.get(key) instanceof JSONObject) {
+                                    String reviewUser = (String) ((JSONObject) data.get(key)).get("user_id");
+                                    if(currentUser.getKey().equals(reviewUser)){
+                                        //if we reach this point then the current review was posted by the current user
+                                        //now we gather the information from the JSON object so we can return it
+                                        JSONObject current = (JSONObject) data.get(key);
+                                        String locName = current.getString("location_id");
+                                        double locRating = current.getDouble("review_val");
+                                        FoodieLocation loc = new FoodieLocation(locName, 0, 0, locRating);
+                                        String review = current.getString("review_message");
+                                        currentList.add(new FoodieReview(friends.get(i), loc, locRating, review));
+                                    }
+                                }
+                            }
+                            result.add(currentList);
+                        }
+                        callingActivity.getFriendsReviewsResult(result);
+                    }catch (JSONException e){
+                        e.printStackTrace();
+                    }
+                }else{
+                    Log.d(TAG, "getFriendsReviews: task failed");
+                }
+            }
+        });
+    }
+    interface GetFriendsReviewsResponse{
+        void getFriendsReviewsResult(ArrayList<ArrayList<FoodieReview>> reviews);
+    }
     //@ param foodieuser, foodielocation
     //if token table does not exist, create one and add token into it
     //else just add token.

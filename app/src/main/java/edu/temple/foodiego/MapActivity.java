@@ -24,6 +24,8 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -36,6 +38,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +52,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MapActivity extends AppCompatActivity implements MapFragment.MapFragmentInterface, ForegroundLocationService.LocationServiceInterface {
+public class MapActivity extends AppCompatActivity implements MapFragment.MapFragmentInterface, ForegroundLocationService.LocationServiceInterface,
+        FirebaseHelper.GetFriendsResponse, FirebaseHelper.GetFriendsReviewsResponse {
 
     static int permissionRequestCode = 12345;
 
@@ -62,7 +66,9 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     ForegroundLocationService locationService;
 
     Location userLocation;
-
+    Button recommendationButton;
+    ArrayList<FoodieUser> friends;
+    ArrayList<ArrayList<FoodieReview>> friendsReviews;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,7 +95,17 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
             loadFragments();
             startLocationService();
         }
-
+        if(user != null){
+            FirebaseHelper helper = FirebaseHelper.getInstance(this);
+            helper.getFriends(user, MapActivity.this);
+            recommendationButton = findViewById(R.id.recommendButton);
+            recommendationButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getRecommendation();
+                }
+            });
+        }
     }
 
 
@@ -302,5 +318,36 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         intent.setAction("edu.temple.foodiego.userlocation");
         intent.putExtra("userLocation",location);
         sendBroadcast(intent);
+    }
+    public void getRecommendation(){
+        if(friendsReviews == null){
+            Toast.makeText(MapActivity.this, "Still preparing database data, please try again in a moment.", Toast.LENGTH_LONG).show();
+            Log.d(TAG, "getRecommendation: friends' reviews not received yet");
+        }else{
+            //for each friend, find out which locations they have in common
+            //perform cosine similarity
+            //launch LocationDetailActivity for the top recommended location
+        }
+    }
+    public double cosineSimilarity(double[] vectorA, double[] vectorB) {
+        double dotProduct = 0.0;
+        double normA = 0.0;
+        double normB = 0.0;
+        for (int i = 0; i < vectorA.length; i++) {
+            dotProduct += vectorA[i] * vectorB[i];
+            normA += Math.pow(vectorA[i], 2);
+            normB += Math.pow(vectorB[i], 2);
+        }
+        return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+    }
+    @Override
+    public void result(ArrayList<FoodieUser> friends) {
+        this.friends = friends;
+        FirebaseHelper helper = FirebaseHelper.getInstance(MapActivity.this);
+        helper.getFriendsReviews(friends, MapActivity.this);
+    }
+    @Override
+    public void getFriendsReviewsResult(ArrayList<ArrayList<FoodieReview>> reviews) {
+        this.friendsReviews = reviews;
     }
 }
