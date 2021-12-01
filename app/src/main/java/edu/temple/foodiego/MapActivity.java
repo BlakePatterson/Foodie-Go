@@ -67,7 +67,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
 
     Location userLocation;
     Button recommendationButton;
-    ArrayList<FoodieUser> friends;
+    ArrayList<FoodieUser> friends; //index 0 is the user, friends start at 1
     ArrayList<ArrayList<FoodieReview>> friendsReviews;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -324,12 +324,45 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
             Toast.makeText(MapActivity.this, "Still preparing database data, please try again in a moment.", Toast.LENGTH_LONG).show();
             Log.d(TAG, "getRecommendation: friends' reviews not received yet");
         }else{
-            //for each friend, find out which locations they have in common
-            //perform cosine similarity
+            Log.d(TAG, "getRecommendation: getting recommendation");
+            ArrayList<FoodieReview> userReviews = friendsReviews.get(0);
+            if(userReviews.size() == 0){
+                Toast.makeText(MapActivity.this, "Please leave a review before asking for a recommendation", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            ArrayList<Double> friendSimilarities = new ArrayList<>();
+            for(int i = 1; i < friendsReviews.size(); i++){
+                //for each friend, find out which locations they have in common
+                ArrayList<FoodieReview> currentFriendReviews = friendsReviews.get(i);
+                if(currentFriendReviews.size() == 0){
+                    //current friend has no reviews, so there's no similarity
+                    friendSimilarities.add(0.0);
+                    continue;
+                }
+                ArrayList<Double> userMatch = new ArrayList<>();
+                ArrayList<Double> friendMatch = new ArrayList<>();
+                for(int j = 0; j < userReviews.size(); i++){
+                    String currentUserReviewLocation = userReviews.get(j).getLocation().getName();
+                    for(int k = 0; k < currentFriendReviews.size(); k++){
+                        if(currentUserReviewLocation.equals(currentFriendReviews.get(k).getLocation().getName())){
+                            userMatch.add(userReviews.get(j).getRating());
+                            friendMatch.add(currentFriendReviews.get(k).getRating());
+                            break;
+                        }
+                    }
+                }
+                if(userMatch.size() == 0){
+                    //current friend has no overlapping reviews, so no similarity
+                    friendSimilarities.add(0.0);
+                    continue;
+                }
+                //perform cosine similarity
+                friendSimilarities.add(cosineSimilarity((Double[]) userMatch.toArray(), (Double[]) friendMatch.toArray()));
+            }
             //launch LocationDetailActivity for the top recommended location
         }
     }
-    public double cosineSimilarity(double[] vectorA, double[] vectorB) {
+    public double cosineSimilarity(Double[] vectorA, Double[] vectorB) {
         double dotProduct = 0.0;
         double normA = 0.0;
         double normB = 0.0;
@@ -342,9 +375,11 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     }
     @Override
     public void result(ArrayList<FoodieUser> friends) {
-        this.friends = friends;
+        this.friends = new ArrayList<>();
+        this.friends.add(user);
+        this.friends.addAll(friends);
         FirebaseHelper helper = FirebaseHelper.getInstance(MapActivity.this);
-        helper.getFriendsReviews(friends, MapActivity.this);
+        helper.getFriendsReviews(this.friends, MapActivity.this);
     }
     @Override
     public void getFriendsReviewsResult(ArrayList<ArrayList<FoodieReview>> reviews) {
