@@ -542,6 +542,46 @@ public class FirebaseHelper {
         void result(ArrayList<FoodieActivityLog> logs);
     }
 
+    public void getFriendsActivity(ArrayList<FoodieUser> friends, GetFriendsActivityResponse callingActivity) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference activityTableRef = database.getReference("activity");
+        Task<DataSnapshot> t = activityTableRef.get();
+        t.addOnCompleteListener(task -> {
+            String data = String.valueOf(t.getResult().getValue());
+            try{
+                JSONObject tokens = new JSONObject(data);
+                ArrayList<FoodieActivityLog> resultList = new ArrayList();
+                Iterator<String> keys = tokens.keys();
+                while(keys.hasNext()) {
+                    String key = keys.next();
+                    JSONObject activityJsonObj = new JSONObject(tokens.getString(key));
+
+                    //check to see if friend matches
+                    String activityUserId = activityJsonObj.getString("user_id");
+                    for (int i = 0; i < friends.size(); i++) {
+                        if (activityUserId.equals(friends.get(i).getUsername())) {
+                            FoodieUser foodieUser = new FoodieUser(activityJsonObj.getString("user_id"),"","","");
+                            FoodieLocation foodieLocation = new FoodieLocation(
+                                    replaceCharAfterGet(activityJsonObj.getString("location_id")),0,0,0 );
+                            String action = activityJsonObj.getString("activity_type");
+                            String timeString = replaceCharAfterGet(activityJsonObj.getString("activity_time"));
+                            LocalDate date = LocalDate.parse(timeString);
+                            FoodieActivityLog foodieActivityLog = new FoodieActivityLog(foodieUser, foodieLocation, action, date);
+                            resultList.add(foodieActivityLog);
+                            break;
+                        }
+                    }
+                }
+                callingActivity.result(resultList);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        });
+    }
+    interface GetFriendsActivityResponse {
+        void result(ArrayList<FoodieActivityLog> logs);
+    }
+
     public static String replaceCharBeforeSet(String original)
     {
         String result = original
