@@ -191,6 +191,78 @@ public class FirebaseHelper {
         });
     }
 
+    public void getFriends(FoodieUser user, GetFriendsResponse callingActivity) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference userRef = database.getReference("user");
+
+        ArrayList<String> friendIds = new ArrayList<>();
+        ArrayList<FoodieUser> resultingFriends = new ArrayList<>();
+
+        userRef.child(user.getKey()).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Log.d(TAG, "onComplete: failed to get friend data for user: " + user.getUsername());
+                }
+                else {
+                    try {
+                        JSONObject friendData = new JSONObject(String.valueOf(task.getResult().getValue()));
+                        friendData = friendData.getJSONObject("friends");
+                        Iterator<String> keys = friendData.keys();
+                        while(keys.hasNext()) {
+                            String key = keys.next();
+                            friendIds.add(friendData.getString(key));
+                        }
+
+                        for (int i = 0; i < friendIds.size(); i++) {
+                            String user_id = friendIds.get(i);
+                            int finalI = i;
+                            userRef.child(user_id).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                    if (!task.isSuccessful()) {
+                                        Log.d(TAG, "onComplete: failed to get friend data for user: " + user.getUsername());
+                                    } else {
+                                        try {
+                                            JSONObject userData = new JSONObject(String.valueOf(task.getResult().getValue()));
+
+                                            String username = userData.getString("username");
+                                            String firstname = userData.getString("firstname");
+                                            String lastname = userData.getString("lastname");
+
+                                            FoodieUser user = new FoodieUser(username, firstname, lastname, user_id);
+
+                                            resultingFriends.add(user);
+
+                                            if (finalI == friendIds.size() - 1) {
+                                                //The final user's data has been retrieved, so return the data
+                                                callingActivity.result(resultingFriends);
+                                            }
+
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                            Log.d(TAG, "onComplete: error while parsing through user data while parsing through friends");
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Log.d(TAG, "onComplete: error while parsing through friend data");
+                    }
+
+                }
+            }
+        });
+    }
+    interface GetFriendsResponse
+    {
+        void result(ArrayList<FoodieUser> friends);
+    }
+
+
     public void postReview(FoodieUser user, FoodieLocation location, double rating, String review) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference reviewTable = database.getReference("location_review");
