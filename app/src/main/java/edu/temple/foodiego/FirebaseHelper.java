@@ -2,16 +2,10 @@ package edu.temple.foodiego;
 
 import static android.content.ContentValues.TAG;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.location.Location;
 import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.util.Log;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,7 +17,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -33,12 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -327,7 +315,7 @@ public class FirebaseHelper {
     //@ param foodieuser, foodielocation
     //if token table does not exist, create one and add token into it
     //else just add token.
-    public static void addToken(FoodieUser user,FoodieLocation foodieLocation, String occasion, int point, IAddTokenResponse response) {
+    public static void addToken(FoodieUser user,FoodieLocation foodieLocation, String reason, int point, IAddTokenResponse response) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference userTokenTableRef = database.getReference("user").child(user.getKey()).child("tokens");
         Task<DataSnapshot> t = userTokenTableRef.get();
@@ -344,11 +332,12 @@ public class FirebaseHelper {
                         DatabaseReference userRef = database.getReference("user").child(user.getKey());
                         DatabaseReference newTokenRef = userTokenTableRef.push();
                         HashMap<String, String> DataMap = new HashMap<>();
-                        DataMap.put("restaurantname", replaceCharBeforeSet(foodieLocation.getName()));
+                        DataMap.put("location_id", replaceCharBeforeSet(foodieLocation.getName()));
                         DataMap.put("points", String.valueOf(point));
-                        DataMap.put("occasion",occasion);
+                        DataMap.put("reason",reason);
                         newTokenRef.setValue(DataMap);
                         Log.e("tokens", "new token added.");
+                        response.result(true);
 
                     }
                     else
@@ -365,13 +354,13 @@ public class FirebaseHelper {
                                 String key = keys.next();
                                 JSONObject token = new JSONObject(tokens.getString(key));
 
-                                String currentRestaurant = token.getString("restaurantname"); //special char converted
-                                String currentOccation= token.getString("occasion");
-                                if(currentRestaurant.equals(replaceCharBeforeSet(foodieLocation.getName())))
+                                String currentLocation = token.getString("location_id"); //special char converted
+                                String currentReason= token.getString("reason");
+                                if(currentLocation.equals(replaceCharBeforeSet(foodieLocation.getName())))
                                 {
-                                    if(currentOccation.equals(occasion))
+                                    if(currentReason.equals(reason))
                                     {
-                                        //restaurant and occasion exist.
+                                        //restaurant and reason exist.
                                         response.result(false);
                                         return;
                                         //exit method
@@ -379,13 +368,13 @@ public class FirebaseHelper {
 
                                 }
                             }
-                            //restaurant and occasion not exist. Add token
+                            //restaurant and reason not exist. Add token
                             if (foundTokenKey == null)
                             {
                                 DatabaseReference newRef = userTokenTableRef.push();
                                 HashMap<String, String> DataMap = new HashMap<>();
-                                DataMap.put("restaurantname", replaceCharBeforeSet(foodieLocation.getName()));
-                                DataMap.put("occasion",occasion);
+                                DataMap.put("location_id", replaceCharBeforeSet(foodieLocation.getName()));
+                                DataMap.put("reason",reason);
                                 DataMap.put("points", String.valueOf(1));
                                 newRef.setValue(DataMap);
                                 Log.e("tokens", "new token added.");
@@ -445,7 +434,7 @@ public class FirebaseHelper {
         newActivity.setValue(dataMap);
     }
 
-    public static void getLocationActivities(FoodieLocation foodieLocation, IGetActivities iGetActivities) {
+    public void getLocationActivities(FoodieLocation foodieLocation, IGetLocationActivities iGetLocationActivities) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference activityTableRef = database.getReference("activity");
         Task<DataSnapshot> t = activityTableRef.get();
@@ -471,13 +460,13 @@ public class FirebaseHelper {
                     }
                 }
                 if(resultList.size()>0)
-                iGetActivities.result(resultList);
+                    iGetLocationActivities.result(resultList);
             }catch (Exception e){
                 e.printStackTrace();
             }
         });
     }
-    interface IGetActivities{
+    interface IGetLocationActivities {
         void result(ArrayList<FoodieActivityLog> logs);
     }
 

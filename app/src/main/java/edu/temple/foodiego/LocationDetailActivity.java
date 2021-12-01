@@ -34,18 +34,15 @@ import java.util.Date;
 import java.util.ArrayList;
 
 public class LocationDetailActivity extends AppCompatActivity {
-    private Context context;
-    final String location_database = "location";
-    TextView foodieName;
-    Button reviewButton;
     private FoodieLocation location;
 
     private FoodieUser user;
 
-    private Location userLocation;
-
     private ArrayList<FoodieReview> reviews;
 
+    private ArrayList<FoodieActivityLog> activity;
+
+    private Location userLocation;
     BroadcastReceiver userLocationReceiver;
 
     @Override
@@ -54,7 +51,7 @@ public class LocationDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_location_detail);
 
         Bundle startIntent = getIntent().getExtras();
-        context = this;
+        Context context = this;
         if(startIntent != null) {
             String name = startIntent.getString(getString(R.string.locationDetailNameKey));
             double lat = startIntent.getDouble(getString(R.string.locationDetailLatKey));
@@ -109,9 +106,6 @@ public class LocationDetailActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //Claim token button has been clicked
                 Log.d(TAG, "onClick: claim token button has been clicked");
-                //TODO: perform a check to see if user is within range,
-                // if they are perform logic to give them token
-                // otherwise display a toast saying they cannot redeem token
                 if(user != null)
                 {
                     if(userLocation.distanceTo(location.getLocation())<50){
@@ -119,6 +113,9 @@ public class LocationDetailActivity extends AppCompatActivity {
                             if(b) {
                                 Toast.makeText(context, "New token Granted.", Toast.LENGTH_LONG).show();
                                 Log.e("Token","New token Granted.");
+
+                                FoodieActivityLog foodieActivityLog = new FoodieActivityLog(user, location, "arrival", LocalDate.now());
+                                FirebaseHelper.postActivity(foodieActivityLog);
                             }
                             else {
                                 Toast.makeText(context, "Token is already granted.", Toast.LENGTH_LONG).show();
@@ -135,24 +132,6 @@ public class LocationDetailActivity extends AppCompatActivity {
                 {
                     Log.e("claim fail","User not exist.");
                 }
-
-//                FirebaseHelper.getTokens(user, new FirebaseHelper.IGetTokenResponse() {
-//                    @Override
-//                    public void result(int points) {
-//                        Log.e("Token","total"+points);
-//                    }
-//                });
-//
-//                FoodieActivityLog foodieActivityLog = new FoodieActivityLog(user, location, "arrival", LocalDate.now());
-//                FirebaseHelper.postActivity(foodieActivityLog);
-//
-//                FirebaseHelper.getLocationActivities(location, logs -> {
-//                    Log.d("log:","response received" + logs.size());
-//                    for (FoodieActivityLog l: logs) {
-//                        Log.d("log:",l.getLocation()+" "+l.getAction()+" "+ l.getTime() + " "+l.getUser());
-//                    }
-//                });
-
             }
         });
 
@@ -160,13 +139,21 @@ public class LocationDetailActivity extends AppCompatActivity {
         reviewsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         FirebaseHelper.getInstance(this).getReviews(location, result -> {
             reviews = result;
-            for (int i = 0; i < reviews.size(); i++) {
-                Log.d(TAG, "onCreate: REVIEW " + i + " username: " + reviews.get(i).getUser().getUsername() + " rating: "  + reviews.get(i).getRating());
-            }
             ReviewAdapter reviewAdapter = new ReviewAdapter(reviews);
             reviewsRecyclerView.setAdapter(reviewAdapter);
-//            reviewAdapter.notifyDataSetChanged();
         });
+
+
+//        FirebaseHelper.getInstance(this).getLocationActivities(location, result -> {
+//            activity = result;
+//            for (int i = 0; i < reviews.size(); i++) {
+//                Log.d(TAG, "onCreate: ACTIVITY " + i + " username: " + reviews.get(i).getUser().getUsername() + " rating: "  + reviews.get(i).getRating());
+//            }
+//            ReviewAdapter reviewAdapter = new ReviewAdapter(reviews);
+//            reviewsRecyclerView.setAdapter(reviewAdapter);
+////            reviewAdapter.notifyDataSetChanged();
+//        });
+
 
         userLocationReceiver = new BroadcastReceiver() {
             @Override
