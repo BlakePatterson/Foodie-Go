@@ -69,8 +69,6 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
 
     Location userLocation;
     Button recommendationButton;
-    ArrayList<FoodieUser> friends; //index 0 is the user, friends start at 1
-    ArrayList<FoodieReview> friendsReviews;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,13 +96,12 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
             startLocationService();
         }
         if(user != null){
-            FirebaseHelper helper = FirebaseHelper.getInstance(this);
-            helper.getFriends(user, MapActivity.this);
             recommendationButton = findViewById(R.id.recommendButton);
             recommendationButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    getRecommendation();
+                    FirebaseHelper helper = FirebaseHelper.getInstance(MapActivity.this);
+                    helper.getFriends(user, MapActivity.this);
                 }
             });
         }
@@ -321,46 +318,40 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         intent.putExtra("userLocation",location);
         sendBroadcast(intent);
     }
-    public void getRecommendation(){
-        if(friendsReviews == null){
-            Toast.makeText(MapActivity.this, "Still preparing database data, please try again in a moment.", Toast.LENGTH_LONG).show();
-            Log.d(TAG, "getRecommendation: friends' reviews not received yet");
-        }else{
-            Log.d(TAG, "getRecommendation: getting recommendation");
-            //get ratings from reviews
-            HashMap<FoodieLocation, Double> locationRatings = new HashMap<>();
-            for(int i = 0; i < friendsReviews.size(); i++){
-                FoodieLocation curLoc = friendsReviews.get(i).getLocation();
-                if(locationRatings.containsKey(curLoc)){
-                    double old = locationRatings.get(curLoc);
-                    double incoming = friendsReviews.get(i).getRating();
-                    double update = (old + incoming) / 2.0;
-                    locationRatings.put(curLoc, update);
-                }else{
-                    locationRatings.put(curLoc, friendsReviews.get(i).getRating());
-                }
+    public void getRecommendation(ArrayList<FoodieReview> reviews){
+        Log.d(TAG, "getRecommendation: getting recommendation");
+        //get ratings from reviews
+        HashMap<FoodieLocation, Double> locationRatings = new HashMap<>();
+        for(int i = 0; i < reviews.size(); i++){
+            FoodieLocation curLoc = reviews.get(i).getLocation();
+            if(locationRatings.containsKey(curLoc)){
+                double old = locationRatings.get(curLoc);
+                double incoming = reviews.get(i).getRating();
+                double update = (old + incoming) / 2.0;
+                locationRatings.put(curLoc, update);
+            }else{
+                locationRatings.put(curLoc, reviews.get(i).getRating());
             }
-            //find highest rated location
-            FoodieLocation result = null;
-            double max = 0.0;
-            for(FoodieLocation f : locationRatings.keySet()){
-                if(result == null || locationRatings.get(f) > max){
-                    result = f;
-                    max = locationRatings.get(f);
-                }
-            }
-            Log.d(TAG, "getRecommendation: found recommendation " + result.getName());
-            openLocationDetailView(result);
         }
+        //find highest rated location
+        FoodieLocation result = null;
+        double max = 0.0;
+        for(FoodieLocation f : locationRatings.keySet()){
+            if(result == null || locationRatings.get(f) > max){
+                result = f;
+                max = locationRatings.get(f);
+            }
+        }
+        Log.d(TAG, "getRecommendation: found recommendation " + result.getName());
+        openLocationDetailView(result);
     }
     @Override
     public void getFriendsResult(ArrayList<FoodieUser> friends) {
-        this.friends = friends;
         FirebaseHelper helper = FirebaseHelper.getInstance(MapActivity.this);
-        helper.getFriendsReviews(this.friends, MapActivity.this);
+        helper.getFriendsReviews(friends, MapActivity.this);
     }
     @Override
     public void getFriendsReviewsResult(ArrayList<FoodieReview> reviews) {
-        this.friendsReviews = reviews;
+        getRecommendation(reviews);
     }
 }
