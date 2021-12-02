@@ -27,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -568,7 +569,7 @@ public class FirebaseHelper {
                                 replaceCharAfterGet(activityJsonObj.getString("location_id")),0,0,0 );
                         String action = replaceCharAfterGet(activityJsonObj.getString("activity_type"));
                         String timeString = replaceCharAfterGet(activityJsonObj.getString("activity_time"));
-                        LocalDate date = LocalDate.parse(timeString);
+                        LocalDateTime date = LocalDateTime.parse(timeString);
                         FoodieActivityLog foodieActivityLog = new FoodieActivityLog(foodieUser, foodieLocation1, action, date);
                         resultList.add(foodieActivityLog);
                     }
@@ -607,7 +608,7 @@ public class FirebaseHelper {
                                     replaceCharAfterGet(activityJsonObj.getString("location_id")), 0, 0, 0);
                             String action = replaceCharAfterGet(activityJsonObj.getString("activity_type"));
                             String timeString = replaceCharAfterGet(activityJsonObj.getString("activity_time"));
-                            LocalDate date = LocalDate.parse(timeString);
+                            LocalDateTime date = LocalDateTime.parse(timeString);
                             FoodieActivityLog foodieActivityLog = new FoodieActivityLog(foodieUser, foodieLocation, action, date);
                             resultList.add(foodieActivityLog);
                             break;
