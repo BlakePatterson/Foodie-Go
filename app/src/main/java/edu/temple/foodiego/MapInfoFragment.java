@@ -6,17 +6,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
-import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,8 +32,6 @@ public class MapInfoFragment extends Fragment {
     private Location userLocation;
     private Location userLocation1;
     private BroadcastReceiver userLocationReceiver;
-
-    ImageButton imageButton;
 
     public MapInfoFragment() { }
 
@@ -76,7 +70,6 @@ public class MapInfoFragment extends Fragment {
             }
         };
         getActivity().registerReceiver(userLocationReceiver,new IntentFilter("edu.temple.foodiego.userlocation"));
-
     }
 
     @Override
@@ -87,8 +80,6 @@ public class MapInfoFragment extends Fragment {
         totalDistanceWalked =0;
         welcomeMessage = (TextView) view.findViewById(R.id.tvMessage);
         distanceWalked =  (TextView) view.findViewById(R.id.tvDistanceWalked);
-        imageButton = (ImageButton) view.findViewById(R.id.imageButton);
-        imageButton.setVisibility(View.INVISIBLE);
         updateWelcomeMessage("Welcome to FoodieGo. "+userName);
         distanceWalked.setText("Distance Walked: "+ totalDistanceWalked);
         return view;
@@ -100,15 +91,10 @@ public class MapInfoFragment extends Fragment {
             welcomeMessage.setText(message);
             Log.d("Map Info Fragment","welcome message updated");
         }
-
     }
 
     public void updateDistanceWalked(double distance){
         totalDistanceWalked += (float)distance;
         distanceWalked.setText("Distance Walked: "+ (int)totalDistanceWalked +"meters");
-        Log.d("Map Info Fragment","distance updated");
-        if (imageButton.getVisibility()!= View.VISIBLE)
-        {imageButton.setVisibility(View.VISIBLE);
-        updateWelcomeMessage("Be careful of ur surrounding while using the app.");}
     }
 }
