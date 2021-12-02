@@ -7,12 +7,15 @@ import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 /**
@@ -23,6 +26,8 @@ import android.widget.TextView;
 public class MapInfoFragment extends Fragment {
     public static final String USERNAME_PARAM_KEY = "mapInfoParam1";
 
+    private Context parentActivity;
+
     private TextView welcomeMessage;
     private String userName;
 
@@ -31,6 +36,8 @@ public class MapInfoFragment extends Fragment {
     private Location userLocation;
     private Location userLocation1;
     private BroadcastReceiver userLocationReceiver;
+
+    ImageButton imageButton;
 
     public MapInfoFragment() { }
 
@@ -46,51 +53,62 @@ public class MapInfoFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        welcomeMessage = getView().findViewById(R.id.tvMessage);
-        distanceWalked = getView().findViewById(R.id.tvDistanceWalked);
-
         if (getArguments() == null){
             userName = "Dear User";
         } else {
-            String username = (String) getArguments().getSerializable(USERNAME_PARAM_KEY);
+            userName = (String) getArguments().getSerializable(USERNAME_PARAM_KEY);
         }
 
-        totalDistanceWalked =0;
         userLocationReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if(userLocation1 == null)
-                {
-                    userLocation1 = (Location) intent.getParcelableExtra("userLocation");
-                }
-                else
-                {
-                    userLocation = (Location) intent.getParcelableExtra("userLocation");
-                    updateDistanceWalked(userLocation.distanceTo(userLocation1));
-                    userLocation1 = userLocation;
-                    userLocation = null;
-                }
+            if(userLocation1 == null)
+            {
+                userLocation1 = (Location) intent.getParcelableExtra("userLocation");
+            }
+            else
+            {
+                userLocation = (Location) intent.getParcelableExtra("userLocation");
+                updateDistanceWalked(userLocation.distanceTo(userLocation1));
+                userLocation1 = userLocation;
+                userLocation = null;
+            }
             }
         };
         getActivity().registerReceiver(userLocationReceiver,new IntentFilter("edu.temple.foodiego.userlocation"));
 
-        updateWelcomeMessage("Welcome to FoodieGo. "+userName);
-        distanceWalked.setText("Distance Walked: "+0);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_map_info, container, false);
+        View view = inflater.inflate(R.layout.fragment_map_info, container, false);
+        totalDistanceWalked =0;
+        welcomeMessage = (TextView) view.findViewById(R.id.tvMessage);
+        distanceWalked =  (TextView) view.findViewById(R.id.tvDistanceWalked);
+        imageButton = (ImageButton) view.findViewById(R.id.imageButton);
+        imageButton.setVisibility(View.INVISIBLE);
+        updateWelcomeMessage("Welcome to FoodieGo. "+userName);
+        distanceWalked.setText("Distance Walked: "+ totalDistanceWalked);
+        return view;
     }
 
     public void updateWelcomeMessage(String message){
-        welcomeMessage.setText(message);
+        if(message != null)
+        {
+            welcomeMessage.setText(message);
+            Log.d("Map Info Fragment","welcome message updated");
+        }
+
     }
 
     public void updateDistanceWalked(double distance){
         totalDistanceWalked += (float)distance;
-        distanceWalked.setText("Distance Walked: "+ totalDistanceWalked);
+        distanceWalked.setText("Distance Walked: "+ (int)totalDistanceWalked +"meters");
+        Log.d("Map Info Fragment","distance updated");
+        if (imageButton.getVisibility()!= View.VISIBLE)
+        {imageButton.setVisibility(View.VISIBLE);
+        updateWelcomeMessage("Be careful of ur surrounding while using the app.");}
     }
 }
