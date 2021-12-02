@@ -1,7 +1,6 @@
 package edu.temple.foodiego;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import static android.content.ContentValues.TAG;
 
 import android.Manifest;
 import android.app.ActivityManager;
@@ -9,13 +8,10 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.ProgressDialog;
-import android.content.AsyncQueryHandler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -30,29 +26,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
-import static android.content.ContentValues.TAG;
-
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Marker;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class MapActivity extends AppCompatActivity implements MapFragment.MapFragmentInterface, ForegroundLocationService.LocationServiceInterface,
         FirebaseHelper.GetFriendsResponse, FirebaseHelper.GetFriendsReviewsResponse {
@@ -62,6 +42,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     public FoodieUser user;
 
     private MapFragment mapFragment;
+    private MapInfoFragment mapInfoFragment;
 
     private SharedPreferences preferences;
 
@@ -194,6 +175,19 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         else {
             mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFrameLayout);
         }
+
+        if (!(getSupportFragmentManager().findFragmentById(R.id.mapInfoFragment) instanceof MapInfoFragment)) {
+            mapInfoFragment = MapInfoFragment.newInstance(user.getUsername());
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.mapInfoFragment, mapInfoFragment)
+                    .commit();
+        }
+        else {
+            mapInfoFragment = (MapInfoFragment) getSupportFragmentManager().findFragmentById(R.id.mapInfoFragment);
+        }
+
+
     }
 
     //The following method(s) are for communicating information from the MapFragment

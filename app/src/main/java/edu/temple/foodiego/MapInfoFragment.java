@@ -34,7 +34,7 @@ public class MapInfoFragment extends Fragment {
 
     public MapInfoFragment() { }
 
-    public static MapInfoFragment newInstance(String userName, String param2) {
+    public static MapInfoFragment newInstance(String userName) {
         Bundle args = new Bundle();
         args.putString(USERNAME_PARAM_KEY, userName);
 
