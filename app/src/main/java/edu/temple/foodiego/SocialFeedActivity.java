@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static android.content.ContentValues.TAG;
@@ -107,7 +108,7 @@ public class SocialFeedActivity extends AppCompatActivity implements FirebaseHel
                             Toast.makeText(SocialFeedActivity.this, "Please fill out both fields", Toast.LENGTH_LONG).show();
                             Log.d(TAG, "onClick: one or more fields were blank");
                         }else{
-                            postActivityToFirebase(new FoodieActivityLog(user, new FoodieLocation(location, 0, 0, 0), message, LocalDate.now()));
+                            postActivityToFirebase(new FoodieActivityLog(user, new FoodieLocation(location, 0, 0, 0), message, LocalDateTime.now()));
                         }
                     }
                 })

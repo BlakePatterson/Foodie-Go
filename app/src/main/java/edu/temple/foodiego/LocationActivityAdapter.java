@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class LocationActivityAdapter extends RecyclerView.Adapter<LocationActivityAdapter.ViewHolder>{
@@ -60,7 +61,10 @@ public class LocationActivityAdapter extends RecyclerView.Adapter<LocationActivi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.getNameTextView().setText(items.get(position).getUser().getUsername());
-        holder.getTimeTextView().setText(items.get(position).getTime().toString());
+        holder.getTimeTextView().setText(items.get(position).getTime().toLocalDate() +" "
+                + items.get(position).getTime().getHour()+":"
+                + items.get(position).getTime().getMinute()+":"
+                + items.get(position).getTime().getSecond());
         holder.getActionTextView().setText(items.get(position).getAction());
     }
 

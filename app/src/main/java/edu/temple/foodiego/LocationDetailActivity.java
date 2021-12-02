@@ -112,25 +112,25 @@ public class LocationDetailActivity extends AppCompatActivity {
                         FirebaseHelper.addToken(user, location, "arrival", 1, b -> {
                             if(b) {
                                 Toast.makeText(context, "New token Granted.", Toast.LENGTH_LONG).show();
-                                Log.e("Token","New token Granted.");
+                                Log.d("Token","New token Granted.");
 
-                                FoodieActivityLog foodieActivityLog = new FoodieActivityLog(user, location, "claimed a token", LocalDate.now());
+                                FoodieActivityLog foodieActivityLog = new FoodieActivityLog(user, location, "claimed a token", LocalDateTime.now());
                                 FirebaseHelper.postActivity(foodieActivityLog);
                             }
                             else {
                                 Toast.makeText(context, "Token is already granted.", Toast.LENGTH_LONG).show();
-                                Log.e("Token","Token is already granted.");
+                                Log.d("Token","Token is already granted.");
                             }
                         });
                     } else
                     {
                         Toast.makeText(context, "Please get closer to this location.", Toast.LENGTH_LONG).show();
-                        Log.e("Token","user is too far away to the location.");
+                        Log.d("Token","user is too far away to the location.");
                     }
                 }
                 else
                 {
-                    Log.e("claim fail","User not exist.");
+                    Log.d("claim fail","User not exist.");
                 }
             }
         });
