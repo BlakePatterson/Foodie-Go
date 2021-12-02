@@ -392,9 +392,8 @@ public class FirebaseHelper {
                 if(task.isSuccessful()){
                     try{
                         JSONObject data = new JSONObject(String.valueOf(t.getResult().getValue()));
-                        ArrayList<ArrayList<FoodieReview>> result = new ArrayList<>();
+                        ArrayList<FoodieReview> result = new ArrayList<>();
                         for(int i = 0; i < friends.size(); i++){
-                            ArrayList<FoodieReview> currentList = new ArrayList<>();
                             FoodieUser currentUser = friends.get(i);
                             Iterator<String> keys = data.keys();
                             while (keys.hasNext()) {
@@ -409,11 +408,10 @@ public class FirebaseHelper {
                                         double locRating = current.getDouble("review_val");
                                         FoodieLocation loc = new FoodieLocation(locName, 0, 0, locRating);
                                         String review = current.getString("review_message");
-                                        currentList.add(new FoodieReview(friends.get(i), loc, locRating, review));
+                                        result.add(new FoodieReview(friends.get(i), loc, locRating, review));
                                     }
                                 }
                             }
-                            result.add(currentList);
                         }
                         callingActivity.getFriendsReviewsResult(result);
                     }catch (JSONException e){
@@ -426,7 +424,7 @@ public class FirebaseHelper {
         });
     }
     interface GetFriendsReviewsResponse{
-        void getFriendsReviewsResult(ArrayList<ArrayList<FoodieReview>> reviews);
+        void getFriendsReviewsResult(ArrayList<FoodieReview> reviews);
     }
     //@ param foodieuser, foodielocation
     //if token table does not exist, create one and add token into it

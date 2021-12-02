@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.ProgressDialog;
 import android.content.AsyncQueryHandler;
 import android.content.ComponentName;
 import android.content.Context;
@@ -39,6 +40,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +70,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     Location userLocation;
     Button recommendationButton;
     ArrayList<FoodieUser> friends; //index 0 is the user, friends start at 1
-    ArrayList<ArrayList<FoodieReview>> friendsReviews;
+    ArrayList<FoodieReview> friendsReviews;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -325,64 +327,40 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
             Log.d(TAG, "getRecommendation: friends' reviews not received yet");
         }else{
             Log.d(TAG, "getRecommendation: getting recommendation");
-            ArrayList<FoodieReview> userReviews = friendsReviews.get(0);
-            if(userReviews.size() == 0){
-                Toast.makeText(MapActivity.this, "Please leave a review before asking for a recommendation", Toast.LENGTH_SHORT).show();
-                return;
+            //get ratings from reviews
+            HashMap<FoodieLocation, Double> locationRatings = new HashMap<>();
+            for(int i = 0; i < friendsReviews.size(); i++){
+                FoodieLocation curLoc = friendsReviews.get(i).getLocation();
+                if(locationRatings.containsKey(curLoc)){
+                    double old = locationRatings.get(curLoc);
+                    double incoming = friendsReviews.get(i).getRating();
+                    double update = (old + incoming) / 2.0;
+                    locationRatings.put(curLoc, update);
+                }else{
+                    locationRatings.put(curLoc, friendsReviews.get(i).getRating());
+                }
             }
-            ArrayList<Double> friendSimilarities = new ArrayList<>();
-            for(int i = 1; i < friendsReviews.size(); i++){
-                //for each friend, find out which locations they have in common
-                ArrayList<FoodieReview> currentFriendReviews = friendsReviews.get(i);
-                if(currentFriendReviews.size() == 0){
-                    //current friend has no reviews, so there's no similarity
-                    friendSimilarities.add(0.0);
-                    continue;
+            //find highest rated location
+            FoodieLocation result = null;
+            double max = 0.0;
+            for(FoodieLocation f : locationRatings.keySet()){
+                if(result == null || locationRatings.get(f) > max){
+                    result = f;
+                    max = locationRatings.get(f);
                 }
-                ArrayList<Double> userMatch = new ArrayList<>();
-                ArrayList<Double> friendMatch = new ArrayList<>();
-                for(int j = 0; j < userReviews.size(); i++){
-                    String currentUserReviewLocation = userReviews.get(j).getLocation().getName();
-                    for(int k = 0; k < currentFriendReviews.size(); k++){
-                        if(currentUserReviewLocation.equals(currentFriendReviews.get(k).getLocation().getName())){
-                            userMatch.add(userReviews.get(j).getRating());
-                            friendMatch.add(currentFriendReviews.get(k).getRating());
-                            break;
-                        }
-                    }
-                }
-                if(userMatch.size() == 0){
-                    //current friend has no overlapping reviews, so no similarity
-                    friendSimilarities.add(0.0);
-                    continue;
-                }
-                //perform cosine similarity
-                friendSimilarities.add(cosineSimilarity((Double[]) userMatch.toArray(), (Double[]) friendMatch.toArray()));
             }
-            //launch LocationDetailActivity for the top recommended location
+            Log.d(TAG, "getRecommendation: found recommendation " + result.getName());
+            openLocationDetailView(result);
         }
-    }
-    public double cosineSimilarity(Double[] vectorA, Double[] vectorB) {
-        double dotProduct = 0.0;
-        double normA = 0.0;
-        double normB = 0.0;
-        for (int i = 0; i < vectorA.length; i++) {
-            dotProduct += vectorA[i] * vectorB[i];
-            normA += Math.pow(vectorA[i], 2);
-            normB += Math.pow(vectorB[i], 2);
-        }
-        return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
     }
     @Override
     public void getFriendsResult(ArrayList<FoodieUser> friends) {
-        this.friends = new ArrayList<>();
-        this.friends.add(user);
-        this.friends.addAll(friends);
+        this.friends = friends;
         FirebaseHelper helper = FirebaseHelper.getInstance(MapActivity.this);
         helper.getFriendsReviews(this.friends, MapActivity.this);
     }
     @Override
-    public void getFriendsReviewsResult(ArrayList<ArrayList<FoodieReview>> reviews) {
+    public void getFriendsReviewsResult(ArrayList<FoodieReview> reviews) {
         this.friendsReviews = reviews;
     }
 }
