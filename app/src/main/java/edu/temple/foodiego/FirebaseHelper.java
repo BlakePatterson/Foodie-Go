@@ -594,7 +594,7 @@ public class FirebaseHelper {
             String data = String.valueOf(t.getResult().getValue());
             try{
                 JSONObject tokens = new JSONObject(data);
-                ArrayList<FoodieActivityLog> resultList = new ArrayList();
+                ArrayList<FoodieActivityLog> resultList = new ArrayList<>();
                 Iterator<String> keys = tokens.keys();
                 while(keys.hasNext()) {
                     String key = keys.next();
@@ -604,9 +604,9 @@ public class FirebaseHelper {
                     String activityUserId = activityJsonObj.getString("user_id");
                     for (int i = 0; i < friends.size(); i++) {
                         if (activityUserId.equals(friends.get(i).getUsername())) {
-                            FoodieUser foodieUser = new FoodieUser(activityJsonObj.getString("user_id"),"","","");
+                            FoodieUser foodieUser = new FoodieUser(activityJsonObj.getString("user_id"), "", "", "");
                             FoodieLocation foodieLocation = new FoodieLocation(
-                                    replaceCharAfterGet(activityJsonObj.getString("location_id")),0,0,0 );
+                                    replaceCharAfterGet(activityJsonObj.getString("location_id")), 0, 0, 0);
                             String action = replaceCharAfterGet(activityJsonObj.getString("activity_type"));
                             String timeString = replaceCharAfterGet(activityJsonObj.getString("activity_time"));
                             LocalDate date = LocalDate.parse(timeString);

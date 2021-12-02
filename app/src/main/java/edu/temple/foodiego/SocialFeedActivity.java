@@ -79,10 +79,8 @@ public class SocialFeedActivity extends AppCompatActivity implements FirebaseHel
 
     public ArrayList<FoodieActivityLog> getFriendsActivity(){
         if(feedData == null){
-            Toast.makeText(this, "Still fetching data from database, please try again", Toast.LENGTH_LONG).show();
-            ArrayList<FoodieActivityLog> result = new ArrayList<>();
-            //result.add(new FoodieActivityLog(user, new FoodieLocation("Nowhere", 0, 0, 0), "did nothing", LocalDate.now()));
-            return result;
+            //Toast.makeText(this, "Still fetching data from database, please try again", Toast.LENGTH_LONG).show();
+            return new ArrayList<>();
         }else{
             return feedData;
         }
@@ -124,7 +122,6 @@ public class SocialFeedActivity extends AppCompatActivity implements FirebaseHel
     @Override
     public void getFriendsActivityResult(ArrayList<FoodieActivityLog> logs) {
         feedData = logs;
-        Log.d(TAG, "getFriendsActivityResult: data retrieved");
         list.setAdapter(new SocialFeedAdapter(getFriendsActivity()));
         list.setLayoutManager(new LinearLayoutManager(this));
     }
