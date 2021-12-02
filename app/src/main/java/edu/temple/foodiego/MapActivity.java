@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.ProgressDialog;
 import android.content.AsyncQueryHandler;
 import android.content.ComponentName;
 import android.content.Context;
@@ -24,6 +25,8 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -36,6 +39,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +54,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MapActivity extends AppCompatActivity implements MapFragment.MapFragmentInterface, ForegroundLocationService.LocationServiceInterface {
+public class MapActivity extends AppCompatActivity implements MapFragment.MapFragmentInterface, ForegroundLocationService.LocationServiceInterface,
+        FirebaseHelper.GetFriendsResponse, FirebaseHelper.GetFriendsReviewsResponse {
 
     static int permissionRequestCode = 12345;
 
@@ -62,7 +68,9 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     ForegroundLocationService locationService;
 
     Location userLocation;
-
+    Button recommendationButton;
+    ArrayList<FoodieUser> friends; //index 0 is the user, friends start at 1
+    ArrayList<FoodieReview> friendsReviews;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,7 +97,17 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
             loadFragments();
             startLocationService();
         }
-
+        if(user != null){
+            FirebaseHelper helper = FirebaseHelper.getInstance(this);
+            helper.getFriends(user, MapActivity.this);
+            recommendationButton = findViewById(R.id.recommendButton);
+            recommendationButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getRecommendation();
+                }
+            });
+        }
     }
 
 
@@ -302,5 +320,47 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         intent.setAction("edu.temple.foodiego.userlocation");
         intent.putExtra("userLocation",location);
         sendBroadcast(intent);
+    }
+    public void getRecommendation(){
+        if(friendsReviews == null){
+            Toast.makeText(MapActivity.this, "Still preparing database data, please try again in a moment.", Toast.LENGTH_LONG).show();
+            Log.d(TAG, "getRecommendation: friends' reviews not received yet");
+        }else{
+            Log.d(TAG, "getRecommendation: getting recommendation");
+            //get ratings from reviews
+            HashMap<FoodieLocation, Double> locationRatings = new HashMap<>();
+            for(int i = 0; i < friendsReviews.size(); i++){
+                FoodieLocation curLoc = friendsReviews.get(i).getLocation();
+                if(locationRatings.containsKey(curLoc)){
+                    double old = locationRatings.get(curLoc);
+                    double incoming = friendsReviews.get(i).getRating();
+                    double update = (old + incoming) / 2.0;
+                    locationRatings.put(curLoc, update);
+                }else{
+                    locationRatings.put(curLoc, friendsReviews.get(i).getRating());
+                }
+            }
+            //find highest rated location
+            FoodieLocation result = null;
+            double max = 0.0;
+            for(FoodieLocation f : locationRatings.keySet()){
+                if(result == null || locationRatings.get(f) > max){
+                    result = f;
+                    max = locationRatings.get(f);
+                }
+            }
+            Log.d(TAG, "getRecommendation: found recommendation " + result.getName());
+            openLocationDetailView(result);
+        }
+    }
+    @Override
+    public void getFriendsResult(ArrayList<FoodieUser> friends) {
+        this.friends = friends;
+        FirebaseHelper helper = FirebaseHelper.getInstance(MapActivity.this);
+        helper.getFriendsReviews(this.friends, MapActivity.this);
+    }
+    @Override
+    public void getFriendsReviewsResult(ArrayList<FoodieReview> reviews) {
+        this.friendsReviews = reviews;
     }
 }
