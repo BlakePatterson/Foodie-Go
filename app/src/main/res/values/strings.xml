@@ -42,5 +42,8 @@
     <string name="person_icon_desc">person icon</string>
     <string name="social_feed_menu_item">Social Feed</string>
     <string name="post_activity_content_desc">Post Activity</string>
+    <string name="postButton">Post</string>
+    <string name="location_prompt">Location</string>
+    <string name="social_activity_prompt">What did you do there?</string>
     <string name="recommendButton">Recommend something!</string>
 </resources>

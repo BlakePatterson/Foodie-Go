@@ -236,7 +236,7 @@ public class FirebaseHelper {
 
                                             if (finalI == friendIds.size() - 1) {
                                                 //The final user's data has been retrieved, so return the data
-                                                callingActivity.result(resultingFriends);
+                                                callingActivity.getFriendsResult(resultingFriends);
                                             }
 
                                         } catch (JSONException e) {
@@ -259,7 +259,7 @@ public class FirebaseHelper {
     }
     interface GetFriendsResponse
     {
-        void result(ArrayList<FoodieUser> friends);
+        void getFriendsResult(ArrayList<FoodieUser> friends);
     }
 
 
@@ -355,7 +355,7 @@ public class FirebaseHelper {
                                                     Log.d(TAG, "onComplete: FOUND REVIEW FOR LOCATION: " + resultingReviews.get(i).getUser().getUsername() + "; " + resultingReviews.get(i).getRating());
                                                 }
 
-                                                callingActivity.result(resultingReviews);
+                                                callingActivity.getReviewsResult(resultingReviews);
                                             }
 
                                         } catch (JSONException e) {
@@ -380,7 +380,7 @@ public class FirebaseHelper {
     }
     interface GetReviewsResponse
     {
-        void result(ArrayList<FoodieReview> reviews);
+        void getReviewsResult(ArrayList<FoodieReview> reviews);
     }
     public void getFriendsReviews(ArrayList<FoodieUser> friends, GetFriendsReviewsResponse callingActivity){
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -450,7 +450,7 @@ public class FirebaseHelper {
                         HashMap<String, String> DataMap = new HashMap<>();
                         DataMap.put("location_id", replaceCharBeforeSet(foodieLocation.getName()));
                         DataMap.put("points", String.valueOf(point));
-                        DataMap.put("reason",reason);
+                        DataMap.put("reason", replaceCharBeforeSet(reason));
                         newTokenRef.setValue(DataMap);
                         Log.e("tokens", "new token added.");
                         response.result(true);
@@ -490,7 +490,7 @@ public class FirebaseHelper {
                                 DatabaseReference newRef = userTokenTableRef.push();
                                 HashMap<String, String> DataMap = new HashMap<>();
                                 DataMap.put("location_id", replaceCharBeforeSet(foodieLocation.getName()));
-                                DataMap.put("reason",reason);
+                                DataMap.put("reason", replaceCharBeforeSet(reason));
                                 DataMap.put("points", String.valueOf(1));
                                 newRef.setValue(DataMap);
                                 Log.e("tokens", "new token added.");
@@ -544,7 +544,7 @@ public class FirebaseHelper {
         HashMap<String, String> dataMap = new HashMap<>();
         dataMap.put("location_id", replaceCharBeforeSet(log.getLocation().getName()));
         dataMap.put("user_id", log.getUser().getUsername());
-        dataMap.put("activity_type", log.getAction());
+        dataMap.put("activity_type", replaceCharBeforeSet(log.getAction()));
         dataMap.put("activity_time",replaceCharBeforeSet(log.getTime().toString()));
         dataMap.put("activity_message",replaceCharBeforeSet(log.getActivityLogMessage()));
         newActivity.setValue(dataMap);
@@ -568,7 +568,7 @@ public class FirebaseHelper {
                         FoodieUser foodieUser = new FoodieUser(activityJsonObj.getString("user_id"),"","","");
                         FoodieLocation foodieLocation1 = new FoodieLocation(
                                 replaceCharAfterGet(activityJsonObj.getString("location_id")),0,0,0 );
-                        String action = activityJsonObj.getString("activity_type");
+                        String action = replaceCharAfterGet(activityJsonObj.getString("activity_type"));
                         String timeString = replaceCharAfterGet(activityJsonObj.getString("activity_time"));
                         LocalDate date = LocalDate.parse(timeString);
                         FoodieActivityLog foodieActivityLog = new FoodieActivityLog(foodieUser, foodieLocation1, action, date);
@@ -576,14 +576,14 @@ public class FirebaseHelper {
                     }
                 }
                 if(resultList.size()>0)
-                    iGetLocationActivities.result(resultList);
+                    iGetLocationActivities.getLocationActivitiesResult(resultList);
             }catch (Exception e){
                 e.printStackTrace();
             }
         });
     }
     interface IGetLocationActivities {
-        void result(ArrayList<FoodieActivityLog> logs);
+        void getLocationActivitiesResult(ArrayList<FoodieActivityLog> logs);
     }
 
     public void getFriendsActivity(ArrayList<FoodieUser> friends, GetFriendsActivityResponse callingActivity) {
@@ -607,7 +607,7 @@ public class FirebaseHelper {
                             FoodieUser foodieUser = new FoodieUser(activityJsonObj.getString("user_id"),"","","");
                             FoodieLocation foodieLocation = new FoodieLocation(
                                     replaceCharAfterGet(activityJsonObj.getString("location_id")),0,0,0 );
-                            String action = activityJsonObj.getString("activity_type");
+                            String action = replaceCharAfterGet(activityJsonObj.getString("activity_type"));
                             String timeString = replaceCharAfterGet(activityJsonObj.getString("activity_time"));
                             LocalDate date = LocalDate.parse(timeString);
                             FoodieActivityLog foodieActivityLog = new FoodieActivityLog(foodieUser, foodieLocation, action, date);
@@ -616,14 +616,14 @@ public class FirebaseHelper {
                         }
                     }
                 }
-                callingActivity.result(resultList);
+                callingActivity.getFriendsActivityResult(resultList);
             }catch (Exception e){
                 e.printStackTrace();
             }
         });
     }
     interface GetFriendsActivityResponse {
-        void result(ArrayList<FoodieActivityLog> logs);
+        void getFriendsActivityResult(ArrayList<FoodieActivityLog> logs);
     }
 
     public static String replaceCharBeforeSet(String original)

@@ -374,7 +374,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
     }
     @Override
-    public void result(ArrayList<FoodieUser> friends) {
+    public void getFriendsResult(ArrayList<FoodieUser> friends) {
         this.friends = new ArrayList<>();
         this.friends.add(user);
         this.friends.addAll(friends);
