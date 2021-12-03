@@ -9,6 +9,9 @@
         android:id="@+id/addFriendMenuItem"
         android:title="@string/add_friend_menu_item_text" />
     <item
+        android:id="@+id/tapToAddFriendMenuItem"
+        android:title="@string/tap_to_add_friend_menu_item" />
+    <item
         android:id="@+id/logoutMenuItem"
         android:title="@string/logout_menu_item_text" />
 

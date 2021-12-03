@@ -136,6 +136,10 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
             //add friend button was clicked
             openAddFriendDialog();
             return true;
+        } else if (id == R.id.tapToAddFriendMenuItem) {
+            //Tap to Add Friend button was clicked
+
+            return true;
         } else if (id == R.id.socialFeedMenuItem) {
             //Social Feed Activity Button was clicked
             openSocialFeedView();
