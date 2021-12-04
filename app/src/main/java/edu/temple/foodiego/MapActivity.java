@@ -68,7 +68,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     ForegroundLocationService locationService;
 
     Location userLocation;
-    Button recommendationButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,8 +96,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
             startLocationService();
         }
         if(user != null){
-            recommendationButton = findViewById(R.id.recommendButton);
-            recommendationButton.setOnClickListener(new View.OnClickListener() {
+            findViewById(R.id.getReccomendationFloatingActionButton).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     FirebaseHelper helper = FirebaseHelper.getInstance(MapActivity.this);

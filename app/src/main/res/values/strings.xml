@@ -46,4 +46,5 @@
     <string name="location_prompt">Location</string>
     <string name="social_activity_prompt">What did you do there?</string>
     <string name="recommendButton">Recommend something!</string>
+    <string name="get_reccomendation_content_desc">Get Reccomendation</string>
 </resources>
