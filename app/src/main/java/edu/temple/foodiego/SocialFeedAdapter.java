@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class SocialFeedAdapter extends RecyclerView.Adapter<SocialFeedAdapter.SocialItemViewHolder>{
@@ -28,7 +29,9 @@ public class SocialFeedAdapter extends RecyclerView.Adapter<SocialFeedAdapter.So
         holder.getName().setText(data.get(position).getUser().getUsername());
         holder.getAction().setText(data.get(position).getAction());
         holder.getLocation().setText(data.get(position).getLocation().getName());
-        holder.getTime().setText(data.get(position).getTime().toString());
+        LocalDateTime time = data.get(position).getTime();
+        String display = time.getMonth().name() + " " + time.getDayOfMonth() + " " + time.getHour() + ":" + time.getMinute();
+        holder.getTime().setText(display);
     }
 
     @Override
