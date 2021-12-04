@@ -9,13 +9,10 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.ProgressDialog;
-import android.content.AsyncQueryHandler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -26,33 +23,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import static android.content.ContentValues.TAG;
-
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Marker;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class MapActivity extends AppCompatActivity implements MapFragment.MapFragmentInterface, ForegroundLocationService.LocationServiceInterface,
         FirebaseHelper.GetFriendsResponse, FirebaseHelper.GetFriendsReviewsResponse {
@@ -68,7 +47,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     ForegroundLocationService locationService;
 
     Location userLocation;
-    Button recommendationButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,8 +75,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
             startLocationService();
         }
         if(user != null){
-            recommendationButton = findViewById(R.id.recommendButton);
-            recommendationButton.setOnClickListener(new View.OnClickListener() {
+            findViewById(R.id.getRecommendationFloatingActionButton).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     FirebaseHelper helper = FirebaseHelper.getInstance(MapActivity.this);
