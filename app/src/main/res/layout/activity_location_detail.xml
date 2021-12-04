@@ -7,19 +7,6 @@
     tools:context=".LocationDetailActivity">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/beginRouteFloatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:clickable="true"
-        android:contentDescription="@string/begin_route_button_content_desc"
-        app:backgroundTint="#2196F3"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_baseline_directions_24" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/leaveReviewFloatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,7 +15,7 @@
         android:clickable="true"
         android:contentDescription="@string/leave_review_content_desc"
         app:backgroundTint="#2196F3"
-        app:layout_constraintBottom_toTopOf="@+id/beginRouteFloatingActionButton"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_baseline_rate_review_24" />
 
