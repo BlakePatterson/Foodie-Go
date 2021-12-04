@@ -79,9 +79,9 @@ public class MapInfoFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_map_info, container, false);
         totalDistanceWalked =0;
         welcomeMessage = (TextView) view.findViewById(R.id.tvMessage);
-        distanceWalked =  (TextView) view.findViewById(R.id.tvDistanceWalked);
-        updateWelcomeMessage("Welcome to FoodieGo. "+userName);
-        distanceWalked.setText("Distance Walked: "+ totalDistanceWalked);
+//        distanceWalked =  (TextView) view.findViewById(R.id.tvDistanceWalked);
+        updateWelcomeMessage("Welcome, " + userName + "!");
+//        distanceWalked.setText("Distance Walked: "+ totalDistanceWalked);
         return view;
     }
 
