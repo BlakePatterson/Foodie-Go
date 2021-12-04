@@ -1,7 +1,6 @@
 package edu.temple.foodiego;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import static android.content.ContentValues.TAG;
 
 import android.Manifest;
 import android.app.ActivityManager;
@@ -25,12 +24,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
 import static android.content.ContentValues.TAG;
 
 public class MapActivity extends AppCompatActivity implements MapFragment.MapFragmentInterface, ForegroundLocationService.LocationServiceInterface,
@@ -41,6 +40,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
     public FoodieUser user;
 
     private MapFragment mapFragment;
+    private MapInfoFragment mapInfoFragment;
 
     private SharedPreferences preferences;
 
@@ -169,6 +169,19 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         else {
             mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFrameLayout);
         }
+
+        if (!(getSupportFragmentManager().findFragmentById(R.id.mapInfoFragment) instanceof MapInfoFragment)) {
+            mapInfoFragment = MapInfoFragment.newInstance(user.getUsername());
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.mapInfoFragment, mapInfoFragment)
+                    .commit();
+        }
+        else {
+            mapInfoFragment = (MapInfoFragment) getSupportFragmentManager().findFragmentById(R.id.mapInfoFragment);
+        }
+
+
     }
 
     //The following method(s) are for communicating information from the MapFragment
