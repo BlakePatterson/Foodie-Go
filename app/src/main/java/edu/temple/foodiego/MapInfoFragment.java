@@ -6,12 +6,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
+
 import android.util.Log;
+import androidx.fragment.app.Fragment;
+import android.os.Message;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.fragment.app.Fragment;
 
 /**
@@ -23,7 +26,6 @@ public class MapInfoFragment extends Fragment {
     public static final String USERNAME_PARAM_KEY = "mapInfoParam1";
 
     private Context parentActivity;
-
     private TextView welcomeMessage;
     private String userName;
 
