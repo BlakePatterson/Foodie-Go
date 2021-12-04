@@ -76,21 +76,11 @@ public class LocationDetailActivity extends AppCompatActivity {
 
         TextView locationNameTextView = findViewById(R.id.locationNameTextView);
         TextView ratingTextView = findViewById(R.id.ratingTextView);
-        FloatingActionButton beginRouteButton = findViewById(R.id.beginRouteFloatingActionButton);
         FloatingActionButton leaveReviewButton = findViewById(R.id.leaveReviewFloatingActionButton);
         FloatingActionButton claimTokenButton = findViewById(R.id.claimTokenFloatingActionButton);
 
         locationNameTextView.setText(location.getName());
         ratingTextView.setText(String.valueOf(location.getRating()));
-
-        beginRouteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //begin route button has been clicked
-                Log.d(TAG, "onClick: start route to location has been clicked");
-                startRouteToLocation();
-            }
-        });
 
         leaveReviewButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -203,11 +193,6 @@ public class LocationDetailActivity extends AppCompatActivity {
         Log.d(TAG, "postReviewToFirebase: posting review to firebase with rating: " + String.valueOf(rating) + "; review message: " + review);
 
         FirebaseHelper.getInstance(this).postReview(user, location, rating, review);
-    }
-
-    public FoodieLocation startRouteToLocation() {
-        //TODO: write functionality to send FoodieLocation to the MapFragment, initiating a route
-        return null;
     }
 
 }
