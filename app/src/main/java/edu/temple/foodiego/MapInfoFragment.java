@@ -55,23 +55,23 @@ public class MapInfoFragment extends Fragment {
             userName = (String) getArguments().getSerializable(USERNAME_PARAM_KEY);
         }
 
-        userLocationReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-            if(userLocation1 == null)
-            {
-                userLocation1 = (Location) intent.getParcelableExtra("userLocation");
-            }
-            else
-            {
-                userLocation = (Location) intent.getParcelableExtra("userLocation");
-                updateDistanceWalked(userLocation.distanceTo(userLocation1));
-                userLocation1 = userLocation;
-                userLocation = null;
-            }
-            }
-        };
-        getActivity().registerReceiver(userLocationReceiver,new IntentFilter("edu.temple.foodiego.userlocation"));
+//        userLocationReceiver = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//            if(userLocation1 == null)
+//            {
+//                userLocation1 = (Location) intent.getParcelableExtra("userLocation");
+//            }
+//            else
+//            {
+//                userLocation = (Location) intent.getParcelableExtra("userLocation");
+//                updateDistanceWalked(userLocation.distanceTo(userLocation1));
+//                userLocation1 = userLocation;
+//                userLocation = null;
+//            }
+//            }
+//        };
+//        getActivity().registerReceiver(userLocationReceiver,new IntentFilter("edu.temple.foodiego.userlocation"));
     }
 
     @Override
