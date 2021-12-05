@@ -74,10 +74,14 @@ public class LoginActivity extends AppCompatActivity {
                     if (!task.isSuccessful()) {
                         Log.d(TAG, "login: Error getting data", task.getException());
 
-                        //Close the loading dialog
-                        loadingDialog.dismiss();
-
-                        Toast.makeText(LoginActivity.this, "Unable to Contact Servers, Please Try Again Later", Toast.LENGTH_SHORT).show();
+                        try {
+                            //Close the loading dialog
+                            loadingDialog.dismiss();
+                        } catch (final IllegalArgumentException e) {
+                            // Handle or log or ignore
+                        } finally {
+                            Toast.makeText(LoginActivity.this, "Unable to Contact Servers, Please Try Again Later", Toast.LENGTH_SHORT).show();
+                        }
                     }
                     else {
                         boolean foundUser = false;
@@ -98,37 +102,54 @@ public class LoginActivity extends AppCompatActivity {
 
                                         foundUser = true;
 
-                                        //Close the loading dialog
-                                        loadingDialog.dismiss();
+                                        try {
+                                            //Close the loading dialog
+                                            loadingDialog.dismiss();
+                                        } catch (final IllegalArgumentException e) {
+                                            // Handle or log or ignore
+                                        } finally {
+                                            //Read the firstname and lastname from the database
+                                            String db_firstname = (String) ((JSONObject) userData.get(key)).get("firstname");
+                                            String db_lastname = (String) ((JSONObject) userData.get(key)).get("lastname");
 
-                                        //Read the firstname and lastname from the database
-                                        String db_firstname = (String) ((JSONObject) userData.get(key)).get("firstname");
-                                        String db_lastname = (String) ((JSONObject) userData.get(key)).get("lastname");
+                                            //Launch Map Activity
+                                            Intent intent = new Intent(LoginActivity.this, MapActivity.class);
+                                            Bundle intentBundle = new Bundle();
+                                            intentBundle.putString(getString(R.string.username_bundle_key), storedUsername);
+                                            intentBundle.putString(getString(R.string.firstname_bundle_key), db_firstname);
+                                            intentBundle.putString(getString(R.string.lastname_bundle_key), db_lastname);
+                                            intentBundle.putString(getString(R.string.key_bundle_key), key);
+                                            intent.putExtras(intentBundle);
+                                            startActivity(intent);
+                                        }
 
-                                        //Launch Map Activity
-                                        Intent intent = new Intent(LoginActivity.this, MapActivity.class);
-                                        Bundle intentBundle = new Bundle();
-                                        intentBundle.putString(getString(R.string.username_bundle_key), storedUsername);
-                                        intentBundle.putString(getString(R.string.firstname_bundle_key), db_firstname);
-                                        intentBundle.putString(getString(R.string.lastname_bundle_key), db_lastname);
-                                        intentBundle.putString(getString(R.string.key_bundle_key), key);
-                                        intent.putExtras(intentBundle);
-                                        startActivity(intent);
+
                                     }
                                 }
                             }
                             //The username was not found, so notify the user
                             if (!foundUser) {
-                                //Close the loading dialog
-                                loadingDialog.dismiss();
-                                Toast.makeText(LoginActivity.this, "Error Finding User Data, Please Try Again", Toast.LENGTH_LONG).show();
+                                try {
+                                    //Close the loading dialog
+                                    loadingDialog.dismiss();
+                                } catch (final IllegalArgumentException e) {
+                                    // Handle or log or ignore
+                                } finally {
+                                    Toast.makeText(LoginActivity.this, "Error Finding User Data, Please Try Again", Toast.LENGTH_LONG).show();
+                                }
                             }
 
                         } catch (JSONException e) {
-                            //Close the loading dialog
-                            loadingDialog.dismiss();
-                            e.printStackTrace();
-                            Toast.makeText(LoginActivity.this, "Error Finding User Data, Please Try Again", Toast.LENGTH_LONG).show();
+                            try {
+                                //Close the loading dialog
+                                loadingDialog.dismiss();
+                            } catch (final IllegalArgumentException e2) {
+                                // Handle or log or ignore
+                            } finally {
+                                e.printStackTrace();
+                                Toast.makeText(LoginActivity.this, "Error Finding User Data, Please Try Again", Toast.LENGTH_LONG).show();
+                            }
+
                         }
                     }
                 }
@@ -174,10 +195,15 @@ public class LoginActivity extends AppCompatActivity {
                 if (!task.isSuccessful()) {
                     Log.d(TAG, "login: Error getting data", task.getException());
 
-                    //Close the loading dialog
-                    loadingDialog.dismiss();
+                    try {
+                        //Close the loading dialog
+                        loadingDialog.dismiss();
+                    } catch (final IllegalArgumentException e) {
+                        // Handle or log or ignore
+                    } finally {
+                        Toast.makeText(LoginActivity.this, "Unable to Contact Servers, Please Try Again Later", Toast.LENGTH_SHORT).show();
+                    }
 
-                    Toast.makeText(LoginActivity.this, "Unable to Contact Servers, Please Try Again Later", Toast.LENGTH_SHORT).show();
                 }
                 else {
 //                    Log.d(TAG, "login: " + String.valueOf(task.getResult().getValue()));
@@ -200,60 +226,76 @@ public class LoginActivity extends AppCompatActivity {
                                 if (username.equals(db_username)) {
 
                                     foundUser = true;
+                                    boolean incorrectPassword = false;
 
-                                    //Close the loading dialog
-                                    loadingDialog.dismiss();
+                                    try {
+                                        //Close the loading dialog
+                                        loadingDialog.dismiss();
+                                    } catch (final IllegalArgumentException e) {
+                                        // Handle or log or ignore
+                                    } finally {
+                                        if (password.equals(db_password)) {
+                                            //The correct credentials have been provided so proceed to login
 
-                                    if (password.equals(db_password)) {
-                                        //The correct credentials have been provided so proceed to login
+                                            //Read the firstname and lastname from the database
+                                            String db_firstname = (String) ((JSONObject) userData.get(key)).get("firstname");
+                                            String db_lastname = (String) ((JSONObject) userData.get(key)).get("lastname");
 
-                                        //Read the firstname and lastname from the database
-                                        String db_firstname = (String) ((JSONObject) userData.get(key)).get("firstname");
-                                        String db_lastname = (String) ((JSONObject) userData.get(key)).get("lastname");
+                                            SharedPreferences.Editor editor = preferences.edit();
+                                            editor.putString(getString(R.string.stored_username_key), username);
+                                            editor.putString(username + getString(R.string.stored_firstname_key), db_firstname);
+                                            editor.putString(username + getString(R.string.stored_lastname_key), db_lastname);
+                                            editor.putString(getString(R.string.stored_key_key), key);
+                                            editor.apply();
 
-                                        SharedPreferences.Editor editor = preferences.edit();
-                                        editor.putString(getString(R.string.stored_username_key), username);
-                                        editor.putString(username + getString(R.string.stored_firstname_key), db_firstname);
-                                        editor.putString(username + getString(R.string.stored_lastname_key), db_lastname);
-                                        editor.putString(getString(R.string.stored_key_key), key);
-                                        editor.apply();
+                                            Log.d(TAG, "onComplete: successfully logged in with username: " + db_username + "; password: " + password);
 
-                                        Log.d(TAG, "onComplete: successfully logged in with username: " + db_username + "; password: " + password);
+                                            //Launch Map Activity
+                                            Intent intent = new Intent(LoginActivity.this, MapActivity.class);
+                                            Bundle intentBundle = new Bundle();
+                                            intentBundle.putString(getString(R.string.username_bundle_key), username);
+                                            intentBundle.putString(getString(R.string.firstname_bundle_key), db_firstname);
+                                            intentBundle.putString(getString(R.string.lastname_bundle_key), db_lastname);
+                                            intentBundle.putString(getString(R.string.key_bundle_key), key);
+                                            intent.putExtras(intentBundle);
+                                            startActivity(intent);
 
-                                        //Launch Map Activity
-                                        Intent intent = new Intent(LoginActivity.this, MapActivity.class);
-                                        Bundle intentBundle = new Bundle();
-                                        intentBundle.putString(getString(R.string.username_bundle_key), username);
-                                        intentBundle.putString(getString(R.string.firstname_bundle_key), db_firstname);
-                                        intentBundle.putString(getString(R.string.lastname_bundle_key), db_lastname);
-                                        intentBundle.putString(getString(R.string.key_bundle_key), key);
-                                        intent.putExtras(intentBundle);
-                                        startActivity(intent);
-
-                                    } else {
-                                        //The user exists but the password provided was incorrect, so notify the user
-                                        Toast.makeText(LoginActivity.this, "Incorrect Password, Try Again", Toast.LENGTH_LONG).show();
-                                        break;
+                                        } else {
+                                            //The user exists but the password provided was incorrect, so notify the user
+                                            Toast.makeText(LoginActivity.this, "Incorrect Password, Try Again", Toast.LENGTH_LONG).show();
+                                            incorrectPassword = true;
+                                        }
                                     }
+
                                 }
                             }
                         }
 
                         //The username was not found, so notify the user
                         if (!foundUser) {
-                            //Close the loading dialog
-                            loadingDialog.dismiss();
+                            try {
+                                //Close the loading dialog
+                                loadingDialog.dismiss();
+                            } catch (final IllegalArgumentException e) {
+                                // Handle or log or ignore
+                            } finally {
+                                Toast.makeText(LoginActivity.this, "Username Does Not Exist, Please Create An Account", Toast.LENGTH_LONG).show();
+                            }
 
-                            Toast.makeText(LoginActivity.this, "Username Does Not Exist, Please Create An Account", Toast.LENGTH_LONG).show();
                         }
 
                     } catch (JSONException e) {
-                        //Close the loading dialog
-                        loadingDialog.dismiss();
+                        try {
+                            //Close the loading dialog
+                            loadingDialog.dismiss();
+                        } catch (final IllegalArgumentException e2) {
+                            // Handle or log or ignore
+                        } finally {
+                            e.printStackTrace();
 
-                        e.printStackTrace();
+                            Toast.makeText(LoginActivity.this, "Error Finding User Data, Please Try Again", Toast.LENGTH_LONG).show();
+                        }
 
-                        Toast.makeText(LoginActivity.this, "Error Finding User Data, Please Try Again", Toast.LENGTH_LONG).show();
                     }
 
                 }
@@ -332,10 +374,15 @@ public class LoginActivity extends AppCompatActivity {
                 if (!task.isSuccessful()) {
                     Log.d(TAG, "createAccount: Error getting data", task.getException());
 
-                    //Close the loading dialog
-                    loadingDialog.dismiss();
+                    try {
+                        //Close the loading dialog
+                        loadingDialog.dismiss();
+                    } catch (final IllegalArgumentException e) {
+                        // Handle or log or ignore
+                    } finally {
+                        Toast.makeText(LoginActivity.this, "Unable to contact servers, try again later", Toast.LENGTH_SHORT).show();
+                    }
 
-                    Toast.makeText(LoginActivity.this, "Unable to contact servers, try again later", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     boolean foundUser = false;
@@ -362,10 +409,15 @@ public class LoginActivity extends AppCompatActivity {
                         if (foundUser) {
                             //The username already exists, so notify the user to use a different username
 
-                            //Close the loading dialog
-                            loadingDialog.dismiss();
+                            try {
+                                //Close the loading dialog
+                                loadingDialog.dismiss();
+                            } catch (final IllegalArgumentException e) {
+                                // Handle or log or ignore
+                            } finally {
+                                Toast.makeText(LoginActivity.this, "Username Already Exists, Please Try Another Username", Toast.LENGTH_LONG).show();
+                            }
 
-                            Toast.makeText(LoginActivity.this, "Username Already Exists, Please Try Another Username", Toast.LENGTH_LONG).show();
                         } else {
                             //The username does not exist yet, so proceed to create the account
 
@@ -386,27 +438,36 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putString(username + getString(R.string.stored_lastname_key), lastname);
                             editor.apply();
 
-                            //Close the loading dialog
-                            loadingDialog.dismiss();
-
-                            //Launch Map Activity
-                            Intent intent = new Intent(LoginActivity.this, MapActivity.class);
-                            Bundle intentBundle = new Bundle();
-                            intentBundle.putString(getString(R.string.username_bundle_key), username);
-                            intentBundle.putString(getString(R.string.firstname_bundle_key), firstname);
-                            intentBundle.putString(getString(R.string.lastname_bundle_key), lastname);
-                            intent.putExtras(intentBundle);
-                            startActivity(intent);
+                            try {
+                                //Close the loading dialog
+                                loadingDialog.dismiss();
+                            } catch (final IllegalArgumentException e) {
+                                // Handle or log or ignore
+                            } finally {
+                                //Launch Map Activity
+                                Intent intent = new Intent(LoginActivity.this, MapActivity.class);
+                                Bundle intentBundle = new Bundle();
+                                intentBundle.putString(getString(R.string.username_bundle_key), username);
+                                intentBundle.putString(getString(R.string.firstname_bundle_key), firstname);
+                                intentBundle.putString(getString(R.string.lastname_bundle_key), lastname);
+                                intent.putExtras(intentBundle);
+                                startActivity(intent);
+                            }
 
                         }
 
                     } catch (JSONException e) {
-                        //Close the loading dialog
-                        loadingDialog.dismiss();
+                        try {
+                            //Close the loading dialog
+                            loadingDialog.dismiss();
+                        } catch (final IllegalArgumentException e2) {
+                            // Handle or log or ignore
+                        } finally {
+                            e.printStackTrace();
 
-                        e.printStackTrace();
+                            Toast.makeText(LoginActivity.this, "Error Finding User Data, Please Try Again", Toast.LENGTH_LONG).show();
+                        }
 
-                        Toast.makeText(LoginActivity.this, "Error Finding User Data, Please Try Again", Toast.LENGTH_LONG).show();
                     }
 
                 }
