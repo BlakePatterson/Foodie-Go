@@ -25,15 +25,14 @@ import androidx.fragment.app.Fragment;
 public class MapInfoFragment extends Fragment {
     public static final String USERNAME_PARAM_KEY = "mapInfoParam1";
 
-    private Context parentActivity;
     private TextView welcomeMessage;
     private String userName;
-
-    private TextView distanceWalked;
-    private double totalDistanceWalked;
-    private Location userLocation;
-    private Location userLocation1;
-    private BroadcastReceiver userLocationReceiver;
+//
+//    private TextView distanceWalked;
+//    private double totalDistanceWalked;
+//    private Location userLocation;
+//    private Location userLocation1;
+//    private BroadcastReceiver userLocationReceiver;
 
     public MapInfoFragment() { }
 
@@ -55,23 +54,23 @@ public class MapInfoFragment extends Fragment {
             userName = (String) getArguments().getSerializable(USERNAME_PARAM_KEY);
         }
 
-        userLocationReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-            if(userLocation1 == null)
-            {
-                userLocation1 = (Location) intent.getParcelableExtra("userLocation");
-            }
-            else
-            {
-                userLocation = (Location) intent.getParcelableExtra("userLocation");
-                updateDistanceWalked(userLocation.distanceTo(userLocation1));
-                userLocation1 = userLocation;
-                userLocation = null;
-            }
-            }
-        };
-        getActivity().registerReceiver(userLocationReceiver,new IntentFilter("edu.temple.foodiego.userlocation"));
+//        userLocationReceiver = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//            if(userLocation1 == null)
+//            {
+//                userLocation1 = (Location) intent.getParcelableExtra("userLocation");
+//            }
+//            else
+//            {
+//                userLocation = (Location) intent.getParcelableExtra("userLocation");
+//                //updateDistanceWalked(userLocation.distanceTo(userLocation1));
+//                userLocation1 = userLocation;
+//                userLocation = null;
+//            }
+//            }
+//        };
+//        getActivity().registerReceiver(userLocationReceiver,new IntentFilter("edu.temple.foodiego.userlocation"));
     }
 
     @Override
@@ -79,7 +78,7 @@ public class MapInfoFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_map_info, container, false);
-        totalDistanceWalked =0;
+        //totalDistanceWalked =0;
         welcomeMessage = (TextView) view.findViewById(R.id.tvMessage);
 //        distanceWalked =  (TextView) view.findViewById(R.id.tvDistanceWalked);
         updateWelcomeMessage("Welcome, " + userName + "!");
@@ -96,7 +95,7 @@ public class MapInfoFragment extends Fragment {
     }
 
     public void updateDistanceWalked(double distance){
-        totalDistanceWalked += (float)distance;
-        distanceWalked.setText("Distance Walked: "+ (int)totalDistanceWalked +"meters");
+        //totalDistanceWalked += (float)distance;
+        //distanceWalked.setText("Distance Walked: "+ (int)totalDistanceWalked +"meters");
     }
 }
