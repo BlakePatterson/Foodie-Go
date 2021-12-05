@@ -17,10 +17,12 @@
         android:roundIcon="@drawable/ic_logo_foreground"
         android:supportsRtl="true"
         android:theme="@style/Theme.FoodieGo">
-        <activity android:name=".SocialFeedActivity"></activity>
+        <activity android:name=".SocialFeedActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".LocationDetailActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
 
         <service
             android:name=".ForegroundLocationService"
@@ -38,8 +40,10 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".MapActivity" />
-        <activity android:name=".LoginActivity">
+        <activity android:name=".MapActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".LoginActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
