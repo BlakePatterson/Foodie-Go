@@ -55,23 +55,23 @@ public class MapInfoFragment extends Fragment {
             userName = (String) getArguments().getSerializable(USERNAME_PARAM_KEY);
         }
 
-//        userLocationReceiver = new BroadcastReceiver() {
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//            if(userLocation1 == null)
-//            {
-//                userLocation1 = (Location) intent.getParcelableExtra("userLocation");
-//            }
-//            else
-//            {
-//                userLocation = (Location) intent.getParcelableExtra("userLocation");
-//                updateDistanceWalked(userLocation.distanceTo(userLocation1));
-//                userLocation1 = userLocation;
-//                userLocation = null;
-//            }
-//            }
-//        };
-//        getActivity().registerReceiver(userLocationReceiver,new IntentFilter("edu.temple.foodiego.userlocation"));
+        userLocationReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+            if(userLocation1 == null)
+            {
+                userLocation1 = (Location) intent.getParcelableExtra("userLocation");
+            }
+            else
+            {
+                userLocation = (Location) intent.getParcelableExtra("userLocation");
+                updateDistanceWalked(userLocation.distanceTo(userLocation1));
+                userLocation1 = userLocation;
+                userLocation = null;
+            }
+            }
+        };
+        getActivity().registerReceiver(userLocationReceiver,new IntentFilter("edu.temple.foodiego.userlocation"));
     }
 
     @Override
@@ -81,9 +81,9 @@ public class MapInfoFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_map_info, container, false);
         totalDistanceWalked =0;
         welcomeMessage = (TextView) view.findViewById(R.id.tvMessage);
-//        distanceWalked =  (TextView) view.findViewById(R.id.tvDistanceWalked);
+        distanceWalked =  (TextView) view.findViewById(R.id.tvDistanceWalked);
         updateWelcomeMessage("Welcome, " + userName + "!");
-//        distanceWalked.setText("Distance Walked: "+ totalDistanceWalked);
+        distanceWalked.setText("Distance Travelled: "+ (int)totalDistanceWalked +"m");
         return view;
     }
 
@@ -97,6 +97,6 @@ public class MapInfoFragment extends Fragment {
 
     public void updateDistanceWalked(double distance){
         totalDistanceWalked += (float)distance;
-        distanceWalked.setText("Distance Walked: "+ (int)totalDistanceWalked +"meters");
+        distanceWalked.setText("Distance Travelled: "+ (int)totalDistanceWalked +"m");
     }
 }
