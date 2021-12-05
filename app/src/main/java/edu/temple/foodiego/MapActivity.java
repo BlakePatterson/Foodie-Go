@@ -200,7 +200,7 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
         intent.putExtra(getString(R.string.key_bundle_key), user.getKey());
 
         if(userLocation!=null)
-        intent.putExtra("userLocation",userLocation);
+            intent.putExtra("userLocation",userLocation);
 
         startActivity(intent);
     }
