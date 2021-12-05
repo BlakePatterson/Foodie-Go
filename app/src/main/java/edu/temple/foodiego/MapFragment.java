@@ -251,7 +251,7 @@ public class MapFragment extends Fragment {
             location.setLongitude(userMarker.getPosition().longitude);
             location.setLatitude(userMarker.getPosition().latitude);
             FirebaseHelper.getNearbyLocations(getContext(), 2000.0,location);
-            updateCountDown = 20;
+            updateCountDown = 3;
         } else {
             updateCountDown--;
         }
