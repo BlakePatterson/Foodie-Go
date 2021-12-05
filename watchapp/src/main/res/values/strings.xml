@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Foodie Go</string>
+    <string name="intro_text">Swipe edge to exit the map.</string>
+</resources>

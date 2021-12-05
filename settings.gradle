@@ -1,2 +1,3 @@
+include ':watchapp'
 include ':app'
 rootProject.name = "Foodie Go"
