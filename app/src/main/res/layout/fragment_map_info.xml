@@ -24,5 +24,16 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Welcome!" />
 
+    <TextView
+        android:id="@+id/tvDistanceWalked"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:textColor="#000000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvMessage"
+        tools:text="Distance Walked" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

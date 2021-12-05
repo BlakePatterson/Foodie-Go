@@ -81,9 +81,9 @@ public class MapInfoFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_map_info, container, false);
         totalDistanceWalked =0;
         welcomeMessage = (TextView) view.findViewById(R.id.tvMessage);
-//        distanceWalked =  (TextView) view.findViewById(R.id.tvDistanceWalked);
+        distanceWalked =  (TextView) view.findViewById(R.id.tvDistanceWalked);
         updateWelcomeMessage("Welcome, " + userName + "!");
-//        distanceWalked.setText("Distance Walked: "+ totalDistanceWalked);
+        distanceWalked.setText("Distance Travelled: "+ (int)totalDistanceWalked +"m");
         return view;
     }
 
@@ -97,6 +97,6 @@ public class MapInfoFragment extends Fragment {
 
     public void updateDistanceWalked(double distance){
         totalDistanceWalked += (float)distance;
-        distanceWalked.setText("Distance Walked: "+ (int)totalDistanceWalked +"meters");
+        distanceWalked.setText("Distance Travelled: "+ (int)totalDistanceWalked +"m");
     }
 }
