@@ -242,10 +242,7 @@ public class MapFragment extends Fragment {
         void openLocationDetailView(FoodieLocation location);
     }
 
-    // addNearbyLocationsToMap
-    // @No param
-    // call api to get location from google api every 20 updates of location.
-    public void addNearbyLocationsToMap() {
+    private void addNearbyLocationsToMap() {
         if (updateCountDown == 0) {
             Location location = new Location("");
             location.setLongitude(userMarker.getPosition().longitude);
@@ -258,12 +255,8 @@ public class MapFragment extends Fragment {
     }
 
     //Marker onclick behavior, tell map activity to handle it.
-    public void onClickLocation(FoodieLocation location) {
+    private void onClickLocation(FoodieLocation location) {
         ((MapFragmentInterface) this.parentActivity).openLocationDetailView(location);
-    }
-
-    public void startRouteToLocation()
-    {
     }
 
 
