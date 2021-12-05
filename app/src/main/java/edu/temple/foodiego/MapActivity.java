@@ -333,8 +333,14 @@ public class MapActivity extends AppCompatActivity implements MapFragment.MapFra
                 max = locationRatings.get(f);
             }
         }
-        Log.d(TAG, "getRecommendation: found recommendation " + result.getName());
-        openLocationDetailView(result);
+        if (result != null) {
+            result.setName(FirebaseHelper.replaceCharAfterGet(result.getName()));
+            Log.d(TAG, "getRecommendation: found recommendation " + result.getName());
+            openLocationDetailView(result);
+        } else {
+            Log.d(TAG, "getRecommendation: failed to get recommendation");
+            Toast.makeText(this, "Unable to get recommendation, try again.", Toast.LENGTH_SHORT).show();
+        }
     }
     @Override
     public void getFriendsResult(ArrayList<FoodieUser> friends) {
