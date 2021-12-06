@@ -38,11 +38,9 @@ public class FirebaseHelper {
     private static FirebaseHelper instance;
     private static Context ctxt;
 
-    private FirebaseDatabase database;
 
     private FirebaseHelper(Context context) {
         ctxt = context;
-        this.database = FirebaseDatabase.getInstance();
     }
 
     public static synchronized FirebaseHelper getInstance(Context context) {
@@ -54,7 +52,7 @@ public class FirebaseHelper {
         return instance;
     }
 
-    public static void getNearbyLocations(Context context, Double radius, Location location) {
+    public void getNearbyLocations(Double radius, Location location) {
         StringRequest sq = new StringRequest(
                 Request.Method.GET,
                 //"https://maps.googleapis.com/maps/api/place/nearbysearch/json",
@@ -127,7 +125,7 @@ public class FirebaseHelper {
             @Override
             public String getBodyContentType() { return super.getBodyContentType(); }
         };
-        RequestQueue queue = Volley.newRequestQueue(context);
+        RequestQueue queue = Volley.newRequestQueue(ctxt);
         queue.add(sq);
     }
 

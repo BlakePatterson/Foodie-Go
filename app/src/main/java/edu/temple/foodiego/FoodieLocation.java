@@ -6,7 +6,6 @@ import com.google.android.gms.maps.model.Marker;
 
 public class FoodieLocation {
 
-    //TODO: update class diagram with proper attributes regarding rating
     private String key;
     private String name;
     private double latitude;

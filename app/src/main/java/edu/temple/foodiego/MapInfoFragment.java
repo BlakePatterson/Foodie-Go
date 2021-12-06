@@ -25,7 +25,6 @@ import androidx.fragment.app.Fragment;
 public class MapInfoFragment extends Fragment {
     public static final String USERNAME_PARAM_KEY = "mapInfoParam1";
 
-    private Context parentActivity;
     private TextView welcomeMessage;
     private String userName;
 

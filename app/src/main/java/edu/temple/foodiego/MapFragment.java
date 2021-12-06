@@ -32,6 +32,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import static android.content.ContentValues.TAG;
+
 public class MapFragment extends Fragment {
 
     public static final String USERNAME_PARAM_KEY = "mapParam1";
@@ -242,15 +244,12 @@ public class MapFragment extends Fragment {
         void openLocationDetailView(FoodieLocation location);
     }
 
-    // addNearbyLocationsToMap
-    // @No param
-    // call api to get location from google api every 20 updates of location.
-    public void addNearbyLocationsToMap() {
+    private void addNearbyLocationsToMap() {
         if (updateCountDown == 0) {
             Location location = new Location("");
             location.setLongitude(userMarker.getPosition().longitude);
             location.setLatitude(userMarker.getPosition().latitude);
-            FirebaseHelper.getNearbyLocations(getContext(), 2000.0,location);
+            FirebaseHelper.getInstance(parentActivity).getNearbyLocations(2000.0,location);
             updateCountDown = 3;
         } else {
             updateCountDown--;
@@ -258,12 +257,8 @@ public class MapFragment extends Fragment {
     }
 
     //Marker onclick behavior, tell map activity to handle it.
-    public void onClickLocation(FoodieLocation location) {
+    private void onClickLocation(FoodieLocation location) {
         ((MapFragmentInterface) this.parentActivity).openLocationDetailView(location);
-    }
-
-    public void startRouteToLocation()
-    {
     }
 
 
