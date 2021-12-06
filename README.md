@@ -15,15 +15,13 @@ Foodie-Go not only aims to eliminate the dread that busy foodies face when they 
 ## Screenshots
 
 ### Login Screen
+ <img src="screenshots/login_screen.png" alt="Login Screen" width="300"/>
 
 ### Map View
+<img src="screenshots/map_view.png" alt="Map View" width="300"/>
 
 ### Location Detail View
+<img src="screenshots/location_detail_view .png" alt="Location Detail View" width="300"/>
 
 ### Social Feed
-
-
-## Contributors
-Blake Patterson
-Alan Freeman
-Zhicheng Zhao
+<img src="screenshots/social_feed.png" alt="Social Feed" width="300"/>
