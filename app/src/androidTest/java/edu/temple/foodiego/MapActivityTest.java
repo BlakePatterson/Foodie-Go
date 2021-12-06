@@ -1,12 +1,16 @@
 package edu.temple.foodiego;
 
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 import androidx.test.runner.AndroidJUnit4;
@@ -15,10 +19,13 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.core.IsInstanceOf;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static android.content.Context.MODE_PRIVATE;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
@@ -36,7 +43,7 @@ import static org.hamcrest.Matchers.allOf;
 public class MapActivityTest {
 
     @Rule
-    public ActivityTestRule<LoginActivity> mActivityTestRule = new ActivityTestRule<>(LoginActivity.class);
+    public ActivityTestRule<LoginActivity> mActivityTestRule = new ActivityTestRule<>(LoginActivity.class, false, false);
 
     @Rule
     public GrantPermissionRule mGrantPermissionRule =
@@ -45,6 +52,9 @@ public class MapActivityTest {
 
     @Test
     public void mapActivityTest() {
+        clearSharedPreferences();
+        mActivityTestRule.launchActivity(new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(), LoginActivity.class));
+
         ViewInteraction appCompatEditText = onView(
                 allOf(withId(R.id.usernameEditText),
                         childAtPosition(
@@ -103,6 +113,8 @@ public class MapActivityTest {
                         withParent(withParent(withId(R.id.action_bar))),
                         isDisplayed()));
         imageView.check(matches(isDisplayed()));
+
+        clearSharedPreferences();
     }
 
     private static Matcher<View> childAtPosition(
@@ -122,5 +134,16 @@ public class MapActivityTest {
                         && view.equals(((ViewGroup) parent).getChildAt(position));
             }
         };
+    }
+
+    @Before
+    @After
+    public void clearSharedPreferences() {
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        SharedPreferences preferences = context.getSharedPreferences(context.getString(R.string.credentials_preferences), MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+        editor.commit();
     }
 }
