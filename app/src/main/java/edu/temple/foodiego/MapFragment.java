@@ -32,6 +32,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import static android.content.ContentValues.TAG;
+
 public class MapFragment extends Fragment {
 
     public static final String USERNAME_PARAM_KEY = "mapParam1";
@@ -247,7 +249,7 @@ public class MapFragment extends Fragment {
             Location location = new Location("");
             location.setLongitude(userMarker.getPosition().longitude);
             location.setLatitude(userMarker.getPosition().latitude);
-            FirebaseHelper.getNearbyLocations(getContext(), 2000.0,location);
+            FirebaseHelper.getInstance(parentActivity).getNearbyLocations(2000.0,location);
             updateCountDown = 3;
         } else {
             updateCountDown--;
